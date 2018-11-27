@@ -72,13 +72,13 @@ namespace Utility
             return SetInternal(instance, member, value);
         }
 
-        public static bool Call([AllowNull] object instance, Type type, string name, [AllowNull] out object result,
-            object[] args)
+        public static bool Call([AllowNull] object instance, Type type, string name, object[] arguments,
+            [AllowNull] out object result)
         {
-            var types = args.Select((current) => current?.GetType()).ToArray();
+            var types = GetTypes(arguments);
             if (GetMethod(type, instance != null, name, types) is MethodInfo method)
             {
-                result = method.Invoke(instance, args);
+                result = method.Invoke(instance, arguments);
                 return true;
             }
 
@@ -388,7 +388,13 @@ namespace Utility
 
         static Type[] GetTypes(object[] objects)
         {
-            return objects.Select((current) => current?.GetType()).ToArray();
+            var types = new Type[objects.Length];
+            for (var i = 0; i < types.Length; i++)
+            {
+                types[i] = objects[i]?.GetType();
+            }
+
+            return types;
         }
     }
 }

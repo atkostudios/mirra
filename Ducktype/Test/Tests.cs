@@ -78,8 +78,9 @@ namespace Ducktype
             Console.WriteLine(sum);
             Console.WriteLine();
 
-            var list = new List<int> { 1, 2};
+            var list = new List<int> {1, 2};
             var accessor = new Duck(list);
+            Console.WriteLine(new Duck(typeof(List<int>)).GetImplementation(typeof(List<>)));
 
             Console.WriteLine(accessor.Get("Count"));
             Console.WriteLine(accessor.Get("Count"));

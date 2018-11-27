@@ -115,7 +115,7 @@ namespace Ducktype
         [return: AllowNull]
         public object Call(string name, params object[] arguments)
         {
-            if (TypeProcessor.Call(Instance, Type, name, out var result, arguments))
+            if (TypeProcessor.Call(Instance, Type, name, arguments, out var result))
             {
                 return result;
             }
