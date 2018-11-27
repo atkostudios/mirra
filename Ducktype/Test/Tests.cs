@@ -7,6 +7,16 @@ namespace Ducktype
     [TestFixture]
     public class Tests
     {
+        static class Static
+        {
+            static int Number { get; }
+
+            static int Method(int number)
+            {
+                return number + 1;
+            }
+        }
+
         class Dan
         {
             int Height { get; }

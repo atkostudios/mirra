@@ -25,8 +25,10 @@ namespace Ducktype
         ");
 
         /// <summary>
-        /// The underlying object the <see cref="Duck"/> is accessing.
+        /// The underlying object the <see cref="Duck"/> is accessing. This property is null if the <see cref="Duck"/>
+        /// wraps a type and not an instance.
         /// </summary>
+        [AllowNull]
         public object Instance { get; }
 
         /// <summary>
@@ -36,15 +38,15 @@ namespace Ducktype
 
         /// <inheritdoc />
         /// <summary>
-        /// Create a <see cref="T:Ducktype.Duck" /> wrapper over the provided object instance. The instance will be duck
-        /// typed to its true type.
+        /// Create a <see cref="T:Ducktype.Duck" /> instance wrapper over the provided object instance. The instance
+        /// will be duck typed to its true type.
         /// </summary>
         /// <param name="instance">The object to duck type.</param>
         public Duck(object instance) : this(instance, instance.GetType()) { }
 
         /// <summary>
-        /// Create a <see cref="Duck"/> wrapper over the provided object instance. The instance will be duck typed
-        /// to the specified type.
+        /// Create a <see cref="Duck"/> instance wrapper over the provided object instance. The instance will be duck
+        /// typed to the specified type.
         /// </summary>
         /// <param name="instance">The object to duck type.</param>
         /// <param name="type">The type to duck type the object to.</param>
@@ -58,6 +60,16 @@ namespace Ducktype
 
             Instance = instance;
             Type = implementation;
+        }
+
+        /// <summary>
+        /// Create a <see cref="Duck"/> static wrapper over the provided type's static members.
+        /// </summary>
+        /// <param name="type">The type to duck type.</param>
+        public Duck(Type type)
+        {
+            Instance = null;
+            Type = type;
         }
 
         /// <summary>
@@ -137,6 +149,11 @@ namespace Ducktype
 
                 throw new DucktypeException();
             }
+        }
+
+        public Type GetImplementation(Type type)
+        {
+            return TypeProcessor.GetImplementation(Type, type);
         }
     }
 }
