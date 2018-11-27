@@ -51,7 +51,7 @@ namespace Utility
 
         public static bool Get([AllowNull] object instance, Type type, string name, [AllowNull] out object value)
         {
-            var member = GetFieldOrProperty(type, false, name);
+            var member = GetFieldOrProperty(type, instance != null, name);
             if (member == null)
             {
                 value = null;
@@ -63,7 +63,7 @@ namespace Utility
 
         public static bool Set([AllowNull] object instance, Type type, string name, object value)
         {
-            var member = GetFieldOrProperty(type, false, name);
+            var member = GetFieldOrProperty(type, instance != null, name);
             if (member == null)
             {
                 return false;
