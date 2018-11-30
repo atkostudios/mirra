@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Ducktype;
 using NullGuard;
 
 using static System.Reflection.BindingFlags;
 
 namespace Utility
 {
-    static class TypeProcessor
+    static class ReflectionUtility
     {
         public const BindingFlags InstanceBinding = Instance | Public | NonPublic | DeclaredOnly;
         public const BindingFlags StaticBinding = Static | Public | NonPublic | DeclaredOnly;
@@ -170,6 +171,71 @@ namespace Utility
             {
                 return GetImplementationInternal(input.Item1, input.Item2);
             });
+        }
+
+        public static MethodModel[] GetMethods(Type type)
+        {
+            var models = new List<MethodModel>();
+            foreach (var ancestor in Inheritance(type))
+            {
+                var instanceMembers = ancestor
+                    .GetMethods(InstanceBinding)
+                    .Select((current) => new MethodModel(current, true));
+                var staticMembers = ancestor
+                    .GetMethods(StaticBinding)
+                    .Select((current) => new MethodModel(current, false));
+                var interfaceMembers = ancestor.GetInterfaces()
+                    .SelectMany((current) => current.GetMethods(InstanceBinding))
+                    .Select((current) => new MethodModel(current, true));
+
+                models.AddRange(instanceMembers);
+                models.AddRange(interfaceMembers);
+                models.AddRange(staticMembers);
+            }
+
+            return GetUnique(models);
+        }
+
+        public static PropertyModel[] GetProperties(Type type)
+        {
+            var models = new List<PropertyModel>();
+            foreach (var ancestor in Inheritance(type))
+            {
+                var instanceMembers = ancestor
+                    .GetProperties(InstanceBinding)
+                    .Select((current) => new PropertyModel(current, true));
+                var staticMembers = ancestor
+                    .GetProperties(StaticBinding)
+                    .Select((current) => new PropertyModel(current, false));
+                var interfaceMembers = ancestor.GetInterfaces()
+                    .SelectMany((current) => current.GetProperties(InstanceBinding))
+                    .Select((current) => new PropertyModel(current, true));
+
+                models.AddRange(instanceMembers);
+                models.AddRange(interfaceMembers);
+                models.AddRange(staticMembers);
+            }
+
+            return GetUnique(models);
+        }
+
+        public static FieldModel[] GetFields(Type type)
+        {
+            var models = new List<FieldModel>();
+            foreach (var ancestor in Inheritance(type))
+            {
+                var instanceMembers = ancestor
+                    .GetFields(InstanceBinding)
+                    .Select((current) => new FieldModel(current, true));
+                var staticMembers = ancestor
+                    .GetFields(StaticBinding)
+                    .Select((current) => new FieldModel(current, false));
+
+                models.AddRange(instanceMembers);
+                models.AddRange(staticMembers);
+            }
+
+            return GetUnique(models);
         }
 
         static bool GetInternal([AllowNull] object instance, MemberInfo member, [AllowNull] out object value)
@@ -395,6 +461,21 @@ namespace Utility
             }
 
             return types;
+        }
+
+        static T[] GetUnique<T>(IEnumerable<T> models) where T : MemberModel
+        {
+            var seen = new HashSet<MemberInfo>();
+            var unique = new List<T>();
+            foreach (var model in models)
+            {
+                if (seen.Add(model.Member))
+                {
+                    unique.Add(model);
+                }
+            }
+
+            return unique.ToArray();
         }
     }
 }

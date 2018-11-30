@@ -52,7 +52,7 @@ namespace Ducktype
         /// <param name="type">The type to duck type the object to.</param>
         public Duck(object instance, Type type)
         {
-            var implementation = TypeProcessor.GetImplementation(instance.GetType(), type);
+            var implementation = ReflectionUtility.GetImplementation(instance.GetType(), type);
             if (implementation == null)
             {
                 throw new DucktypeException(string.Format(DuckTypeErrorMessage, instance.GetType(), type));
@@ -81,7 +81,7 @@ namespace Ducktype
         [return: AllowNull]
         public object Get(string name)
         {
-            if (TypeProcessor.Get(Instance, Type, name, out var value))
+            if (ReflectionUtility.Get(Instance, Type, name, out var value))
             {
                 return value;
             }
@@ -97,7 +97,7 @@ namespace Ducktype
         /// <exception cref="DucktypeException">Thrown when the field or property cannot be set.</exception>
         public void Set(string name, [AllowNull] object value)
         {
-            if (TypeProcessor.Set(Instance, Type, name, value))
+            if (ReflectionUtility.Set(Instance, Type, name, value))
             {
                 return;
             }
@@ -115,7 +115,7 @@ namespace Ducktype
         [return: AllowNull]
         public object Call(string name, params object[] arguments)
         {
-            if (TypeProcessor.Call(Instance, Type, name, arguments, out var result))
+            if (ReflectionUtility.Call(Instance, Type, name, arguments, out var result))
             {
                 return result;
             }
@@ -133,7 +133,7 @@ namespace Ducktype
         {
             get
             {
-                if (TypeProcessor.GetElement(Instance, Type, index, out var value))
+                if (ReflectionUtility.GetElement(Instance, Type, index, out var value))
                 {
                     return value;
                 }
@@ -142,7 +142,7 @@ namespace Ducktype
             }
             set
             {
-                if (TypeProcessor.SetElement(Instance, Type, index, value))
+                if (ReflectionUtility.SetElement(Instance, Type, index, value))
                 {
                     return;
                 }
@@ -153,7 +153,7 @@ namespace Ducktype
 
         public Type GetImplementation(Type type)
         {
-            return TypeProcessor.GetImplementation(Type, type);
+            return ReflectionUtility.GetImplementation(Type, type);
         }
     }
 }
