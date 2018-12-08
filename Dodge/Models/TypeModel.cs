@@ -98,6 +98,7 @@ namespace Atko.Dodge.Models
             return model;
         }
 
+        [return: AllowNull]
         public MethodModel GetMethod(string name, params Type[] types)
         {
             var method = TypeUtility.GetMethod(Type, true, name, types) ??
