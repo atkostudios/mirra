@@ -20,7 +20,7 @@ namespace Atko.Dodge.Models
 
         public FieldInfo Field => (FieldInfo) Member;
 
-        public FieldModel(Type owner, FieldInfo member) : base(owner, member)
+        FieldModel(Type owner, FieldInfo member) : base(owner, member)
         {
             IsBacking = TypeUtility.IsBackingField(Field);
         }
