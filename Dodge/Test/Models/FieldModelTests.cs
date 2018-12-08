@@ -1,8 +1,9 @@
 using Atko.Dodge.Models;
+using Atko.Dodge.Test.Utility;
 using NullGuard;
 using NUnit.Framework;
 
-namespace Atko.Dodge.Test
+namespace Atko.Dodge.Test.Models
 {
     [TestFixture]
     public class FieldModelTests
