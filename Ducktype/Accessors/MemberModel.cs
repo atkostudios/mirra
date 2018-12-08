@@ -1,15 +1,16 @@
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Utility;
 
 namespace Ducktype.Models
 {
     public abstract class MemberModel
     {
-        public string Name => Member.Name;
+        public string Name { get; }
 
-        public bool IsInstance => !IsStatic;
         public bool IsStatic { get; }
+        public bool IsCompilerGenerated { get; }
 
         public abstract bool IsPublic { get; }
 
@@ -18,12 +19,14 @@ namespace Ducktype.Models
         protected MemberModel(Type owner, MemberInfo member)
         {
             Member = member;
+            Name = Member.Name.SubstringAfterLast(".");
             IsStatic = TypeUtility.IsStatic(member);
+            IsCompilerGenerated = Member.IsDefined(typeof(CompilerGeneratedAttribute));
         }
 
         protected void AssertInstanceMatches(object instance)
         {
-            if (instance == null && IsInstance)
+            if (instance == null && !IsStatic)
             {
                 throw new DucktypeException("Attempted to use instance member with null instance.");
             }

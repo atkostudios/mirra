@@ -10,26 +10,26 @@ namespace Ducktype.Models
         public abstract bool CanSet { get; }
 
         InstanceGetInvoker InstanceGetInvoker =>
-            IsInstance
-                ? instanceGetInvoker ??
-                  (instanceGetInvoker = CodeGenerator.InstanceGetter(Member))
-                : null;
+            IsStatic
+                ? null
+                : instanceGetInvoker ??
+                  (instanceGetInvoker = CodeGenerator.InstanceGetter(Member));
 
         InstanceSetInvoker InstanceSetInvoker =>
-            IsInstance
-                ? instanceSetInvoker ??
-                  (instanceSetInvoker = CodeGenerator.InstanceSetter(Member))
-                : null;
+            IsStatic
+                ? null
+                : instanceSetInvoker ??
+                  (instanceSetInvoker = CodeGenerator.InstanceSetter(Member));
 
         StaticGetInvoker StaticGetInvoker =>
-            IsInstance
-                ? null
-                : staticGetInvoker ?? (staticGetInvoker = CodeGenerator.StaticGetter(Member));
+            IsStatic
+                ? staticGetInvoker ?? (staticGetInvoker = CodeGenerator.StaticGetter(Member))
+                : null;
 
         StaticSetInvoker StaticSetInvoker =>
-            IsInstance
-                ? null
-                : staticSetInvoker ?? (staticSetInvoker = CodeGenerator.StaticSetter(Member));
+            IsStatic
+                ? staticSetInvoker ?? (staticSetInvoker = CodeGenerator.StaticSetter(Member))
+                : null;
 
         InstanceGetInvoker instanceGetInvoker;
         InstanceSetInvoker instanceSetInvoker;
@@ -37,7 +37,7 @@ namespace Ducktype.Models
         StaticSetInvoker staticSetInvoker;
 
         protected AccessorModel(Type owner, PropertyInfo property) : base(owner, property) { }
-        protected AccessorModel(Type owner, FieldInfo property) : base(owner, property) { }
+        protected AccessorModel(Type owner, FieldInfo member) : base(owner, member) { }
 
         AccessorModel(Type owner, MemberInfo member) : base(owner, member) { }
 

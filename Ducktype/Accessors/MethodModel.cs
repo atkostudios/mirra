@@ -33,16 +33,7 @@ namespace Ducktype.Models
             AssertInstanceMatches(instance);
             try
             {
-                if (IsInstance)
-                {
-                    var function = InstanceInvokers.GetOrAdd(arguments.Length, (count) =>
-                    {
-                        return CodeGenerator.InstanceMethod(Method, count);
-                    });
-
-                    return function.Invoke(instance, arguments);
-                }
-                else
+                if (IsStatic)
                 {
                     var function = StaticInvokers.GetOrAdd(arguments.Length, (count) =>
                     {
@@ -50,6 +41,15 @@ namespace Ducktype.Models
                     });
 
                     return function.Invoke(arguments);
+                }
+                else
+                {
+                    var function = InstanceInvokers.GetOrAdd(arguments.Length, (count) =>
+                    {
+                        return CodeGenerator.InstanceMethod(Method, count);
+                    });
+
+                    return function.Invoke(instance, arguments);
                 }
             }
             catch (Exception exception)

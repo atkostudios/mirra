@@ -28,7 +28,7 @@ namespace Ducktype.Models
 
         Lazy<FieldModel> LazyBackingField { get; }
 
-        PropertyInfo Property { get; }
+        public PropertyInfo Property => (PropertyInfo) Member;
 
         PropertyModel(Type owner, PropertyInfo property) : base(owner, property)
         {

@@ -3,3 +3,6 @@ packages
 
 Ducktype/bin
 Ducktype/obj
+Ducktype/Test/Playground.cs
+
+.DS_Store

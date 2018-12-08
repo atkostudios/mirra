@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -29,10 +28,11 @@ namespace Ducktype.Models
 
         public Type Type { get; }
 
-        public IEnumerable<MethodModel> Methods => MethodArray.Select((current) => current);
-        public IEnumerable<PropertyModel> Properties => PropertyArray.Select((current) => current);
-        public IEnumerable<FieldModel> Fields => FieldArray.Select((current) => current);
-        public IEnumerable<AccessorModel> Accessors => AccessorArray.Select((current) => current);
+        public IEnumerable<ConstructorModel> Constructors => ConstructorArray.Iterate();
+        public IEnumerable<MethodModel> Methods => MethodArray.Iterate();
+        public IEnumerable<PropertyModel> Properties => PropertyArray.Iterate();
+        public IEnumerable<FieldModel> Fields => FieldArray.Iterate();
+        public IEnumerable<AccessorModel> Accessors => AccessorArray.Iterate();
 
         ConstructorModel[] ConstructorArray { get; }
         MethodModel[] MethodArray { get; }
@@ -42,7 +42,6 @@ namespace Ducktype.Models
 
         Dictionary<ConstructorInfo, ConstructorModel> ConstructorMap { get; } =
             new Dictionary<ConstructorInfo, ConstructorModel>();
-
         Dictionary<MethodInfo, MethodModel> MethodMap { get; } = new Dictionary<MethodInfo, MethodModel>();
         Dictionary<string, PropertyModel> PropertyMap { get; } = new Dictionary<string, PropertyModel>();
         Dictionary<string, FieldModel> FieldMap { get; } = new Dictionary<string, FieldModel>();
@@ -244,17 +243,19 @@ namespace Ducktype.Models
 
         T[] GetUnique<T>(IEnumerable<T> accessors) where T : MemberModel
         {
-            var seen = new HashSet<MemberInfo>();
+            var seen = new HashSet<string>();
             var unique = new List<T>();
-            foreach (var accessor in accessors)
+            foreach (var accessor in accessors.Reverse())
             {
-                if (seen.Add(accessor.Member))
+                if (seen.Add(accessor.Name))
                 {
                     unique.Add(accessor);
                 }
             }
 
-            return unique.ToArray();
+            var array = unique.ToArray();
+            Array.Reverse(array);
+            return array;
         }
     }
 }

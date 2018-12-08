@@ -2,7 +2,7 @@ using System;
 
 namespace Ducktype.Models
 {
-    public static class AccessorExtensions
+    public static class TypeModelExtensions
     {
         public static TypeModel Model(this object obj)
         {
