@@ -6,8 +6,6 @@ namespace Atko.Dodge.Tests.Models
     [TestFixture]
     class ConstructorModelTests
     {
-        #pragma warning disable 169
-
         public class First { }
 
         public class Second
@@ -20,7 +18,17 @@ namespace Atko.Dodge.Tests.Models
             }
         }
 
-        #pragma warning restore 169
+        public class Third
+        {
+            public string Name { get; }
+            public int[] Values { get; }
+
+            public Third(string name, params int[] values)
+            {
+                Name = name;
+                Values = values;
+            }
+        }
 
         [Test]
         public void TestDefaultConstructor()
@@ -37,6 +45,25 @@ namespace Atko.Dodge.Tests.Models
             var instance = model.Call(1);
             Assert.IsInstanceOf<Second>(instance);
             Assert.AreEqual(((Second) instance).Value, 1);
+
+            Assert.Throws<DodgeInvocationException>(() => model.Call());
+            Assert.Throws<DodgeInvocationException>(() => model.Call((object) null));
+            Assert.Throws<DodgeInvocationException>(() => model.Call("string"));
+        }
+
+        [Test]
+        public void TestParamsArgumentConstructor()
+        {
+            var model = typeof(Third).Model().Constructor(typeof(string), typeof(int[]));
+            var instance = model.Call("Steve", new[] {1, 2, 3});
+            Assert.IsInstanceOf<Third>(instance);
+            Assert.AreEqual(((Third) instance).Name, "Steve");
+            Assert.AreEqual(((Third) instance).Values, new[] {1, 2, 3});
+
+            Assert.Throws<DodgeInvocationException>(() => model.Call());
+            Assert.Throws<DodgeInvocationException>(() => model.Call((object) null));
+            Assert.Throws<DodgeInvocationException>(() => model.Call("string"));
+            Assert.Throws<DodgeInvocationException>(() => model.Call("string", 1));
         }
     }
 }
