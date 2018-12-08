@@ -171,7 +171,7 @@ namespace Atko.Dodge.Models
         MethodModel[] GetMethods(Type type)
         {
             var models = new List<MethodModel>();
-            foreach (var ancestor in type.Inheritance().Reverse())
+            foreach (var ancestor in type.Inheritance())
             {
                 var instanceMembers = ancestor
                     .GetMethods(TypeUtility.InstanceBinding)
@@ -199,7 +199,7 @@ namespace Atko.Dodge.Models
         PropertyModel[] GetProperties(Type type)
         {
             var models = new List<PropertyModel>();
-            foreach (var ancestor in type.Inheritance().Reverse())
+            foreach (var ancestor in type.Inheritance())
             {
                 var instanceMembers = ancestor
                     .GetProperties(TypeUtility.InstanceBinding)
@@ -248,7 +248,7 @@ namespace Atko.Dodge.Models
         {
             var seen = new HashSet<string>();
             var unique = new List<T>();
-            foreach (var model in models.Reverse())
+            foreach (var model in models)
             {
                 if (seen.Add(model.Name))
                 {
@@ -256,9 +256,7 @@ namespace Atko.Dodge.Models
                 }
             }
 
-            var array = unique.ToArray();
-            Array.Reverse(array);
-            return array;
+            return unique.ToArray();
         }
     }
 }
