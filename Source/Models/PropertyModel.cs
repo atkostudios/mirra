@@ -18,8 +18,9 @@ namespace Atko.Dodge.Models
             return new PropertyModel(owner, property);
         }
 
-        public override bool IsPublic => (Property.GetMethod?.IsPublic ?? false) ||
-                                         (Property.SetMethod?.IsPublic ?? false);
+        public override bool IsPublic =>
+            (Property.GetMethod?.IsPublic ?? false) ||
+            (Property.SetMethod?.IsPublic ?? false);
 
         public override bool CanGet => Property.CanRead || BackingField != null;
         public override bool CanSet => Property.CanWrite;

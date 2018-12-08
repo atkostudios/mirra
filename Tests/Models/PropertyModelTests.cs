@@ -1,13 +1,32 @@
 using Atko.Dodge.Models;
-using Atko.Dodge.Test.Utility;
-using NullGuard;
 using NUnit.Framework;
 
-namespace Atko.Dodge.Test.Models
+namespace Atko.Dodge.Tests.Models
 {
     [TestFixture]
-    public class PropertyModelTests
+    class PropertyModelTests
     {
+        public class Class
+        {
+            public static int PublicStaticAutoProperty { get; set; }
+            static int PrivateStaticAutoProperty { get; set; }
+
+            public static int PublicStaticGetOnlyAutoProperty { get; }
+            static int PrivateStaticGetOnlyAutoProperty { get; }
+
+            public static int PublicStaticGetOnlyProperty => 0;
+            static int PrivateStaticGetOnlyProperty => 0;
+
+            public int PublicAutoProperty { get; set; }
+            int PrivateAutoProperty { get; set; }
+
+            public int PublicGetOnlyAutoProperty { get; }
+            int PrivateGetOnlyAutoProperty { get; }
+
+            public int PublicGetOnlyProperty => 0;
+            int PrivateGetOnlyProperty => 0;
+        }
+
         [Test]
         [TestCase("PublicAutoProperty")]
         [TestCase("PrivateAutoProperty")]
@@ -17,8 +36,8 @@ namespace Atko.Dodge.Test.Models
         [TestCase("PrivateGetOnlyProperty")]
         public void TestInstance(string name)
         {
-            var instance = new TestClass();
-            var model = typeof(TestClass).Model().Property(name);
+            var instance = new Class();
+            var model = typeof(Class).Model().Property(name);
 
             Assert.AreEqual(model.Get(instance), 0);
 
@@ -45,17 +64,10 @@ namespace Atko.Dodge.Test.Models
         [TestCase("PrivateGetOnlyAutoProperty")]
         public void TestInstanceNullException(string name)
         {
-            var model = typeof(TestClass).Model().Property(name);
+            var model = typeof(Class).Model().Property(name);
 
-            Assert.Throws<DodgeInvocationException>(() =>
-            {
-                model.Get(null);
-            });
-
-            Assert.Throws<DodgeInvocationException>(() =>
-            {
-                model.Set(null, 1);
-            });
+            Assert.Throws<DodgeInvocationException>(() => model.Get(null));
+            Assert.Throws<DodgeInvocationException>(() => model.Set(null, 1));
         }
 
         [Test]
@@ -67,15 +79,12 @@ namespace Atko.Dodge.Test.Models
         [TestCase("PublicGetOnlyAutoProperty", "string")]
         [TestCase("PrivateGetOnlyAutoProperty", null)]
         [TestCase("PrivateGetOnlyAutoProperty", "string")]
-        public void TestInstanceArgumentException(string name, [AllowNull] object argument)
+        public void TestInstanceArgumentException(string name, object argument)
         {
-            var instance = new TestClass();
-            var model = typeof(TestClass).Model().Property(name);
+            var instance = new Class();
+            var model = typeof(Class).Model().Property(name);
 
-            Assert.Throws<DodgeInvocationException>(() =>
-            {
-                model.Set(instance, argument);
-            });
+            Assert.Throws<DodgeInvocationException>(() => model.Set(instance, argument));
         }
 
         [Test]
@@ -87,7 +96,7 @@ namespace Atko.Dodge.Test.Models
         [TestCase("PrivateStaticGetOnlyProperty")]
         public void TestStatic(string name)
         {
-            var model = typeof(TestClass).Model().Property(name);
+            var model = typeof(Class).Model().Property(name);
 
             Assert.AreEqual(model.Get(null), 0);
 
@@ -114,18 +123,11 @@ namespace Atko.Dodge.Test.Models
         [TestCase("PrivateStaticGetOnlyAutoProperty")]
         public void TestStaticNotNullException(string name)
         {
-            var instance = new TestClass();
-            var model = typeof(TestClass).Model().Property(name);
+            var instance = new Class();
+            var model = typeof(Class).Model().Property(name);
 
-            Assert.Throws<DodgeInvocationException>(() =>
-            {
-                model.Get(instance);
-            });
-
-            Assert.Throws<DodgeInvocationException>(() =>
-            {
-                model.Set(instance, 1);
-            });
+            Assert.Throws<DodgeInvocationException>(() => model.Get(instance));
+            Assert.Throws<DodgeInvocationException>(() => model.Set(instance, 1));
         }
 
         [Test]
@@ -137,14 +139,11 @@ namespace Atko.Dodge.Test.Models
         [TestCase("PublicStaticGetOnlyAutoProperty", "string")]
         [TestCase("PrivateStaticGetOnlyAutoProperty", null)]
         [TestCase("PrivateStaticGetOnlyAutoProperty", "string")]
-        public void TestStaticArgumentException(string name, [AllowNull] object argument)
+        public void TestStaticArgumentException(string name, object argument)
         {
-            var model = typeof(TestClass).Model().Property(name);
+            var model = typeof(Class).Model().Property(name);
 
-            Assert.Throws<DodgeInvocationException>(() =>
-            {
-                model.Set(null, argument);
-            });
+            Assert.Throws<DodgeInvocationException>(() => model.Set(null, argument));
         }
     }
 }

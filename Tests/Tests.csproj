@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProjectGuid>{01BD43FE-C4BB-4585-BEB2-C72A9C2E0096}</ProjectGuid>
+        <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+        <OutputType>Library</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>Atko.Dodge.Tests</RootNamespace>
+        <AssemblyName>Tests</AssemblyName>
+        <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+        <FileAlignment>512</FileAlignment>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <!--*************************************************************************************************************-->
+    <!-- Package Check -->
+    <!--*************************************************************************************************************-->
+    <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+        <PropertyGroup>
+            <ErrorText>Please restore Nuget packages. Missing Nuget package file at '{0}'.</ErrorText>
+        </PropertyGroup>
+    </Target>
+    <!--*************************************************************************************************************-->
+    <!-- Imports -->
+    <!--*************************************************************************************************************-->
+    <ImportGroup>
+        <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+        <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+    </ImportGroup>
+    <!--*************************************************************************************************************-->
+    <!-- References -->
+    <!--*************************************************************************************************************-->
+    <ItemGroup>
+        <Reference Include="System"/>
+        <Reference Include="nunit.framework, Version=3.5.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb">
+            <HintPath>..\packages\NUnit.3.5.0\lib\net45\nunit.framework.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    <!--*************************************************************************************************************-->
+    <!-- Project References -->
+    <!--*************************************************************************************************************-->
+    <ItemGroup>
+        <ProjectReference Include="..\Source\Source.csproj">
+            <Project>{7a0021be-ad31-45b2-bbde-e40ae4d8284a}</Project>
+            <Name>Source</Name>
+        </ProjectReference>
+    </ItemGroup>
+    <!--*************************************************************************************************************-->
+    <!-- Source Files -->
+    <!--*************************************************************************************************************-->
+    <ItemGroup>
+        <Compile Include="**/*.cs"/>
+    </ItemGroup>
+    <!--*************************************************************************************************************-->
+    <!-- Other Files -->
+    <!--*************************************************************************************************************-->
+    <ItemGroup>
+        <None Include="packages.config"/>
+    </ItemGroup>
+</Project>
