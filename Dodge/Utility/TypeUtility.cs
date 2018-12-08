@@ -8,8 +8,11 @@ namespace Atko.Dodge.Utility
 {
     static class TypeUtility
     {
-        public const BindingFlags InstanceBinding = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
-        public const BindingFlags StaticBinding = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+        public const BindingFlags InstanceBinding =
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+
+        public const BindingFlags StaticBinding = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic |
+                                                  BindingFlags.DeclaredOnly;
 
         const string BackingFieldPrefix = "<";
         const string BackingFieldSuffix = ">k__BackingField";
@@ -19,10 +22,13 @@ namespace Atko.Dodge.Utility
 
         static Cache<(Type, bool, string), FieldInfo> FieldCache { get; } =
             new Cache<(Type, bool, string), FieldInfo>();
+
         static Cache<(Type, bool, string, ArrayHash<Type>), PropertyInfo> PropertyCache { get; } =
             new Cache<(Type, bool, string, ArrayHash<Type>), PropertyInfo>();
+
         static Cache<(Type, bool, string, ArrayHash<Type>), MethodInfo> MethodCache { get; } =
             new Cache<(Type, bool, string, ArrayHash<Type>), MethodInfo>();
+
         static Cache<(Type, ArrayHash<Type>), ConstructorInfo> ConstructorCache { get; } =
             new Cache<(Type, ArrayHash<Type>), ConstructorInfo>();
 
@@ -113,56 +119,43 @@ namespace Atko.Dodge.Utility
         [return: AllowNull]
         public static MemberInfo GetAccessor(Type type, bool instance, string name)
         {
-            return GetAccessorCache.GetOrAdd((type, instance, name), (input) =>
-            {
-                return GetAccessorInternal(input.Item1, input.Item2, input.Item3);
-            });
+            return GetAccessorCache.GetOrAdd((type, instance, name),
+                (input) => { return GetAccessorInternal(input.Item1, input.Item2, input.Item3); });
         }
 
         [return: AllowNull]
         public static FieldInfo GetField(Type type, bool instance, string name)
         {
-            return FieldCache.GetOrAdd((type, instance, name), (input) =>
-            {
-                return GetFieldInternal(input.Item1, input.Item2, input.Item3);
-            });
+            return FieldCache.GetOrAdd((type, instance, name),
+                (input) => { return GetFieldInternal(input.Item1, input.Item2, input.Item3); });
         }
 
         [return: AllowNull]
         public static PropertyInfo GetProperty(Type type, bool instance, string name, Type[] types = null)
         {
             return PropertyCache.GetOrAdd((type, instance, name, new ArrayHash<Type>(types ?? Array.Empty<Type>())),
-                (input) =>
-                {
-                    return GetPropertyInternal(input.Item1, input.Item2, input.Item3, input.Item4.Array);
-                });
+                (input) => { return GetPropertyInternal(input.Item1, input.Item2, input.Item3, input.Item4.Array); });
         }
 
         [return: AllowNull]
         public static MethodInfo GetMethod(Type type, bool instance, string name, Type[] types)
         {
-            return MethodCache.GetOrAdd((type, instance, name, new ArrayHash<Type>(types)), (input) =>
-            {
-                return GetMethodInternal(input.Item1, input.Item2, input.Item3, input.Item4.Array);
-            });
+            return MethodCache.GetOrAdd((type, instance, name, new ArrayHash<Type>(types)),
+                (input) => { return GetMethodInternal(input.Item1, input.Item2, input.Item3, input.Item4.Array); });
         }
 
         [return: AllowNull]
         public static ConstructorInfo GetConstructor(Type type, Type[] types)
         {
-            return ConstructorCache.GetOrAdd((type, new ArrayHash<Type>(types)), (input) =>
-            {
-                return GetConstructorInternal(input.Item1, input.Item2.Array);
-            });
+            return ConstructorCache.GetOrAdd((type, new ArrayHash<Type>(types)),
+                (input) => { return GetConstructorInternal(input.Item1, input.Item2.Array); });
         }
 
         [return: AllowNull]
         public static FieldInfo GetBackingField(PropertyInfo property, bool instance)
         {
-            return BackingFieldCache.GetOrAdd((property, instance), (input) =>
-            {
-                return GetBackingFieldInternal(input.Item1, input.Item2);
-            });
+            return BackingFieldCache.GetOrAdd((property, instance),
+                (input) => { return GetBackingFieldInternal(input.Item1, input.Item2); });
         }
 
         [return: AllowNull]
@@ -173,10 +166,8 @@ namespace Atko.Dodge.Utility
                 return type;
             }
 
-            return ImplementationCache.GetOrAdd((type, generic), (input) =>
-            {
-                return GetImplementationInternal(input.Item1, input.Item2);
-            });
+            return ImplementationCache.GetOrAdd((type, generic),
+                (input) => { return GetImplementationInternal(input.Item1, input.Item2); });
         }
 
         public static bool GetInternal([AllowNull] object instance, MemberInfo member, [AllowNull] out object value)

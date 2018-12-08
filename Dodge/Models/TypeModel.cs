@@ -42,6 +42,7 @@ namespace Atko.Dodge.Models
 
         Dictionary<ConstructorInfo, ConstructorModel> ConstructorMap { get; } =
             new Dictionary<ConstructorInfo, ConstructorModel>();
+
         Dictionary<MethodInfo, MethodModel> MethodMap { get; } = new Dictionary<MethodInfo, MethodModel>();
         Dictionary<string, PropertyModel> PropertyMap { get; } = new Dictionary<string, PropertyModel>();
         Dictionary<string, FieldModel> FieldMap { get; } = new Dictionary<string, FieldModel>();
@@ -101,6 +102,7 @@ namespace Atko.Dodge.Models
         {
             var method = TypeUtility.GetMethod(Type, true, name, types) ??
                          TypeUtility.GetMethod(Type, false, name, types);
+
             if (method == null)
             {
                 return null;

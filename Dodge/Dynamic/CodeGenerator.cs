@@ -36,6 +36,7 @@ namespace Atko.Dodge.Dynamic
                 {
                     generator.Emit(OpCodes.Box, field.FieldType);
                 }
+
                 generator.Emit(OpCodes.Castclass, typeof(object));
                 generator.Emit(OpCodes.Ret);
             }
@@ -46,7 +47,9 @@ namespace Atko.Dodge.Dynamic
         public static InstanceGetInvoker InstanceFieldSetter(FieldInfo field)
         {
             var name = $"__GENERIC_SET__{field.Name}";
-            var method = new DynamicMethod(name, typeof(void), new[] {typeof(object), typeof(object)}, field.DeclaringType, true);
+            var method = new DynamicMethod(name, typeof(void), new[] {typeof(object), typeof(object)},
+                field.DeclaringType, true);
+
             var generator = method.GetILGenerator();
 
             {
@@ -61,12 +64,12 @@ namespace Atko.Dodge.Dynamic
                 {
                     generator.Emit(OpCodes.Castclass, field.FieldType);
                 }
+
                 generator.Emit(OpCodes.Stfld, field);
                 generator.Emit(OpCodes.Ret);
             }
 
             return (InstanceGetInvoker) method.CreateDelegate(typeof(InstanceGetInvoker));
-
         }
 
         public static InstanceGetInvoker InstanceGetter(MemberInfo member)
@@ -101,7 +104,7 @@ namespace Atko.Dodge.Dynamic
             var accessExpression = GetAccessExpression(member);
             var assignmentExpression = Expression.Assign(accessExpression, valueParameter);
 
-            var parameters = new []
+            var parameters = new[]
             {
                 valueParameter
             };
@@ -144,7 +147,7 @@ namespace Atko.Dodge.Dynamic
             var callExpression = Expression.Call(null, method, argumentExpressions);
             var callExpressionCasted = Expression.Convert(callExpression, typeof(object));
 
-            var parameters = new []
+            var parameters = new[]
             {
                 argumentsParameter
             };
@@ -176,7 +179,7 @@ namespace Atko.Dodge.Dynamic
                 body = Expression.Convert(callExpression, typeof(object));
             }
 
-            var parameters = new []
+            var parameters = new[]
             {
                 instanceParameter,
                 argumentsParameter
@@ -192,7 +195,7 @@ namespace Atko.Dodge.Dynamic
             var newExpression = Expression.New(constructor, argumentExpressions);
             var body = Expression.Convert(newExpression, typeof(object));
 
-            var parameters = new []
+            var parameters = new[]
             {
                 argumentsParameter
             };

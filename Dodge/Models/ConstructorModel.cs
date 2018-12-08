@@ -29,10 +29,8 @@ namespace Atko.Dodge.Models
         {
             try
             {
-                var function = Invokers.GetOrAdd(arguments.Length, (count) =>
-                {
-                    return CodeGenerator.Constructor(Constructor, count);
-                });
+                var function = Invokers.GetOrAdd(arguments.Length,
+                    (count) => { return CodeGenerator.Constructor(Constructor, count); });
 
                 return function.Invoke(arguments);
             }
