@@ -8,10 +8,14 @@ namespace Atko.Dodge.Utility
 {
     static class TypeUtility
     {
-        public const BindingFlags InstanceBinding =
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+        public const BindingFlags InstanceBinding = BindingFlags.Instance |
+                                                    BindingFlags.Public |
+                                                    BindingFlags.NonPublic |
+                                                    BindingFlags.DeclaredOnly;
 
-        public const BindingFlags StaticBinding = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic |
+        public const BindingFlags StaticBinding = BindingFlags.Static |
+                                                  BindingFlags.Public |
+                                                  BindingFlags.NonPublic |
                                                   BindingFlags.DeclaredOnly;
 
         const string BackingFieldPrefix = "<";

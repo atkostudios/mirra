@@ -7,7 +7,6 @@ namespace Atko.Dodge.Utility
     {
         static Regex MultipleSpacesExpression { get; } = new Regex(@"\s\s+", RegexOptions.Compiled);
 
-
         public static string SubstringAfter(this string content, string substring)
         {
             var index = content.IndexOf(substring, StringComparison.Ordinal);
