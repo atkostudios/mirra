@@ -1,12 +1,11 @@
 using System;
 using System.Linq;
-using System.Reflection;
-using NullGuard;
-using Utility;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Reflection.Emit;
+using Atko.Dodge.Utility;
 
-namespace Ducktype.Models
+namespace Atko.Dodge.Dynamic
 {
     static class CodeGenerator
     {

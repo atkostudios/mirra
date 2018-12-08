@@ -1,8 +1,8 @@
 using System;
 using System.Reflection;
-using Utility;
+using Atko.Dodge.Utility;
 
-namespace Ducktype.Models
+namespace Atko.Dodge.Models
 {
     public class FieldModel : AccessorModel
     {
@@ -11,7 +11,7 @@ namespace Ducktype.Models
             return new FieldModel(owner, field);
         }
 
-        public override bool IsPublic { get; }
+        public override bool IsPublic => Field.IsPublic;
 
         public override bool CanGet => true;
         public override bool CanSet => true;

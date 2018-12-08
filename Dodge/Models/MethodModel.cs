@@ -1,10 +1,11 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Atko.Dodge.Dynamic;
+using Atko.Dodge.Utility;
 using NullGuard;
-using Utility;
 
-namespace Ducktype.Models
+namespace Atko.Dodge.Models
 {
     public class MethodModel : MemberModel
     {
@@ -54,7 +55,7 @@ namespace Ducktype.Models
             }
             catch (Exception exception)
             {
-                throw new DucktypeInvocationException(null, exception);
+                throw new DodgeInvocationException(null, exception);
             }
         }
     }

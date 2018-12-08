@@ -1,6 +1,6 @@
 using System;
 
-namespace Ducktype.Models
+namespace Atko.Dodge.Models
 {
     public static class TypeModelExtensions
     {

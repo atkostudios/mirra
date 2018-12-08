@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Utility
+namespace Atko.Dodge.Utility
 {
     public static class EnumerableUtility
     {

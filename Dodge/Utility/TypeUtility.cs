@@ -1,19 +1,15 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using NullGuard;
 
-using static System.Reflection.BindingFlags;
-
-namespace Utility
+namespace Atko.Dodge.Utility
 {
     static class TypeUtility
     {
-        public const BindingFlags InstanceBinding = Instance | Public | NonPublic | DeclaredOnly;
-        public const BindingFlags StaticBinding = Static | Public | NonPublic | DeclaredOnly;
+        public const BindingFlags InstanceBinding = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+        public const BindingFlags StaticBinding = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
         const string BackingFieldPrefix = "<";
         const string BackingFieldSuffix = ">k__BackingField";

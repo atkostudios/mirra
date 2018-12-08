@@ -1,8 +1,8 @@
 .idea
 packages
 
-Ducktype/bin
-Ducktype/obj
-Ducktype/Test/Playground.cs
+Dodge/bin
+Dodge/obj
+Dodge/Test/Playground.cs
 
 .DS_Store

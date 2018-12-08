@@ -1,14 +1,13 @@
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Utility;
+using Atko.Dodge.Utility;
 
-namespace Ducktype.Models
+namespace Atko.Dodge.Models
 {
     public abstract class MemberModel
     {
         public string Name { get; }
-
         public bool IsStatic { get; }
         public bool IsCompilerGenerated { get; }
 
@@ -28,12 +27,12 @@ namespace Ducktype.Models
         {
             if (instance == null && !IsStatic)
             {
-                throw new DucktypeException("Attempted to use instance member with null instance.");
+                throw new DodgeException("Attempted to use instance member with null instance.");
             }
 
             if (instance != null && IsStatic)
             {
-                throw new DucktypeException("Attempted to use static member with instance.");
+                throw new DodgeException("Attempted to use static member with instance.");
             }
         }
     }

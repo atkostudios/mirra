@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Atko.Dodge.Utility;
 using NullGuard;
-using Utility;
 
-namespace Ducktype.Models
+namespace Atko.Dodge.Models
 {
     public class TypeModel
     {
@@ -133,27 +133,27 @@ namespace Ducktype.Models
 
         public ConstructorModel Constructor(params Type[] types)
         {
-            return GetConstructor(types) ?? throw new DucktypeMissingMemberException();
+            return GetConstructor(types) ?? throw new DodgeMissingMemberException();
         }
 
         public MethodModel Method(string name, params Type[] types)
         {
-            return GetMethod(name, types) ?? throw new DucktypeMissingMemberException();
+            return GetMethod(name, types) ?? throw new DodgeMissingMemberException();
         }
 
         public PropertyModel Property(string name)
         {
-            return GetProperty(name) ?? throw new DucktypeMissingMemberException();
+            return GetProperty(name) ?? throw new DodgeMissingMemberException();
         }
 
         public FieldModel Field(string name)
         {
-            return GetField(name) ?? throw new DucktypeMissingMemberException();
+            return GetField(name) ?? throw new DodgeMissingMemberException();
         }
 
         public AccessorModel Accessor(string name)
         {
-            return GetAccessor(name) ?? throw new DucktypeMissingMemberException();
+            return GetAccessor(name) ?? throw new DodgeMissingMemberException();
         }
 
         ConstructorModel[] GetConstructors(Type type)

@@ -1,9 +1,9 @@
 using System;
 using System.Reflection;
+using Atko.Dodge.Utility;
 using NullGuard;
-using Utility;
 
-namespace Ducktype.Models
+namespace Atko.Dodge.Models
 {
     public class PropertyModel : AccessorModel
     {
@@ -26,9 +26,9 @@ namespace Ducktype.Models
         [AllowNull]
         public FieldModel BackingField => LazyBackingField.Value;
 
-        Lazy<FieldModel> LazyBackingField { get; }
-
         public PropertyInfo Property => (PropertyInfo) Member;
+
+        Lazy<FieldModel> LazyBackingField { get; }
 
         PropertyModel(Type owner, PropertyInfo property) : base(owner, property)
         {

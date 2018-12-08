@@ -1,8 +1,9 @@
 using System;
 using System.Reflection;
+using Atko.Dodge.Dynamic;
 using NullGuard;
 
-namespace Ducktype.Models
+namespace Atko.Dodge.Models
 {
     public abstract class AccessorModel : MemberModel
     {
@@ -58,7 +59,7 @@ namespace Ducktype.Models
             }
             catch (Exception exception)
             {
-                throw new DucktypeInvocationException(null, exception);
+                throw new DodgeInvocationException(null, exception);
             }
         }
 
@@ -71,7 +72,7 @@ namespace Ducktype.Models
             }
             catch (Exception exception)
             {
-                throw new DucktypeInvocationException(null, exception);
+                throw new DodgeInvocationException(null, exception);
             }
         }
     }

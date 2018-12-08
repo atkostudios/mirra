@@ -1,9 +1,10 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Utility;
+using Atko.Dodge.Dynamic;
+using Atko.Dodge.Utility;
 
-namespace Ducktype.Models
+namespace Atko.Dodge.Models
 {
     public class ConstructorModel : MemberModel
     {
@@ -37,7 +38,7 @@ namespace Ducktype.Models
             }
             catch (Exception exception)
             {
-                throw new DucktypeInvocationException(null, exception);
+                throw new DodgeInvocationException(null, exception);
             }
         }
     }
