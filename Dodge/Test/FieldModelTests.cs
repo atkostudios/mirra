@@ -13,7 +13,7 @@ namespace Atko.Dodge.Test
         public void TestInstance(string name)
         {
             var instance = new TestClass();
-            var model = typeof(TestClass).Model().GetField(name);
+            var model = typeof(TestClass).Model().Field(name);
 
             Assert.AreEqual(model.Get(instance), 0);
 
@@ -29,7 +29,7 @@ namespace Atko.Dodge.Test
         [TestCase("PrivateField")]
         public void TestInstanceNullException(string name)
         {
-            var model = typeof(TestClass).Model().GetField(name);
+            var model = typeof(TestClass).Model().Field(name);
 
             Assert.Throws<DodgeInvocationException>(() =>
             {
@@ -50,7 +50,7 @@ namespace Atko.Dodge.Test
         public void TestInstanceArgumentException(string name, [AllowNull] object argument)
         {
             var instance = new TestClass();
-            var model = typeof(TestClass).Model().GetField(name);
+            var model = typeof(TestClass).Model().Field(name);
 
             Assert.Throws<DodgeInvocationException>(() =>
             {
@@ -63,7 +63,7 @@ namespace Atko.Dodge.Test
         [TestCase("PrivateStaticField")]
         public void TestStatic(string name)
         {
-            var model = typeof(TestClass).Model().GetField(name);
+            var model = typeof(TestClass).Model().Field(name);
 
             Assert.AreEqual(model.Get(null), 0);
 
@@ -80,7 +80,7 @@ namespace Atko.Dodge.Test
         public void TestInstanceNotNullException(string name)
         {
             var instance = new TestClass();
-            var model = typeof(TestClass).Model().GetField(name);
+            var model = typeof(TestClass).Model().Field(name);
 
             Assert.Throws<DodgeInvocationException>(() =>
             {
@@ -100,7 +100,7 @@ namespace Atko.Dodge.Test
         [TestCase("PrivateStaticField", null)]
         public void TestStaticArgumentException(string name, [AllowNull] object argument)
         {
-            var model = typeof(TestClass).Model().GetField(name);
+            var model = typeof(TestClass).Model().Field(name);
 
             Assert.Throws<DodgeInvocationException>(() =>
             {

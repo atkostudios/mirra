@@ -210,7 +210,7 @@ namespace Atko.Dodge.Dynamic
                 var backing = TypeUtility.GetBackingField(property, castInstanceExpression != null);
                 if (backing != null)
                 {
-                    return Expression.Field(castInstanceExpression, backing.Name);
+                    return Expression.Field(castInstanceExpression, backing);
                 }
             }
 
