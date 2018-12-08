@@ -17,9 +17,9 @@ namespace Atko.Dodge.Dynamic
             }
 
             var accessExpression = GetAccessExpression(member);
-            var castedExpression = Expression.Convert(accessExpression, typeof(object));
+            var castAccessExpression = Expression.Convert(accessExpression, typeof(object));
 
-            return Expression.Lambda<StaticGetInvoker>(castedExpression).Compile();
+            return Expression.Lambda<StaticGetInvoker>(castAccessExpression).Compile();
         }
 
         public static InstanceGetInvoker InstanceFieldGetter(FieldInfo field)
@@ -101,8 +101,9 @@ namespace Atko.Dodge.Dynamic
             }
 
             var valueParameter = Expression.Parameter(typeof(object), "value");
+            var castValueParameter = Expression.Convert(valueParameter, TypeUtility.GetReturnType(member));
             var accessExpression = GetAccessExpression(member);
-            var assignmentExpression = Expression.Assign(accessExpression, valueParameter);
+            var assignmentExpression = Expression.Assign(accessExpression, castValueParameter);
 
             var parameters = new[]
             {
@@ -145,14 +146,14 @@ namespace Atko.Dodge.Dynamic
             var argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
             var argumentExpressions = GetMethodArgumentExpressions(method, argumentsParameter, argumentCount);
             var callExpression = Expression.Call(null, method, argumentExpressions);
-            var callExpressionCasted = Expression.Convert(callExpression, typeof(object));
+            var castedCallExpression = Expression.Convert(callExpression, typeof(object));
 
             var parameters = new[]
             {
                 argumentsParameter
             };
 
-            return Expression.Lambda<StaticMethodInvoker>(callExpressionCasted, parameters).Compile();
+            return Expression.Lambda<StaticMethodInvoker>(castedCallExpression, parameters).Compile();
         }
 
         public static InstanceMethodInvoker InstanceMethod(MethodInfo method, int argumentCount)
@@ -163,16 +164,15 @@ namespace Atko.Dodge.Dynamic
             }
 
             var instanceParameter = Expression.Parameter(typeof(object), "instance");
-            var instanceParameterCasted = Expression.Convert(instanceParameter, method.DeclaringType);
+            var castedInstanceParameter = Expression.Convert(instanceParameter, method.DeclaringType);
             var argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
             var argumentExpressions = GetMethodArgumentExpressions(method, argumentsParameter, argumentCount);
-            var callExpression = Expression.Call(instanceParameterCasted, method, argumentExpressions);
-            var nullConstant = Expression.Constant(null, typeof(object));
+            var callExpression = Expression.Call(castedInstanceParameter, method, argumentExpressions);
             Expression body;
 
             if (TypeUtility.GetReturnType(method) == typeof(void))
             {
-                body = Expression.Block(callExpression, nullConstant);
+                body = Expression.Block(callExpression, Expression.Constant(null, typeof(object)));
             }
             else
             {
@@ -207,14 +207,19 @@ namespace Atko.Dodge.Dynamic
         {
             if (member is PropertyInfo property && !property.CanWrite)
             {
-                var backing = TypeUtility.GetBackingField(property, true);
+                var backing = TypeUtility.GetBackingField(property, castInstanceExpression != null);
                 if (backing != null)
                 {
                     return Expression.Field(castInstanceExpression, backing.Name);
                 }
             }
 
-            return Expression.PropertyOrField(castInstanceExpression, member.Name);
+            if (member.MemberType == MemberTypes.Property)
+            {
+                return Expression.Property(castInstanceExpression, (PropertyInfo) member);
+            }
+
+            return Expression.Field(castInstanceExpression, (FieldInfo) member);
         }
 
         static Expression[] GetMethodArgumentExpressions(MethodBase method, Expression arguments, int count)

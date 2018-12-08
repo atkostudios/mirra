@@ -42,19 +42,17 @@ namespace Atko.Dodge.Models
 
         AccessorModel(Type owner, MemberInfo member) : base(owner, member) { }
 
-        [AllowNull]
-        public object this[object instance]
-        {
-            get => Get(instance);
-            set => Set(instance, value);
-        }
-
         [return: AllowNull]
         public object Get([AllowNull] object instance)
         {
             AssertInstanceMatches(instance);
             try
             {
+                if (IsStatic)
+                {
+                    return StaticGetInvoker.Invoke();
+                }
+
                 return InstanceGetInvoker.Invoke(instance);
             }
             catch (Exception exception)
@@ -68,7 +66,14 @@ namespace Atko.Dodge.Models
             AssertInstanceMatches(instance);
             try
             {
-                InstanceSetInvoker.Invoke(instance, value);
+                if (IsStatic)
+                {
+                    StaticSetInvoker.Invoke(value);
+                }
+                else
+                {
+                    InstanceSetInvoker.Invoke(instance, value);
+                }
             }
             catch (Exception exception)
             {

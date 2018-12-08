@@ -27,12 +27,12 @@ namespace Atko.Dodge.Models
         {
             if (instance == null && !IsStatic)
             {
-                throw new DodgeException("Attempted to use instance member with null instance.");
+                throw new DodgeInvocationException("Attempted to use instance member with null instance.");
             }
 
             if (instance != null && IsStatic)
             {
-                throw new DodgeException("Attempted to use static member with instance.");
+                throw new DodgeInvocationException("Attempted to use static member with instance.");
             }
         }
     }
