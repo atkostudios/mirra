@@ -183,7 +183,8 @@ namespace Atko.Dodge.Models
                     .Select((current) => MethodModel.Create(type, current))
                     .Where((current) => current != null);
 
-                var interfaceMembers = ancestor.GetInterfaces()
+                var interfaceMembers = ancestor
+                    .GetInterfaces()
                     .SelectMany((current) => current.GetMethods(TypeUtility.InstanceBinding))
                     .Select((current) => MethodModel.Create(type, current))
                     .Where((current) => current != null);
@@ -211,7 +212,8 @@ namespace Atko.Dodge.Models
                     .Select((current) => PropertyModel.Create(type, current))
                     .Where((current) => current != null);
 
-                var interfaceMembers = ancestor.GetInterfaces()
+                var interfaceMembers = ancestor
+                    .GetInterfaces()
                     .SelectMany((current) => current.GetProperties(TypeUtility.InstanceBinding))
                     .Select((current) => PropertyModel.Create(type, current))
                     .Where((current) => current != null);
