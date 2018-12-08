@@ -58,29 +58,29 @@ namespace Atko.Dodge.Models
 
             AccessorArray = PropertyArray.Cast<AccessorModel>().Concat(FieldArray).ToArray();
 
-            foreach (var accessor in ConstructorArray)
+            foreach (var model in ConstructorArray)
             {
-                ConstructorMap[accessor.Constructor] = accessor;
+                ConstructorMap[model.Constructor] = model;
             }
 
-            foreach (var accessor in MethodArray)
+            foreach (var model in MethodArray)
             {
-                MethodMap[accessor.Method] = accessor;
+                MethodMap[model.Method] = model;
             }
 
-            foreach (var accessor in FieldArray)
+            foreach (var model in FieldArray)
             {
-                FieldMap[accessor.Name] = accessor;
+                FieldMap[model.Name] = model;
             }
 
-            foreach (var accessor in PropertyArray)
+            foreach (var model in PropertyArray)
             {
-                PropertyMap[accessor.Name] = accessor;
+                PropertyMap[model.Name] = model;
             }
 
-            foreach (var accessor in FieldArray.Cast<AccessorModel>().Concat(PropertyArray))
+            foreach (var model in FieldArray.Cast<AccessorModel>().Concat(PropertyArray))
             {
-                AccessorMap[accessor.Name] = accessor;
+                AccessorMap[model.Name] = model;
             }
         }
 
@@ -113,22 +113,22 @@ namespace Atko.Dodge.Models
         [return: AllowNull]
         public PropertyModel GetProperty(string name)
         {
-            PropertyMap.TryGetValue(name, out var accessor);
-            return accessor;
+            PropertyMap.TryGetValue(name, out var model);
+            return model;
         }
 
         [return: AllowNull]
         public FieldModel GetField(string name)
         {
-            FieldMap.TryGetValue(name, out var accessor);
-            return accessor;
+            FieldMap.TryGetValue(name, out var model);
+            return model;
         }
 
         [return: AllowNull]
         public AccessorModel GetAccessor(string name)
         {
-            AccessorMap.TryGetValue(name, out var accessor);
-            return accessor;
+            AccessorMap.TryGetValue(name, out var model);
+            return model;
         }
 
         public ConstructorModel Constructor(params Type[] types)
@@ -167,7 +167,7 @@ namespace Atko.Dodge.Models
 
         MethodModel[] GetMethods(Type type)
         {
-            var accessors = new List<MethodModel>();
+            var models = new List<MethodModel>();
             foreach (var ancestor in type.Inheritance().Reverse())
             {
                 var instanceMembers = ancestor
@@ -185,17 +185,17 @@ namespace Atko.Dodge.Models
                     .Select((current) => MethodModel.Create(type, current))
                     .Where((current) => current != null);
 
-                accessors.AddRange(instanceMembers);
-                accessors.AddRange(interfaceMembers);
-                accessors.AddRange(staticMembers);
+                models.AddRange(instanceMembers);
+                models.AddRange(interfaceMembers);
+                models.AddRange(staticMembers);
             }
 
-            return GetUnique(accessors);
+            return GetUnique(models);
         }
 
         PropertyModel[] GetProperties(Type type)
         {
-            var accessors = new List<PropertyModel>();
+            var models = new List<PropertyModel>();
             foreach (var ancestor in type.Inheritance().Reverse())
             {
                 var instanceMembers = ancestor
@@ -213,17 +213,17 @@ namespace Atko.Dodge.Models
                     .Select((current) => PropertyModel.Create(type, current))
                     .Where((current) => current != null);
 
-                accessors.AddRange(instanceMembers);
-                accessors.AddRange(interfaceMembers);
-                accessors.AddRange(staticMembers);
+                models.AddRange(instanceMembers);
+                models.AddRange(interfaceMembers);
+                models.AddRange(staticMembers);
             }
 
-            return GetUnique(accessors);
+            return GetUnique(models);
         }
 
         FieldModel[] GetFields(Type type)
         {
-            var accessors = new List<FieldModel>();
+            var models = new List<FieldModel>();
             foreach (var ancestor in type.Inheritance())
             {
                 var instanceMembers = ancestor
@@ -234,22 +234,22 @@ namespace Atko.Dodge.Models
                     .GetFields(TypeUtility.StaticBinding)
                     .Select((current) => FieldModel.Create(type, current));
 
-                accessors.AddRange(instanceMembers);
-                accessors.AddRange(staticMembers);
+                models.AddRange(instanceMembers);
+                models.AddRange(staticMembers);
             }
 
-            return GetUnique(accessors);
+            return GetUnique(models);
         }
 
-        T[] GetUnique<T>(IEnumerable<T> accessors) where T : MemberModel
+        T[] GetUnique<T>(IEnumerable<T> models) where T : MemberModel
         {
             var seen = new HashSet<string>();
             var unique = new List<T>();
-            foreach (var accessor in accessors.Reverse())
+            foreach (var model in models.Reverse())
             {
-                if (seen.Add(accessor.Name))
+                if (seen.Add(model.Name))
                 {
-                    unique.Add(accessor);
+                    unique.Add(model);
                 }
             }
 
