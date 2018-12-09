@@ -66,6 +66,7 @@ namespace Atko.Dodge.Tests.Models
 
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object) null));
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, 1));
+            Assert.Throws<DodgeInvocationException>(() => model.Call(null));
         }
 
         [Test]
@@ -82,6 +83,7 @@ namespace Atko.Dodge.Tests.Models
 
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object) null));
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, 1));
+            Assert.Throws<DodgeInvocationException>(() => model.Call(null));
         }
 
         [Test]
@@ -100,6 +102,7 @@ namespace Atko.Dodge.Tests.Models
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object) null));
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, "string"));
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, "string", 2));
+            Assert.Throws<DodgeInvocationException>(() => model.Call(null, 1));
         }
 
         [Test]
@@ -118,6 +121,7 @@ namespace Atko.Dodge.Tests.Models
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object) null));
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, "string"));
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, "string", 2));
+            Assert.Throws<DodgeInvocationException>(() => model.Call(null, "string", new[] {1, 2, 3}));
         }
     }
 }
