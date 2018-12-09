@@ -35,57 +35,63 @@ namespace Atko.Dodge.Models
         public IEnumerable<AccessorModel> Accessors => AccessorArray.Iterate();
         public IEnumerable<IndexerModel> Indexers => IndexerArray.Iterate();
 
-        ConstructorModel[] ConstructorArray { get; }
-        MethodModel[] MethodArray { get; }
-        PropertyModel[] PropertyArray { get; }
-        FieldModel[] FieldArray { get; }
-        AccessorModel[] AccessorArray { get; }
-        IndexerModel[] IndexerArray { get; }
+        ConstructorModel[] ConstructorArray => LazyConstructorArray.Value;
+        MethodModel[] MethodArray => LazyMethodArray.Value;
+        PropertyModel[] PropertyArray => LazyPropertyArray.Value;
+        FieldModel[] FieldArray => LazyFieldArray.Value;
+        AccessorModel[] AccessorArray => LazyAccessorArray.Value;
+        IndexerModel[] IndexerArray => LazyIndexerArray.Value;
 
-        Dictionary<ConstructorInfo, ConstructorModel> ConstructorMap { get; } =
-            new Dictionary<ConstructorInfo, ConstructorModel>();
+        Dictionary<ConstructorInfo, ConstructorModel> ConstructorMap => LazyConstructorMap.Value;
+        Dictionary<MethodInfo, MethodModel> MethodMap => LazyMethodMap.Value;
+        Dictionary<string, PropertyModel> PropertyMap => LazyPropertyMap.Value;
+        Dictionary<string, FieldModel> FieldMap => LazyFieldMap.Value;
+        Dictionary<string, AccessorModel> AccessorMap => LazyAccessorMap.Value;
+        Dictionary<PropertyInfo, IndexerModel> IndexerMap => LazyIndexerMap.Value;
 
-        Dictionary<MethodInfo, MethodModel> MethodMap { get; } = new Dictionary<MethodInfo, MethodModel>();
-        Dictionary<string, PropertyModel> PropertyMap { get; } = new Dictionary<string, PropertyModel>();
-        Dictionary<string, FieldModel> FieldMap { get; } = new Dictionary<string, FieldModel>();
-        Dictionary<string, AccessorModel> AccessorMap { get; } = new Dictionary<string, AccessorModel>();
-        Dictionary<PropertyInfo, IndexerModel> IndexerMap { get; } = new Dictionary<PropertyInfo, IndexerModel>();
+        Lazy<ConstructorModel[]> LazyConstructorArray { get; }
+        Lazy<MethodModel[]> LazyMethodArray { get; }
+        Lazy<PropertyModel[]> LazyPropertyArray { get; }
+        Lazy<FieldModel[]> LazyFieldArray { get; }
+        Lazy<AccessorModel[]> LazyAccessorArray { get; }
+        Lazy<IndexerModel[]> LazyIndexerArray { get; }
+
+        Lazy<Dictionary<ConstructorInfo, ConstructorModel>> LazyConstructorMap { get; }
+        Lazy<Dictionary<MethodInfo, MethodModel>> LazyMethodMap { get; }
+        Lazy<Dictionary<string, PropertyModel>> LazyPropertyMap { get; }
+        Lazy<Dictionary<string, FieldModel>> LazyFieldMap { get; }
+        Lazy<Dictionary<string, AccessorModel>> LazyAccessorMap { get; }
+        Lazy<Dictionary<PropertyInfo, IndexerModel>> LazyIndexerMap { get; }
 
         TypeModel(Type type)
         {
             Type = type;
 
-            ConstructorArray = GetConstructors(Type);
-            MethodArray = GetMethods(Type);
-            PropertyArray = GetProperties(Type);
-            FieldArray = GetFields(Type);
-            AccessorArray = PropertyArray.Cast<AccessorModel>().Concat(FieldArray).ToArray();
-            IndexerArray = GetIndexers(Type);
+            LazyConstructorArray = new Lazy<ConstructorModel[]>(() => GetConstructors(Type));
+            LazyMethodArray = new Lazy<MethodModel[]>(() => GetMethods(Type));
+            LazyPropertyArray = new Lazy<PropertyModel[]>(() => GetProperties(Type));
+            LazyFieldArray = new Lazy<FieldModel[]>(() => GetFields(Type));
+            LazyAccessorArray = new Lazy<AccessorModel[]>(() =>
+                PropertyArray.Cast<AccessorModel>().Concat(FieldArray).ToArray());
+            LazyIndexerArray = new Lazy<IndexerModel[]>(() => GetIndexers(Type));
 
-            foreach (var model in ConstructorArray)
-            {
-                ConstructorMap[model.Constructor] = model;
-            }
+            LazyConstructorMap = new Lazy<Dictionary<ConstructorInfo, ConstructorModel>>(() =>
+                ConstructorArray.ToDictionary((current) => current.Constructor));
 
-            foreach (var model in MethodArray)
-            {
-                MethodMap[model.Method] = model;
-            }
+            LazyMethodMap = new Lazy<Dictionary<MethodInfo, MethodModel>>(() =>
+                MethodArray.ToDictionary((current) => current.Method));
 
-            foreach (var model in FieldArray)
-            {
-                FieldMap[model.Name] = model;
-            }
+            LazyPropertyMap = new Lazy<Dictionary<string, PropertyModel>>(() =>
+                PropertyArray.ToDictionary((current) => current.Name));
 
-            foreach (var model in PropertyArray)
-            {
-                PropertyMap[model.Name] = model;
-            }
+            LazyFieldMap = new Lazy<Dictionary<string, FieldModel>>(() =>
+                FieldArray.ToDictionary((current) => current.Name));
 
-            foreach (var model in FieldArray.Cast<AccessorModel>().Concat(PropertyArray))
-            {
-                AccessorMap[model.Name] = model;
-            }
+            LazyAccessorMap = new Lazy<Dictionary<string, AccessorModel>>(() =>
+                AccessorArray.ToDictionary((current) => current.Name));
+
+            LazyIndexerMap = new Lazy<Dictionary<PropertyInfo, IndexerModel>>(() =>
+                IndexerArray.ToDictionary((current) => current.Property));
         }
 
         [return: AllowNull]
