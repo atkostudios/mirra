@@ -24,6 +24,9 @@ namespace Atko.Dodge.Utility
         static Cache<(Type, Type), Type> ImplementationCache { get; }
             = new Cache<(Type, Type), Type>();
 
+        static Cache<(Type, bool, string), MemberInfo> AccessorCache { get; } =
+            new Cache<(Type, bool, string), MemberInfo>();
+
         static Cache<(Type, bool, string), FieldInfo> FieldCache { get; } =
             new Cache<(Type, bool, string), FieldInfo>();
 
@@ -38,9 +41,6 @@ namespace Atko.Dodge.Utility
 
         static Cache<(PropertyInfo, bool), FieldInfo> BackingFieldCache { get; } =
             new Cache<(PropertyInfo, bool), FieldInfo>();
-
-        static Cache<(Type, bool, string), MemberInfo> GetAccessorCache { get; } =
-            new Cache<(Type, bool, string), MemberInfo>();
 
         static BindingFlags GetBindings(bool instance)
         {
@@ -57,73 +57,10 @@ namespace Atko.Dodge.Utility
             }
         }
 
-        public static bool Get([AllowNull] object instance, Type type, string name, [AllowNull] out object value)
-        {
-            var member = GetAccessor(type, instance != null, name);
-            if (member == null)
-            {
-                value = null;
-                return false;
-            }
-
-            return GetInternal(instance, member, out value);
-        }
-
-        public static bool Set([AllowNull] object instance, Type type, string name, object value)
-        {
-            var member = GetAccessor(type, instance != null, name);
-            if (member == null)
-            {
-                return false;
-            }
-
-            return SetInternal(instance, member, value);
-        }
-
-        public static bool Call([AllowNull] object instance, Type type, string name, object[] arguments,
-            [AllowNull] out object result)
-        {
-            var types = GetTypes(arguments);
-            if (GetMethod(type, instance != null, name, types) is MethodInfo method)
-            {
-                result = method.Invoke(instance, arguments);
-                return true;
-            }
-
-            result = null;
-            return false;
-        }
-
-        public static bool GetElement([AllowNull] object instance, Type type, object[] index,
-            [AllowNull] out object value)
-        {
-            var property = GetProperty(type, instance != null, "Item", GetTypes(index));
-            if (property != null && property.CanRead)
-            {
-                value = property.GetValue(instance, index);
-                return true;
-            }
-
-            value = null;
-            return false;
-        }
-
-        public static bool SetElement([AllowNull] object instance, Type type, object[] index, [AllowNull] object value)
-        {
-            var property = GetProperty(type, instance != null, "Item", GetTypes(index));
-            if (property != null && property.CanWrite)
-            {
-                property.SetValue(instance, value, index);
-                return true;
-            }
-
-            return false;
-        }
-
         [return: AllowNull]
         public static MemberInfo GetAccessor(Type type, bool instance, string name)
         {
-            return GetAccessorCache.GetOrAdd((type, instance, name),
+            return AccessorCache.GetOrAdd((type, instance, name),
                 (input) => GetAccessorInternal(input.Item1, input.Item2, input.Item3));
         }
 
@@ -174,52 +111,20 @@ namespace Atko.Dodge.Utility
                 (input) => GetImplementationInternal(input.Item1, input.Item2));
         }
 
-        public static bool GetInternal([AllowNull] object instance, MemberInfo member, [AllowNull] out object value)
+        public static string GetBackingFieldName(PropertyInfo property)
         {
-            if (member is FieldInfo field)
-            {
-                value = field.GetValue(instance);
-            }
-            else if (member is PropertyInfo property && property.CanRead)
-            {
-                value = property.GetValue(instance);
-            }
-            else
-            {
-                value = null;
-                return false;
-            }
-
-            return true;
+            return $"{BackingFieldPrefix}{property.Name}{BackingFieldSuffix}";
         }
 
-        public static bool SetInternal([AllowNull] object instance, MemberInfo member, object value)
+        public static bool IsBackingField(this FieldInfo field)
         {
-            if (member is FieldInfo field)
-            {
-                field.SetValue(instance, value);
-            }
-            else if (member is PropertyInfo property)
-            {
-                if (property.CanWrite)
-                {
-                    property.SetValue(instance, value);
-                }
-                else
-                {
-                    GetBackingField(property, instance != null).SetValue(instance, value);
-                }
-            }
-            else
-            {
-                return false;
-            }
-
-            return true;
+            return field.IsDefined(typeof(CompilerGeneratedAttribute)) &&
+                   field.Name.StartsWith(BackingFieldPrefix) &&
+                   field.Name.EndsWith(BackingFieldSuffix);
         }
 
         [return: AllowNull]
-        public static MemberInfo GetAccessorInternal(Type type, bool instance, string name)
+        static MemberInfo GetAccessorInternal(Type type, bool instance, string name)
         {
             var field = GetField(type, instance, name);
             if (field != null)
@@ -238,7 +143,7 @@ namespace Atko.Dodge.Utility
         }
 
         [return: AllowNull]
-        public static FieldInfo GetFieldInternal(Type type, bool instance, string name)
+        static FieldInfo GetFieldInternal(Type type, bool instance, string name)
         {
             if (!instance)
             {
@@ -258,7 +163,7 @@ namespace Atko.Dodge.Utility
         }
 
         [return: AllowNull]
-        public static PropertyInfo GetPropertyInternal(Type type, bool instance, string name, Type[] types = null)
+        static PropertyInfo GetPropertyInternal(Type type, bool instance, string name, Type[] types = null)
         {
             if (!instance)
             {
@@ -287,7 +192,7 @@ namespace Atko.Dodge.Utility
         }
 
         [return: AllowNull]
-        public static MethodInfo GetMethodInternal(Type type, bool instance, string name, Type[] types)
+        static MethodInfo GetMethodInternal(Type type, bool instance, string name, Type[] types)
         {
             if (!instance)
             {
@@ -316,7 +221,7 @@ namespace Atko.Dodge.Utility
         }
 
         [return: AllowNull]
-        public static ConstructorInfo GetConstructorInternal(Type type, Type[] types)
+        static ConstructorInfo GetConstructorInternal(Type type, Type[] types)
         {
             foreach (var ancestor in Inheritance(type))
             {
@@ -331,7 +236,7 @@ namespace Atko.Dodge.Utility
         }
 
         [return: AllowNull]
-        public static FieldInfo GetBackingFieldInternal(PropertyInfo property, bool instance)
+        static FieldInfo GetBackingFieldInternal(PropertyInfo property, bool instance)
         {
             if (property.GetGetMethod(true).IsDefined(typeof(CompilerGeneratedAttribute)))
             {
@@ -357,18 +262,6 @@ namespace Atko.Dodge.Utility
             }
 
             return null;
-        }
-
-        public static string GetBackingFieldName(PropertyInfo property)
-        {
-            return $"{BackingFieldPrefix}{property.Name}{BackingFieldSuffix}";
-        }
-
-        public static bool IsBackingField(this FieldInfo field)
-        {
-            return field.IsDefined(typeof(CompilerGeneratedAttribute)) &&
-                   field.Name.StartsWith(BackingFieldPrefix) &&
-                   field.Name.EndsWith(BackingFieldSuffix);
         }
 
         static Type GetImplementationInternal(Type type, Type generic)

@@ -144,7 +144,7 @@ namespace Atko.Dodge.Dynamic
             }
 
             var argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
-            var argumentExpressions = GetMethodArgumentExpressions(method, argumentsParameter, argumentCount);
+            var argumentExpressions = GetArguments(method.GetParameters(), argumentsParameter, argumentCount);
             var callExpression = Expression.Call(null, method, argumentExpressions);
 
             var body = TypeUtility.GetReturnType(method) == typeof(void)
@@ -169,7 +169,7 @@ namespace Atko.Dodge.Dynamic
             var instanceParameter = Expression.Parameter(typeof(object), "instance");
             var castedInstanceParameter = Expression.Convert(instanceParameter, method.DeclaringType);
             var argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
-            var argumentExpressions = GetMethodArgumentExpressions(method, argumentsParameter, argumentCount);
+            var argumentExpressions = GetArguments(method.GetParameters(), argumentsParameter, argumentCount);
             var callExpression = Expression.Call(castedInstanceParameter, method, argumentExpressions);
 
             var body = TypeUtility.GetReturnType(method) == typeof(void)
@@ -188,7 +188,7 @@ namespace Atko.Dodge.Dynamic
         public static StaticMethodInvoker Constructor(ConstructorInfo constructor, int argumentCount)
         {
             var argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
-            var argumentExpressions = GetMethodArgumentExpressions(constructor, argumentsParameter, argumentCount);
+            var argumentExpressions = GetArguments(constructor.GetParameters(), argumentsParameter, argumentCount);
             var newExpression = Expression.New(constructor, argumentExpressions);
             var body = Expression.Convert(newExpression, typeof(object));
 
@@ -198,6 +198,45 @@ namespace Atko.Dodge.Dynamic
             };
 
             return Expression.Lambda<StaticMethodInvoker>(body, parameters).Compile();
+        }
+
+        public static IndexerGetInvoker IndexerGet(PropertyInfo property, int argumentCount)
+        {
+            var instanceParameter = Expression.Parameter(typeof(object), "instance");
+            var castedInstanceParameter = Expression.Convert(instanceParameter, property.DeclaringType);
+            var indexParameter = Expression.Parameter(typeof(object[]), "index");
+            var indexExpressions = GetArguments(property.GetIndexParameters(), indexParameter, argumentCount);
+            var accessExpression = Expression.ArrayIndex(castedInstanceParameter, indexExpressions);
+            var castedAccessExpression = Expression.Convert(accessExpression, typeof(object));
+
+            var parameters = new[]
+            {
+                instanceParameter,
+                indexParameter
+            };
+
+            return Expression.Lambda<IndexerGetInvoker>(castedAccessExpression, parameters).Compile();
+        }
+
+        public static IndexerSetInvoker IndexerSet(PropertyInfo property, int argumentCount)
+        {
+            var instanceParameter = Expression.Parameter(typeof(object), "instance");
+            var castedInstanceParameter = Expression.Convert(instanceParameter, property.DeclaringType);
+            var indexParameter = Expression.Parameter(typeof(object[]), "index");
+            var indexExpressions = GetArguments(property.GetIndexParameters(), indexParameter, argumentCount);
+            var valueParameter = Expression.Parameter(typeof(object), "value");
+            var castedValueParameter = Expression.Convert(valueParameter, property.PropertyType);
+            var accessExpression = Expression.ArrayIndex(castedInstanceParameter, indexExpressions);
+            var assignExpression = Expression.Assign(accessExpression, castedValueParameter);
+
+            var parameters = new[]
+            {
+                instanceParameter,
+                indexParameter,
+                valueParameter
+            };
+
+            return Expression.Lambda<IndexerSetInvoker>(assignExpression, parameters).Compile();
         }
 
         static Expression GetAccessExpression(MemberInfo member, Expression castInstanceExpression = null)
@@ -219,10 +258,9 @@ namespace Atko.Dodge.Dynamic
             return Expression.Field(castInstanceExpression, (FieldInfo) member);
         }
 
-        static Expression[] GetMethodArgumentExpressions(MethodBase method, Expression arguments, int count)
+        static Expression[] GetArguments(ParameterInfo[] parameters, Expression arguments, int count)
         {
-            var types = method
-                .GetParameters()
+            var types = parameters
                 .Select((current) => current.ParameterType)
                 .ToArray();
 
