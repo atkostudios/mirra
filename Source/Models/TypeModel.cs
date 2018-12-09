@@ -33,12 +33,14 @@ namespace Atko.Dodge.Models
         public IEnumerable<PropertyModel> Properties => PropertyArray.Iterate();
         public IEnumerable<FieldModel> Fields => FieldArray.Iterate();
         public IEnumerable<AccessorModel> Accessors => AccessorArray.Iterate();
+        public IEnumerable<IndexerModel> Indexers => IndexerArray.Iterate();
 
         ConstructorModel[] ConstructorArray { get; }
         MethodModel[] MethodArray { get; }
         PropertyModel[] PropertyArray { get; }
         FieldModel[] FieldArray { get; }
         AccessorModel[] AccessorArray { get; }
+        IndexerModel[] IndexerArray { get; }
 
         Dictionary<ConstructorInfo, ConstructorModel> ConstructorMap { get; } =
             new Dictionary<ConstructorInfo, ConstructorModel>();
@@ -47,17 +49,16 @@ namespace Atko.Dodge.Models
         Dictionary<string, PropertyModel> PropertyMap { get; } = new Dictionary<string, PropertyModel>();
         Dictionary<string, FieldModel> FieldMap { get; } = new Dictionary<string, FieldModel>();
         Dictionary<string, AccessorModel> AccessorMap { get; } = new Dictionary<string, AccessorModel>();
+        Dictionary<PropertyInfo, IndexerModel> IndexerMap { get; } = new Dictionary<PropertyInfo, IndexerModel>();
 
         TypeModel(Type type)
         {
-            Type = type;
-
             ConstructorArray = GetConstructors(Type);
             MethodArray = GetMethods(Type);
             PropertyArray = GetProperties(Type);
             FieldArray = GetFields(Type);
-
             AccessorArray = PropertyArray.Cast<AccessorModel>().Concat(FieldArray).ToArray();
+            IndexerArray = GetIndexers(Type);
 
             foreach (var model in ConstructorArray)
             {
@@ -134,6 +135,18 @@ namespace Atko.Dodge.Models
             return model;
         }
 
+        public IndexerModel GetIndexer(params Type[] types)
+        {
+            var property = TypeUtility.GetProperty(Type, true, "Item", types);
+            if (property == null)
+            {
+                return null;
+            }
+
+            IndexerMap.TryGetValue(property, out var indexer);
+            return indexer;
+        }
+
         public ConstructorModel Constructor(params Type[] types)
         {
             return GetConstructor(types) ?? throw new DodgeMissingMemberException();
@@ -157,6 +170,11 @@ namespace Atko.Dodge.Models
         public AccessorModel Accessor(string name)
         {
             return GetAccessor(name) ?? throw new DodgeMissingMemberException();
+        }
+
+        public IndexerModel Indexer(params Type[] types)
+        {
+            return GetIndexer(types) ?? throw new DodgeMissingMemberException();
         }
 
         ConstructorModel[] GetConstructors(Type type)
@@ -241,6 +259,30 @@ namespace Atko.Dodge.Models
 
                 models.AddRange(instanceMembers);
                 models.AddRange(staticMembers);
+            }
+
+            return GetUnique(models);
+        }
+
+        IndexerModel[] GetIndexers(Type type)
+        {
+            var models = new List<IndexerModel>();
+            foreach (var ancestor in type.Inheritance())
+            {
+                var instanceMembers = ancestor
+                    .GetProperties(TypeUtility.InstanceBinding)
+                    .Where(IndexerModel.CanCreateFrom)
+                    .Select((current) => new IndexerModel(type, current));
+
+                var interfaceMembers = ancestor
+                    .GetInterfaces()
+                    .SelectMany((current) => current.GetProperties(TypeUtility.InstanceBinding))
+                    .Where(IndexerModel.CanCreateFrom)
+                    .Select((current) => new IndexerModel(type, current));
+
+
+                models.AddRange(instanceMembers);
+                models.AddRange(interfaceMembers);
             }
 
             return GetUnique(models);

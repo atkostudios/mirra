@@ -9,24 +9,15 @@ namespace Atko.Dodge.Models
     {
         public MethodInfo Method => (MethodInfo) Member;
 
-        InvokerDispatch<InstanceMethodInvoker> InstanceInvokers { get; }
-        InvokerDispatch<StaticMethodInvoker> StaticInvokers { get; }
-        internal MethodModel(Type owner, MethodInfo method) : base(owner, method) { }
+        internal MethodModel(Type owner, MethodInfo method) :
+            base(owner, method,
+                (argumentCount) => CodeGenerator.InstanceMethod(method, argumentCount),
+                (argumentCount) => CodeGenerator.StaticMethod(method, argumentCount)) { }
 
         [return: AllowNull]
         public object Call([AllowNull] object instance, params object[] arguments)
         {
             return CallInternal(instance, arguments);
-        }
-
-        protected override InstanceMethodInvoker GetInstanceMethodInvoker(int argumentCount)
-        {
-            return CodeGenerator.InstanceMethod(Method, argumentCount);
-        }
-
-        protected override StaticMethodInvoker GetStaticMethodInvoker(int argumentCount)
-        {
-            return CodeGenerator.StaticMethod(Method, argumentCount);
         }
     }
 }

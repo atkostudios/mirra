@@ -9,22 +9,13 @@ namespace Atko.Dodge.Models
     {
         public ConstructorInfo Constructor => (ConstructorInfo) Member;
 
-        internal ConstructorModel(Type owner, ConstructorInfo constructor) : base(owner, constructor) { }
+        internal ConstructorModel(Type owner, ConstructorInfo constructor) :
+            base(owner, constructor, null,
+                (argumentCount) => CodeGenerator.Constructor(constructor, argumentCount)) { }
 
         public object Call(params object[] arguments)
         {
             return CallInternal(null, arguments);
-        }
-
-        [return: AllowNull]
-        protected override InstanceMethodInvoker GetInstanceMethodInvoker(int argumentCount)
-        {
-            return null;
-        }
-
-        protected override StaticMethodInvoker GetStaticMethodInvoker(int argumentCount)
-        {
-            return CodeGenerator.Constructor(Constructor, argumentCount);
         }
     }
 }

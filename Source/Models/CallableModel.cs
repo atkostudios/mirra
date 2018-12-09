@@ -20,7 +20,9 @@ namespace Atko.Dodge.Models
         InvokerDispatch<InstanceMethodInvoker> InstanceInvokers { get; }
         InvokerDispatch<StaticMethodInvoker> StaticInvokers { get; }
 
-        protected CallableModel(Type owner, MethodBase member) : base(owner, member)
+        protected CallableModel(Type owner, MethodBase member,
+            [AllowNull] Func<int, InstanceMethodInvoker> instanceInvokerFactory,
+            [AllowNull] Func<int, StaticMethodInvoker> staticInvokerFactory) : base(owner, member)
         {
             if (!CanCreateFrom(member))
             {
@@ -31,13 +33,11 @@ namespace Atko.Dodge.Models
 
             if (RequiresInstance)
             {
-                InstanceInvokers =
-                    new InvokerDispatch<InstanceMethodInvoker>(parameters, GetInstanceMethodInvoker);
+                InstanceInvokers = new InvokerDispatch<InstanceMethodInvoker>(parameters, instanceInvokerFactory);
             }
             else
             {
-                StaticInvokers =
-                    new InvokerDispatch<StaticMethodInvoker>(parameters, GetStaticMethodInvoker);
+                StaticInvokers = new InvokerDispatch<StaticMethodInvoker>(parameters, staticInvokerFactory);
             }
         }
 
@@ -73,8 +73,5 @@ namespace Atko.Dodge.Models
                 throw new DodgeInvocationException(null, exception);
             }
         }
-
-        protected abstract InstanceMethodInvoker GetInstanceMethodInvoker(int argumentCount);
-        protected abstract StaticMethodInvoker GetStaticMethodInvoker(int argumentCount);
     }
 }

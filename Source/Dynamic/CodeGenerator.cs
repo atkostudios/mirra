@@ -200,7 +200,7 @@ namespace Atko.Dodge.Dynamic
             return Expression.Lambda<StaticMethodInvoker>(body, parameters).Compile();
         }
 
-        public static IndexerGetInvoker IndexerGet(PropertyInfo property, int argumentCount)
+        public static IndexerGetInvoker IndexGetter(PropertyInfo property, int argumentCount)
         {
             var instanceParameter = Expression.Parameter(typeof(object), "instance");
             var castedInstanceParameter = Expression.Convert(instanceParameter, property.DeclaringType);
@@ -218,7 +218,7 @@ namespace Atko.Dodge.Dynamic
             return Expression.Lambda<IndexerGetInvoker>(castedAccessExpression, parameters).Compile();
         }
 
-        public static IndexerSetInvoker IndexerSet(PropertyInfo property, int argumentCount)
+        public static IndexerSetInvoker IndexSetter(PropertyInfo property, int argumentCount)
         {
             var instanceParameter = Expression.Parameter(typeof(object), "instance");
             var castedInstanceParameter = Expression.Convert(instanceParameter, property.DeclaringType);
