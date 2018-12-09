@@ -26,13 +26,13 @@ namespace Atko.Dodge.Tests.Models
             var instance = new Class();
             var model = typeof(Class).Model().Field(name);
 
-            Assert.AreEqual(model.Get(instance), 0);
+            Assert.AreEqual(0, model.Get(instance));
 
             model.Set(instance, 1);
-            Assert.AreEqual(model.Get(instance), 1);
+            Assert.AreEqual(1, model.Get(instance));
 
             model.Set(instance, 2);
-            Assert.AreEqual(model.Get(instance), 2);
+            Assert.AreEqual(2, model.Get(instance));
             Console.WriteLine(model);
         }
 
@@ -67,13 +67,13 @@ namespace Atko.Dodge.Tests.Models
         {
             var model = typeof(Class).Model().Field(name);
 
-            Assert.AreEqual(model.Get(null), 0);
+            Assert.AreEqual(0, model.Get(null));
 
             model.Set(null, 1);
-            Assert.AreEqual(model.Get(null), 1);
+            Assert.AreEqual(1, model.Get(null));
 
             model.Set(null, 2);
-            Assert.AreEqual(model.Get(null), 2);
+            Assert.AreEqual(2, model.Get(null));
         }
 
         [Test]

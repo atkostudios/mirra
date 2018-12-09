@@ -6,8 +6,6 @@ namespace Atko.Dodge.Dynamic
 
     public delegate void InstanceSetInvoker(object instance, object value);
 
-    public delegate object ConstructorInvoker(object[] arguments);
-
     public delegate object StaticMethodInvoker(object[] arguments);
 
     public delegate object StaticGetInvoker();

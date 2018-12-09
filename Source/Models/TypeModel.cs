@@ -163,8 +163,8 @@ namespace Atko.Dodge.Models
         {
             return type
                 .GetConstructors(TypeUtility.InstanceBinding)
-                .Select((current) => ConstructorModel.Create(type, current))
-                .Where((current) => current != null)
+                .Where(CallableModel.CanCreateFrom)
+                .Select((current) => new ConstructorModel(type, current))
                 .ToArray();
         }
 
@@ -175,19 +175,19 @@ namespace Atko.Dodge.Models
             {
                 var instanceMembers = ancestor
                     .GetMethods(TypeUtility.InstanceBinding)
-                    .Select((current) => MethodModel.Create(type, current))
-                    .Where((current) => current != null);
+                    .Where(CallableModel.CanCreateFrom)
+                    .Select((current) => new MethodModel(type, current));
 
                 var staticMembers = ancestor
                     .GetMethods(TypeUtility.StaticBinding)
-                    .Select((current) => MethodModel.Create(type, current))
-                    .Where((current) => current != null);
+                    .Where(CallableModel.CanCreateFrom)
+                    .Select((current) => new MethodModel(type, current));
 
                 var interfaceMembers = ancestor
                     .GetInterfaces()
                     .SelectMany((current) => current.GetMethods(TypeUtility.InstanceBinding))
-                    .Select((current) => MethodModel.Create(type, current))
-                    .Where((current) => current != null);
+                    .Where(CallableModel.CanCreateFrom)
+                    .Select((current) => new MethodModel(type, current));
 
                 models.AddRange(instanceMembers);
                 models.AddRange(interfaceMembers);
@@ -204,19 +204,19 @@ namespace Atko.Dodge.Models
             {
                 var instanceMembers = ancestor
                     .GetProperties(TypeUtility.InstanceBinding)
-                    .Select((current) => PropertyModel.Create(type, current))
-                    .Where((current) => current != null);
+                    .Where(PropertyModel.CanCreateFrom)
+                    .Select((current) => new PropertyModel(type, current));
 
                 var staticMembers = ancestor
                     .GetProperties(TypeUtility.StaticBinding)
-                    .Select((current) => PropertyModel.Create(type, current))
-                    .Where((current) => current != null);
+                    .Where(PropertyModel.CanCreateFrom)
+                    .Select((current) => new PropertyModel(type, current));
 
                 var interfaceMembers = ancestor
                     .GetInterfaces()
                     .SelectMany((current) => current.GetProperties(TypeUtility.InstanceBinding))
-                    .Select((current) => PropertyModel.Create(type, current))
-                    .Where((current) => current != null);
+                    .Where(PropertyModel.CanCreateFrom)
+                    .Select((current) => new PropertyModel(type, current));
 
                 models.AddRange(instanceMembers);
                 models.AddRange(interfaceMembers);

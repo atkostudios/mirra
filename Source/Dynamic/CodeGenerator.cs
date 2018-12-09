@@ -146,14 +146,17 @@ namespace Atko.Dodge.Dynamic
             var argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
             var argumentExpressions = GetMethodArgumentExpressions(method, argumentsParameter, argumentCount);
             var callExpression = Expression.Call(null, method, argumentExpressions);
-            var castedCallExpression = Expression.Convert(callExpression, typeof(object));
+
+            var body = TypeUtility.GetReturnType(method) == typeof(void)
+                ? Expression.Block(callExpression, Expression.Constant(null, typeof(object)))
+                : (Expression) Expression.Convert(callExpression, typeof(object));
 
             var parameters = new[]
             {
                 argumentsParameter
             };
 
-            return Expression.Lambda<StaticMethodInvoker>(castedCallExpression, parameters).Compile();
+            return Expression.Lambda<StaticMethodInvoker>(body, parameters).Compile();
         }
 
         public static InstanceMethodInvoker InstanceMethod(MethodInfo method, int argumentCount)
@@ -168,16 +171,10 @@ namespace Atko.Dodge.Dynamic
             var argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
             var argumentExpressions = GetMethodArgumentExpressions(method, argumentsParameter, argumentCount);
             var callExpression = Expression.Call(castedInstanceParameter, method, argumentExpressions);
-            Expression body;
 
-            if (TypeUtility.GetReturnType(method) == typeof(void))
-            {
-                body = Expression.Block(callExpression, Expression.Constant(null, typeof(object)));
-            }
-            else
-            {
-                body = Expression.Convert(callExpression, typeof(object));
-            }
+            var body = TypeUtility.GetReturnType(method) == typeof(void)
+                ? Expression.Block(callExpression, Expression.Constant(null, typeof(object)))
+                : (Expression) Expression.Convert(callExpression, typeof(object));
 
             var parameters = new[]
             {
@@ -188,7 +185,7 @@ namespace Atko.Dodge.Dynamic
             return Expression.Lambda<InstanceMethodInvoker>(body, parameters).Compile();
         }
 
-        public static ConstructorInvoker Constructor(ConstructorInfo constructor, int argumentCount)
+        public static StaticMethodInvoker Constructor(ConstructorInfo constructor, int argumentCount)
         {
             var argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
             var argumentExpressions = GetMethodArgumentExpressions(constructor, argumentsParameter, argumentCount);
@@ -200,7 +197,7 @@ namespace Atko.Dodge.Dynamic
                 argumentsParameter
             };
 
-            return Expression.Lambda<ConstructorInvoker>(body, parameters).Compile();
+            return Expression.Lambda<StaticMethodInvoker>(body, parameters).Compile();
         }
 
         static Expression GetAccessExpression(MemberInfo member, Expression castInstanceExpression = null)

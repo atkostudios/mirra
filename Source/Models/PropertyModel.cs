@@ -7,15 +7,9 @@ namespace Atko.Dodge.Models
 {
     public class PropertyModel : AccessorModel
     {
-        [return: AllowNull]
-        internal static PropertyModel Create(Type owner, PropertyInfo property)
+        public static bool CanCreateFrom(PropertyInfo property)
         {
-            if (property.GetIndexParameters().Length > 0)
-            {
-                return null;
-            }
-
-            return new PropertyModel(owner, property);
+            return property.GetIndexParameters().Length == 0;
         }
 
         public override bool IsPublic =>
@@ -32,8 +26,13 @@ namespace Atko.Dodge.Models
 
         Lazy<FieldModel> LazyBackingField { get; }
 
-        PropertyModel(Type owner, PropertyInfo property) : base(owner, property)
+        internal PropertyModel(Type owner, PropertyInfo member) : base(owner, member)
         {
+            if (!CanCreateFrom(member))
+            {
+                throw new ArgumentException(nameof(member));
+            }
+
             LazyBackingField = new Lazy<FieldModel>(GetBackingField);
         }
 

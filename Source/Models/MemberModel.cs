@@ -13,6 +13,8 @@ namespace Atko.Dodge.Models
 
         public abstract bool IsPublic { get; }
 
+        public bool RequiresInstance => Member.MemberType != MemberTypes.Constructor && !IsStatic;
+
         public MemberInfo Member { get; }
 
         protected MemberModel(Type owner, MemberInfo member)
@@ -25,14 +27,16 @@ namespace Atko.Dodge.Models
 
         protected void AssertInstanceMatches(object instance)
         {
-            if (instance == null && !IsStatic)
+            if (instance == null && RequiresInstance)
             {
-                throw new DodgeInvocationException("Attempted to use instance member with null instance.");
+                const string message = "Member instance cannot be null.";
+                throw new DodgeInvocationException(message);
             }
 
-            if (instance != null && IsStatic)
+            if (instance != null && !RequiresInstance)
             {
-                throw new DodgeInvocationException("Attempted to use static member with instance.");
+                const string message = "Static member cannot be used with an instance object.";
+                throw new DodgeInvocationException(message);
             }
         }
     }

@@ -44,7 +44,7 @@ namespace Atko.Dodge.Tests.Models
             var model = typeof(Second).Model().Constructor(typeof(int));
             var instance = model.Call(1);
             Assert.IsInstanceOf<Second>(instance);
-            Assert.AreEqual(((Second) instance).Value, 1);
+            Assert.AreEqual(1, ((Second) instance).Value);
 
             Assert.Throws<DodgeInvocationException>(() => model.Call());
             Assert.Throws<DodgeInvocationException>(() => model.Call((object) null));
@@ -55,10 +55,10 @@ namespace Atko.Dodge.Tests.Models
         public void TestParamsArgumentConstructor()
         {
             var model = typeof(Third).Model().Constructor(typeof(string), typeof(int[]));
-            var instance = model.Call("Steve", new[] {1, 2, 3});
+            var instance = model.Call("string", new[] {1, 2, 3});
             Assert.IsInstanceOf<Third>(instance);
-            Assert.AreEqual(((Third) instance).Name, "Steve");
-            Assert.AreEqual(((Third) instance).Values, new[] {1, 2, 3});
+            Assert.AreEqual("string", ((Third) instance).Name);
+            Assert.AreEqual(new[] {1, 2, 3}, ((Third) instance).Values);
 
             Assert.Throws<DodgeInvocationException>(() => model.Call());
             Assert.Throws<DodgeInvocationException>(() => model.Call((object) null));
