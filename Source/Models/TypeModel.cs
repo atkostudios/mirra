@@ -53,6 +53,8 @@ namespace Atko.Dodge.Models
 
         TypeModel(Type type)
         {
+            Type = type;
+
             ConstructorArray = GetConstructors(Type);
             MethodArray = GetMethods(Type);
             PropertyArray = GetProperties(Type);
