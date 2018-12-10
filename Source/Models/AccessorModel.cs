@@ -10,37 +10,32 @@ namespace Atko.Dodge.Models
         public abstract bool CanGet { get; }
         public abstract bool CanSet { get; }
 
-        InstanceGetInvoker InstanceGetInvoker =>
-            IsStatic
-                ? null
-                : instanceGetInvoker ??
-                  (instanceGetInvoker = CodeGenerator.InstanceGetter(Member));
+        InstanceGetInvoker InstanceGetInvoker => LazyInstanceGetInvoker.Value;
+        InstanceSetInvoker InstanceSetInvoker => LazyInstanceSetInvoker.Value;
+        StaticGetInvoker StaticGetInvoker => LazyStaticGetInvoker.Value;
+        StaticSetInvoker StaticSetInvoker => LazyStaticSetInvoker.Value;
 
-        InstanceSetInvoker InstanceSetInvoker =>
-            IsStatic
-                ? null
-                : instanceSetInvoker ??
-                  (instanceSetInvoker = CodeGenerator.InstanceSetter(Member));
+        Lazy<InstanceGetInvoker> LazyInstanceGetInvoker { get; }
+        Lazy<InstanceSetInvoker> LazyInstanceSetInvoker { get; }
+        Lazy<StaticGetInvoker> LazyStaticGetInvoker { get; }
+        Lazy<StaticSetInvoker> LazyStaticSetInvoker { get; }
 
-        StaticGetInvoker StaticGetInvoker =>
-            IsStatic
-                ? staticGetInvoker ?? (staticGetInvoker = CodeGenerator.StaticGetter(Member))
-                : null;
+        protected AccessorModel(Type owner, PropertyInfo property) : this(owner, (MemberInfo) property) { }
+        protected AccessorModel(Type owner, FieldInfo member) : this(owner, (MemberInfo) member) { }
 
-        StaticSetInvoker StaticSetInvoker =>
-            IsStatic
-                ? staticSetInvoker ?? (staticSetInvoker = CodeGenerator.StaticSetter(Member))
-                : null;
-
-        InstanceGetInvoker instanceGetInvoker;
-        InstanceSetInvoker instanceSetInvoker;
-        StaticGetInvoker staticGetInvoker;
-        StaticSetInvoker staticSetInvoker;
-
-        protected AccessorModel(Type owner, PropertyInfo property) : base(owner, property) { }
-        protected AccessorModel(Type owner, FieldInfo member) : base(owner, member) { }
-
-        AccessorModel(Type owner, MemberInfo member) : base(owner, member) { }
+        AccessorModel(Type owner, MemberInfo member) : base(owner, member)
+        {
+            if (IsStatic)
+            {
+                LazyStaticGetInvoker = new Lazy<StaticGetInvoker>(() => CodeGenerator.StaticGetter(Member));
+                LazyStaticSetInvoker = new Lazy<StaticSetInvoker>(() => CodeGenerator.StaticSetter(Member));
+            }
+            else
+            {
+                LazyInstanceGetInvoker = new Lazy<InstanceGetInvoker>(() => CodeGenerator.InstanceGetter(Member));
+                LazyInstanceSetInvoker = new Lazy<InstanceSetInvoker>(() => CodeGenerator.InstanceSetter(Member));
+            }
+        }
 
         [return: AllowNull]
         public object Get([AllowNull] object instance)
