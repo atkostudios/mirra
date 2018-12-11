@@ -40,18 +40,29 @@ namespace Atko.Dodge.Utility
             }
         }
 
-        [return: AllowNull]
-        public static FieldInfo GetField(Type type, bool instance, string name)
+        public static string GetBackingFieldName(PropertyInfo property)
         {
-            return FieldCache.GetOrAdd((type, instance, name),
-                (input) => GetFieldInternal(input.Item1, input.Item2, input.Item3));
+            return $"{BackingFieldPrefix}{property.Name}{BackingFieldSuffix}";
+        }
+
+        public static bool IsBackingField(this FieldInfo field)
+        {
+            return field.IsDefined(typeof(CompilerGeneratedAttribute)) &&
+                   field.Name.StartsWith(BackingFieldPrefix) &&
+                   field.Name.EndsWith(BackingFieldSuffix);
         }
 
         [return: AllowNull]
         public static FieldInfo GetBackingField(PropertyInfo property, bool instance)
         {
-            return BackingFieldCache.GetOrAdd((property, instance),
-                (input) => GetBackingFieldInternal(input.Item1, input.Item2));
+            var name = GetBackingFieldName(property);
+            var type = property.DeclaringType;
+            if (type == null)
+            {
+                return null;
+            }
+
+            return type.GetField(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic);
         }
 
         [return: AllowNull]
@@ -64,18 +75,6 @@ namespace Atko.Dodge.Utility
 
             return ImplementationCache.GetOrAdd((type, generic),
                 (input) => GetImplementationInternal(input.Item1, input.Item2));
-        }
-
-        public static string GetBackingFieldName(PropertyInfo property)
-        {
-            return $"{BackingFieldPrefix}{property.Name}{BackingFieldSuffix}";
-        }
-
-        public static bool IsBackingField(this FieldInfo field)
-        {
-            return field.IsDefined(typeof(CompilerGeneratedAttribute)) &&
-                   field.Name.StartsWith(BackingFieldPrefix) &&
-                   field.Name.EndsWith(BackingFieldSuffix);
         }
 
         [return: AllowNull]
@@ -132,35 +131,6 @@ namespace Atko.Dodge.Utility
                 {
                     return field;
                 }
-            }
-
-            return null;
-        }
-
-        [return: AllowNull]
-        static FieldInfo GetBackingFieldInternal(PropertyInfo property, bool instance)
-        {
-            if (property.GetGetMethod(true).IsDefined(typeof(CompilerGeneratedAttribute)))
-            {
-                var name = GetBackingFieldName(property);
-                var type = property.DeclaringType;
-                if (type == null)
-                {
-                    return null;
-                }
-
-                var field = GetField(type, instance, name);
-                if (field == null)
-                {
-                    return null;
-                }
-
-                if (field.IsDefined(typeof(CompilerGeneratedAttribute)))
-                {
-                    return field;
-                }
-
-                return null;
             }
 
             return null;
