@@ -29,7 +29,7 @@ namespace Atko.Dodge.Models
         {
             if (instance == null && RequiresInstance)
             {
-                const string message = "Member instance cannot be null.";
+                const string message = "Instance cannot be null.";
                 throw new DodgeInvocationException(message);
             }
 
