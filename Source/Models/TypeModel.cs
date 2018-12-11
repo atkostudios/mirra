@@ -26,133 +26,139 @@ namespace Atko.Dodge.Models
 
         static Cache<Type, TypeModel> TypeAccessorCache { get; } = new Cache<Type, TypeModel>();
 
+        static ArrayHash<Type> HashTypes(ParameterInfo[] parameters)
+        {
+            return parameters.Select((current) => current.ParameterType).ToArray();
+        }
+
         public Type Type { get; }
 
-        public IEnumerable<ConstructorModel> Constructors => ConstructorArray.Iterate();
-        public IEnumerable<MethodModel> Methods => MethodArray.Iterate();
-        public IEnumerable<PropertyModel> Properties => PropertyArray.Iterate();
-        public IEnumerable<FieldModel> Fields => FieldArray.Iterate();
-        public IEnumerable<AccessorModel> Accessors => AccessorArray.Iterate();
-        public IEnumerable<IndexerModel> Indexers => IndexerArray.Iterate();
+        [AllowNull]
+        public TypeModel Base { get; }
 
-        ConstructorModel[] ConstructorArray => LazyConstructorArray.Value;
-        MethodModel[] MethodArray => LazyMethodArray.Value;
-        PropertyModel[] PropertyArray => LazyPropertyArray.Value;
-        FieldModel[] FieldArray => LazyFieldArray.Value;
-        AccessorModel[] AccessorArray => LazyAccessorArray.Value;
-        IndexerModel[] IndexerArray => LazyIndexerArray.Value;
+        public IEnumerable<TypeModel> Inheritance
+        {
+            get
+            {
+                var current = this;
+                while (current != null)
+                {
+                    yield return current;
+                    current = current.Base;
+                }
+            }
+        }
 
-        Dictionary<ConstructorInfo, ConstructorModel> ConstructorMap => LazyConstructorMap.Value;
-        Dictionary<MethodInfo, MethodModel> MethodMap => LazyMethodMap.Value;
-        Dictionary<string, PropertyModel> PropertyMap => LazyPropertyMap.Value;
-        Dictionary<string, FieldModel> FieldMap => LazyFieldMap.Value;
-        Dictionary<string, AccessorModel> AccessorMap => LazyAccessorMap.Value;
-        Dictionary<PropertyInfo, IndexerModel> IndexerMap => LazyIndexerMap.Value;
+        Lazy<ConstructorModel[]> LazyConstructors { get; }
 
-        Lazy<ConstructorModel[]> LazyConstructorArray { get; }
-        Lazy<MethodModel[]> LazyMethodArray { get; }
-        Lazy<PropertyModel[]> LazyPropertyArray { get; }
-        Lazy<FieldModel[]> LazyFieldArray { get; }
-        Lazy<AccessorModel[]> LazyAccessorArray { get; }
-        Lazy<IndexerModel[]> LazyIndexerArray { get; }
+        Lazy<MethodModel[]> LazyLocalMethods { get; }
+        Lazy<PropertyModel[]> LazyLocalProperties { get; }
+        Lazy<FieldModel[]> LazyLocalFields { get; }
+        Lazy<AccessorModel[]> LazyLocalAccessors { get; }
+        Lazy<IndexerModel[]> LazyLocalIndexers { get; }
 
-        Lazy<Dictionary<ConstructorInfo, ConstructorModel>> LazyConstructorMap { get; }
-        Lazy<Dictionary<MethodInfo, MethodModel>> LazyMethodMap { get; }
+        Lazy<MethodModel[]> LazySurfaceMethods { get; }
+        Lazy<PropertyModel[]> LazySurfaceProperties { get; }
+        Lazy<FieldModel[]> LazySurfaceFields { get; }
+        Lazy<IndexerModel[]> LazySurfaceIndexers { get; }
+
+        Lazy<Dictionary<ArrayHash<Type>, ConstructorModel>> LazyConstructorMap { get; }
+        Lazy<Dictionary<(string, ArrayHash<Type>), MethodModel>> LazyMethodMap { get; }
         Lazy<Dictionary<string, PropertyModel>> LazyPropertyMap { get; }
         Lazy<Dictionary<string, FieldModel>> LazyFieldMap { get; }
-        Lazy<Dictionary<string, AccessorModel>> LazyAccessorMap { get; }
-        Lazy<Dictionary<PropertyInfo, IndexerModel>> LazyIndexerMap { get; }
+        Lazy<Dictionary<ArrayHash<Type>, IndexerModel>> LazyIndexerMap { get; }
 
         TypeModel(Type type)
         {
             Type = type;
+            Base = type.BaseType?.Model();
 
-            LazyConstructorArray = new Lazy<ConstructorModel[]>(() => GetConstructors(Type));
-            LazyMethodArray = new Lazy<MethodModel[]>(() => GetMethods(Type));
-            LazyPropertyArray = new Lazy<PropertyModel[]>(() => GetProperties(Type));
-            LazyFieldArray = new Lazy<FieldModel[]>(() => GetFields(Type));
-            LazyAccessorArray = new Lazy<AccessorModel[]>(() =>
-                PropertyArray.Cast<AccessorModel>().Concat(FieldArray).ToArray());
-            LazyIndexerArray = new Lazy<IndexerModel[]>(() => GetIndexers(Type));
+            LazyConstructors = new Lazy<ConstructorModel[]>(() => GetConstructors(Type));
 
-            LazyConstructorMap = new Lazy<Dictionary<ConstructorInfo, ConstructorModel>>(() =>
-                ConstructorArray.ToDictionary((current) => current.Constructor));
+            LazyLocalMethods = new Lazy<MethodModel[]>(() => GetMethods(Type, true));
+            LazyLocalProperties = new Lazy<PropertyModel[]>(() => GetProperties(Type, true));
+            LazyLocalFields = new Lazy<FieldModel[]>(() => GetFields(Type, true));
 
-            LazyMethodMap = new Lazy<Dictionary<MethodInfo, MethodModel>>(() =>
-                MethodArray.ToDictionary((current) => current.Method));
+            LazyLocalAccessors = new Lazy<AccessorModel[]>(() =>
+                LazyLocalProperties.Value
+                    .Cast<AccessorModel>()
+                    .Concat(LazyLocalFields.Value)
+                    .ToArray());
+
+            LazyLocalIndexers = new Lazy<IndexerModel[]>(() => GetIndexers(Type, true));
+
+            LazySurfaceMethods = new Lazy<MethodModel[]>(() => GetUnique(GetMethods(Type, false)));
+            LazySurfaceProperties = new Lazy<PropertyModel[]>(() => GetUnique(GetProperties(Type, false)));
+            LazySurfaceFields = new Lazy<FieldModel[]>(() => GetUnique(GetFields(Type, false)));
+
+            LazySurfaceIndexers = new Lazy<IndexerModel[]>(() => GetIndexers(Type, false));
+
+            LazyConstructorMap = new Lazy<Dictionary<ArrayHash<Type>, ConstructorModel>>(() =>
+                Constructors()
+                    .ToDictionaryByFirst((constructor) => HashTypes(constructor.Constructor.GetParameters())));
+
+            LazyMethodMap = new Lazy<Dictionary<(string, ArrayHash<Type>), MethodModel>>(() =>
+                Methods(MemberQuery.All)
+                    .ToDictionaryByFirst((current) => (current.Name, HashTypes(current.Method.GetParameters()))));
 
             LazyPropertyMap = new Lazy<Dictionary<string, PropertyModel>>(() =>
-                PropertyArray.ToDictionary((current) => current.Name));
+                Properties(MemberQuery.All)
+                    .ToDictionaryByFirst((current) => current.Name));
 
             LazyFieldMap = new Lazy<Dictionary<string, FieldModel>>(() =>
-                FieldArray.ToDictionary((current) => current.Name));
+                Fields(MemberQuery.All)
+                    .ToDictionaryByFirst((current) => current.Name));
 
-            LazyAccessorMap = new Lazy<Dictionary<string, AccessorModel>>(() =>
-                AccessorArray.ToDictionary((current) => current.Name));
-
-            LazyIndexerMap = new Lazy<Dictionary<PropertyInfo, IndexerModel>>(() =>
-                IndexerArray.ToDictionary((current) => current.Property));
+            LazyIndexerMap = new Lazy<Dictionary<ArrayHash<Type>, IndexerModel>>(() =>
+                Indexers(MemberQuery.All)
+                    .ToDictionaryByFirst((current) => HashTypes(current.Property.GetIndexParameters())));
         }
 
         [return: AllowNull]
         public ConstructorModel GetConstructor(params Type[] types)
         {
-            var constructor = TypeUtility.GetConstructor(Type, types);
-            if (constructor == null)
-            {
-                return null;
-            }
-
-            ConstructorMap.TryGetValue(constructor, out var model);
+            LazyConstructorMap.Value.TryGetValue(types, out var model);
             return model;
         }
 
         [return: AllowNull]
         public MethodModel GetMethod(string name, params Type[] types)
         {
-            var method = TypeUtility.GetMethod(Type, true, name, types) ??
-                         TypeUtility.GetMethod(Type, false, name, types);
-
-            if (method == null)
-            {
-                return null;
-            }
-
-            MethodMap.TryGetValue(method, out var model);
+            LazyMethodMap.Value.TryGetValue((name, types), out var model);
             return model;
         }
 
         [return: AllowNull]
         public PropertyModel GetProperty(string name)
         {
-            PropertyMap.TryGetValue(name, out var model);
+            LazyPropertyMap.Value.TryGetValue(name, out var model);
             return model;
         }
 
         [return: AllowNull]
         public FieldModel GetField(string name)
         {
-            FieldMap.TryGetValue(name, out var model);
+            LazyFieldMap.Value.TryGetValue(name, out var model);
             return model;
         }
 
         [return: AllowNull]
         public AccessorModel GetAccessor(string name)
         {
-            AccessorMap.TryGetValue(name, out var model);
-            return model;
+            LazyPropertyMap.Value.TryGetValue(name, out var property);
+            if (property != null)
+            {
+                return property;
+            }
+
+            LazyFieldMap.Value.TryGetValue(name, out var field);
+            return field;
         }
 
         public IndexerModel GetIndexer(params Type[] types)
         {
-            var property = TypeUtility.GetProperty(Type, true, "Item", types);
-            if (property == null)
-            {
-                return null;
-            }
-
-            IndexerMap.TryGetValue(property, out var indexer);
-            return indexer;
+            LazyIndexerMap.Value.TryGetValue(types, out var model);
+            return model;
         }
 
         public ConstructorModel Constructor(params Type[] types)
@@ -185,6 +191,91 @@ namespace Atko.Dodge.Models
             return GetIndexer(types) ?? throw new DodgeMissingMemberException();
         }
 
+        public enum MemberQuery
+        {
+            Surface,
+            Local,
+            All
+        }
+
+        public IEnumerable<ConstructorModel> Constructors()
+        {
+            return LazyConstructors.Value;
+        }
+
+        public IEnumerable<MethodModel> Methods(MemberQuery query = default(MemberQuery))
+        {
+            switch (query)
+            {
+                case MemberQuery.Surface:
+                    return LazySurfaceMethods.Value;
+                case MemberQuery.Local:
+                    return LazyLocalMethods.Value;
+                case MemberQuery.All:
+                    return Inheritance.SelectMany((current) => current.LazyLocalMethods.Value);
+            }
+
+            return Enumerable.Empty<MethodModel>();
+        }
+
+        public IEnumerable<FieldModel> Fields(MemberQuery query = default(MemberQuery))
+        {
+            switch (query)
+            {
+                case MemberQuery.Surface:
+                    return LazySurfaceFields.Value;
+                case MemberQuery.Local:
+                    return LazyLocalFields.Value;
+                case MemberQuery.All:
+                    return Inheritance.SelectMany((current) => current.LazyLocalFields.Value);
+            }
+
+            return Enumerable.Empty<FieldModel>();
+        }
+
+        public IEnumerable<PropertyModel> Properties(MemberQuery query = default(MemberQuery))
+        {
+            switch (query)
+            {
+                case MemberQuery.Surface:
+                    return LazySurfaceProperties.Value;
+                case MemberQuery.Local:
+                    return LazyLocalProperties.Value;
+                case MemberQuery.All:
+                    return Inheritance.SelectMany((current) => current.LazyLocalProperties.Value);
+            }
+
+            return Enumerable.Empty<PropertyModel>();
+        }
+
+        public IEnumerable<AccessorModel> Accessors(MemberQuery query = default(MemberQuery))
+        {
+            foreach (var model in Properties(query))
+            {
+                yield return model;
+            }
+
+            foreach (var model in Fields(query))
+            {
+                yield return model;
+            }
+        }
+
+        public IEnumerable<IndexerModel> Indexers(MemberQuery query = default(MemberQuery))
+        {
+            switch (query)
+            {
+                case MemberQuery.Surface:
+                    return LazySurfaceIndexers.Value;
+                case MemberQuery.Local:
+                    return LazyLocalIndexers.Value;
+                case MemberQuery.All:
+                    return Inheritance.SelectMany((current) => current.LazyLocalIndexers.Value);
+            }
+
+            return Enumerable.Empty<IndexerModel>();
+        }
+
         ConstructorModel[] GetConstructors(Type type)
         {
             return type
@@ -194,7 +285,7 @@ namespace Atko.Dodge.Models
                 .ToArray();
         }
 
-        MethodModel[] GetMethods(Type type)
+        MethodModel[] GetMethods(Type type, bool local)
         {
             var models = new List<MethodModel>();
             foreach (var ancestor in type.Inheritance())
@@ -218,12 +309,17 @@ namespace Atko.Dodge.Models
                 models.AddRange(instanceMembers);
                 models.AddRange(interfaceMembers);
                 models.AddRange(staticMembers);
+
+                if (local)
+                {
+                    break;
+                }
             }
 
-            return GetUnique(models);
+            return models.ToArray();
         }
 
-        PropertyModel[] GetProperties(Type type)
+        PropertyModel[] GetProperties(Type type, bool local)
         {
             var models = new List<PropertyModel>();
             foreach (var ancestor in type.Inheritance())
@@ -247,12 +343,17 @@ namespace Atko.Dodge.Models
                 models.AddRange(instanceMembers);
                 models.AddRange(interfaceMembers);
                 models.AddRange(staticMembers);
+
+                if (local)
+                {
+                    break;
+                }
             }
 
-            return GetUnique(models);
+            return models.ToArray();
         }
 
-        FieldModel[] GetFields(Type type)
+        FieldModel[] GetFields(Type type, bool local)
         {
             var models = new List<FieldModel>();
             foreach (var ancestor in type.Inheritance())
@@ -267,12 +368,17 @@ namespace Atko.Dodge.Models
 
                 models.AddRange(instanceMembers);
                 models.AddRange(staticMembers);
+
+                if (local)
+                {
+                    break;
+                }
             }
 
-            return GetUnique(models);
+            return models.ToArray();
         }
 
-        IndexerModel[] GetIndexers(Type type)
+        IndexerModel[] GetIndexers(Type type, bool local)
         {
             var models = new List<IndexerModel>();
             foreach (var ancestor in type.Inheritance())
@@ -288,12 +394,16 @@ namespace Atko.Dodge.Models
                     .Where(IndexerModel.CanCreateFrom)
                     .Select((current) => new IndexerModel(type, current));
 
-
                 models.AddRange(instanceMembers);
                 models.AddRange(interfaceMembers);
+
+                if (local)
+                {
+                    break;
+                }
             }
 
-            return GetUnique(models);
+            return models.ToArray();
         }
 
         T[] GetUnique<T>(IEnumerable<T> models) where T : MemberModel

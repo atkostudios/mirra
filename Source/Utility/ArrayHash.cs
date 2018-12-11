@@ -4,6 +4,16 @@ namespace Atko.Dodge.Utility
 {
     struct ArrayHash<T>
     {
+        public static implicit operator T[](ArrayHash<T> hash)
+        {
+            return hash.Array;
+        }
+
+        public static implicit operator ArrayHash<T>(T[] array)
+        {
+            return new ArrayHash<T>(array);
+        }
+
         public T[] Array { get; }
 
         public ArrayHash(T[] elements)

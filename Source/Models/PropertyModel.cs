@@ -17,7 +17,8 @@ namespace Atko.Dodge.Models
             (Property.SetMethod?.IsPublic ?? false);
 
         public override bool CanGet => Property.CanRead || BackingField != null;
-        public override bool CanSet => Property.CanWrite;
+
+        public override bool CanSet => Property.CanWrite || BackingField != null;
 
         [AllowNull]
         public FieldModel BackingField => LazyBackingField.Value;
