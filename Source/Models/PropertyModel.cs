@@ -12,10 +12,7 @@ namespace Atko.Dodge.Models
             return property.GetIndexParameters().Length == 0;
         }
 
-        public override bool IsPublic =>
-            Property.GetMethod.IsPublic ||
-            (Property.SetMethod?.IsPublic ?? false);
-
+        public override bool IsPublic => Property.GetMethod.IsPublic || (Property.SetMethod?.IsPublic ?? false);
         public override bool IsStatic => Property.GetMethod.IsStatic;
 
         public override bool CanGet => Property.CanRead || BackingField != null;

@@ -1,4 +1,4 @@
-namespace Atko.Dodge.Dynamic
+namespace Atko.Dodge.Generation
 {
     public delegate object InstanceMethodInvoker(object instance, object[] arguments);
 

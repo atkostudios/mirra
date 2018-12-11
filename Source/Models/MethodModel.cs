@@ -1,6 +1,6 @@
 using System;
 using System.Reflection;
-using Atko.Dodge.Dynamic;
+using Atko.Dodge.Generation;
 using Atko.Dodge.Utility;
 using NullGuard;
 
@@ -12,8 +12,8 @@ namespace Atko.Dodge.Models
 
         internal MethodModel(Type owner, MethodInfo method) :
             base(owner, method,
-                (argumentCount) => CodeGenerator.InstanceMethod(method, argumentCount),
-                (argumentCount) => CodeGenerator.StaticMethod(method, argumentCount)) { }
+                (argumentCount) => Generate.InstanceMethod(method, argumentCount),
+                (argumentCount) => Generate.StaticMethod(method, argumentCount)) { }
 
         [return: AllowNull]
         public object Call([AllowNull] object instance, params object[] arguments)

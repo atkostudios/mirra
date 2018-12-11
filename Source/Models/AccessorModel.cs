@@ -1,6 +1,6 @@
 using System;
 using System.Reflection;
-using Atko.Dodge.Dynamic;
+using Atko.Dodge.Generation;
 using NullGuard;
 
 namespace Atko.Dodge.Models
@@ -25,16 +25,10 @@ namespace Atko.Dodge.Models
 
         AccessorModel(Type owner, MemberInfo member) : base(owner, member)
         {
-            if (IsStatic)
-            {
-                LazyStaticGetInvoker = new Lazy<StaticGetInvoker>(() => CodeGenerator.StaticGetter(Member));
-                LazyStaticSetInvoker = new Lazy<StaticSetInvoker>(() => CodeGenerator.StaticSetter(Member));
-            }
-            else
-            {
-                LazyInstanceGetInvoker = new Lazy<InstanceGetInvoker>(() => CodeGenerator.InstanceGetter(Member));
-                LazyInstanceSetInvoker = new Lazy<InstanceSetInvoker>(() => CodeGenerator.InstanceSetter(Member));
-            }
+            LazyStaticGetInvoker = new Lazy<StaticGetInvoker>(() => Generate.StaticGetter(Member));
+            LazyStaticSetInvoker = new Lazy<StaticSetInvoker>(() => Generate.StaticSetter(Member));
+            LazyInstanceGetInvoker = new Lazy<InstanceGetInvoker>(() => Generate.InstanceGetter(Member));
+            LazyInstanceSetInvoker = new Lazy<InstanceSetInvoker>(() => Generate.InstanceSetter(Member));
         }
 
         [return: AllowNull]

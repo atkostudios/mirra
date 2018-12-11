@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Atko.Dodge.Dynamic;
+using Atko.Dodge.Generation;
 
 namespace Atko.Dodge.Models
 {
@@ -18,10 +18,7 @@ namespace Atko.Dodge.Models
             return !parameters.Any((current) => current.IsIn || current.IsOut || current.IsRetval);
         }
 
-        public override bool IsPublic =>
-            Property.GetMethod.IsPublic ||
-            (Property.SetMethod?.IsPublic ?? false);
-
+        public override bool IsPublic => Property.GetMethod.IsPublic || (Property.SetMethod?.IsPublic ?? false);
         public override bool IsStatic => Property.GetMethod.IsStatic;
 
         public bool CanGet => Property.CanRead;
@@ -41,10 +38,10 @@ namespace Atko.Dodge.Models
 
             var parameters = Property.GetIndexParameters();
             GetInvokers = new InvokerDispatch<IndexerGetInvoker>(parameters,
-                (argumentCount) => CodeGenerator.IndexGetter(Property, argumentCount));
+                (argumentCount) => Generate.InstanceIndexGetter(Property, argumentCount));
 
             SetInvokers = new InvokerDispatch<IndexerSetInvoker>(parameters,
-                (argumentCount) => CodeGenerator.IndexSetter(Property, argumentCount));
+                (argumentCount) => Generate.InstanceIndexSetter(Property, argumentCount));
         }
 
         public object Get(object instance, object index)

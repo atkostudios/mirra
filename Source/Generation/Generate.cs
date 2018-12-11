@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -6,21 +7,18 @@ using System.Reflection.Emit;
 using Atko.Dodge.Utility;
 using NullGuard;
 
-namespace Atko.Dodge.Dynamic
+namespace Atko.Dodge.Generation
 {
-    static class CodeGenerator
+    static class Generate
     {
         public static StaticGetInvoker StaticGetter(MemberInfo accessor)
         {
-            if ((accessor.MemberType & (MemberTypes.Property | MemberTypes.Field)) == 0)
-            {
-                throw new ArgumentException(nameof(accessor));
-            }
+            Debug.Assert(IsAccessor(accessor));
 
-            var reduced = ReduceToStaticFieldGet(accessor);
-            if (reduced != null)
+            var extracted = ExtractStaticFieldGetter(accessor);
+            if (extracted != null)
             {
-                return reduced;
+                return extracted;
             }
 
             var accessExpression = GetAccessExpression(accessor);
@@ -31,15 +29,12 @@ namespace Atko.Dodge.Dynamic
 
         public static InstanceGetInvoker InstanceGetter(MemberInfo accessor)
         {
-            if ((accessor.MemberType & (MemberTypes.Property | MemberTypes.Field)) == 0)
-            {
-                throw new ArgumentException(nameof(accessor));
-            }
+            Debug.Assert(IsAccessor(accessor));
 
-            var reduced = ReduceToInstanceFieldGet(accessor);
-            if (reduced != null)
+            var extracted = ExtractInstanceFieldGetter(accessor);
+            if (extracted != null)
             {
-                return reduced;
+                return extracted;
             }
 
             var instanceExpression = Expression.Parameter(typeof(object), "instance");
@@ -58,15 +53,12 @@ namespace Atko.Dodge.Dynamic
 
         public static StaticSetInvoker StaticSetter(MemberInfo accessor)
         {
-            if ((accessor.MemberType & (MemberTypes.Property | MemberTypes.Field)) == 0)
-            {
-                throw new ArgumentException(nameof(accessor));
-            }
+            Debug.Assert(IsAccessor(accessor));
 
-            var reduced = ReduceToStaticFieldSet(accessor);
-            if (reduced != null)
+            var extracted = ExtractStaticFieldSetter(accessor);
+            if (extracted != null)
             {
-                return reduced;
+                return extracted;
             }
 
             var valueParameter = Expression.Parameter(typeof(object), "value");
@@ -84,15 +76,12 @@ namespace Atko.Dodge.Dynamic
 
         public static InstanceSetInvoker InstanceSetter(MemberInfo accessor)
         {
-            if ((accessor.MemberType & (MemberTypes.Property | MemberTypes.Field)) == 0)
-            {
-                throw new ArgumentException(nameof(accessor));
-            }
+            Debug.Assert(IsAccessor(accessor));
 
-            var reduced = ReduceToInstanceFieldSet(accessor);
-            if (reduced != null)
+            var extracted = ExtractInstanceFieldSetter(accessor);
+            if (extracted != null)
             {
-                return reduced;
+                return extracted;
             }
 
             var instanceExpression = Expression.Parameter(typeof(object), "instance");
@@ -111,107 +100,9 @@ namespace Atko.Dodge.Dynamic
             return Expression.Lambda<InstanceSetInvoker>(assignExpression, parameters).Compile();
         }
 
-        public static StaticGetInvoker StaticFieldGetter(FieldInfo field)
-        {
-            var name = $"__GENERATED_GET__{field.Name}";
-            var method = new DynamicMethod(name, typeof(object), new Type[] { }, field.DeclaringType, true);
-            var generator = method.GetILGenerator();
-
-            {
-                generator.Emit(OpCodes.Ldsfld, field);
-                if (field.FieldType.IsValueType)
-                {
-                    generator.Emit(OpCodes.Box, field.FieldType);
-                }
-
-                generator.Emit(OpCodes.Castclass, typeof(object));
-                generator.Emit(OpCodes.Ret);
-            }
-
-            return (StaticGetInvoker) method.CreateDelegate(typeof(StaticGetInvoker));
-        }
-
-        public static InstanceGetInvoker InstanceFieldGetter(FieldInfo field)
-        {
-            var name = $"__GENERATED_GET__{field.Name}";
-            var method = new DynamicMethod(name, typeof(object), new[] {typeof(object)}, field.DeclaringType, true);
-            var generator = method.GetILGenerator();
-
-            {
-                generator.Emit(OpCodes.Ldarg_0);
-                generator.Emit(OpCodes.Castclass, field.DeclaringType);
-                generator.Emit(OpCodes.Ldfld, field);
-                if (field.FieldType.IsValueType)
-                {
-                    generator.Emit(OpCodes.Box, field.FieldType);
-                }
-
-                generator.Emit(OpCodes.Castclass, typeof(object));
-                generator.Emit(OpCodes.Ret);
-            }
-
-            return (InstanceGetInvoker) method.CreateDelegate(typeof(InstanceGetInvoker));
-        }
-
-        public static StaticSetInvoker StaticFieldSetter(FieldInfo field)
-        {
-            var name = $"__GENERIC_SET__{field.Name}";
-            var method = new DynamicMethod(name, typeof(void), new[] {typeof(object)}, field.DeclaringType, true);
-
-            var generator = method.GetILGenerator();
-
-            {
-                generator.Emit(OpCodes.Ldarg_0);
-                if (field.FieldType.IsValueType)
-                {
-                    generator.Emit(OpCodes.Unbox_Any, field.FieldType);
-                }
-                else
-                {
-                    generator.Emit(OpCodes.Castclass, field.FieldType);
-                }
-
-                generator.Emit(OpCodes.Stsfld, field);
-                generator.Emit(OpCodes.Ret);
-            }
-
-            return (StaticSetInvoker) method.CreateDelegate(typeof(StaticSetInvoker));
-        }
-
-        public static InstanceSetInvoker InstanceFieldSetter(FieldInfo field)
-        {
-            var name = $"__GENERIC_SET__{field.Name}";
-            var method = new DynamicMethod(name, typeof(void), new[] {typeof(object), typeof(object)},
-                field.DeclaringType, true);
-
-            var generator = method.GetILGenerator();
-
-            {
-                generator.Emit(OpCodes.Ldarg_0);
-                generator.Emit(OpCodes.Castclass, field.DeclaringType);
-                generator.Emit(OpCodes.Ldarg_1);
-                if (field.FieldType.IsValueType)
-                {
-                    generator.Emit(OpCodes.Unbox_Any, field.FieldType);
-                }
-                else
-                {
-                    generator.Emit(OpCodes.Castclass, field.FieldType);
-                }
-
-                generator.Emit(OpCodes.Stfld, field);
-                generator.Emit(OpCodes.Ret);
-            }
-
-            return (InstanceSetInvoker) method.CreateDelegate(typeof(InstanceSetInvoker));
-        }
-
         public static StaticMethodInvoker StaticMethod(MethodInfo method, int argumentCount)
         {
-            if (!method.IsStatic)
-            {
-                throw new ArgumentException(nameof(method));
-            }
+            Debug.Assert(method.IsStatic);
 
             var argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
             var argumentExpressions = GetArguments(method.GetParameters(), argumentsParameter, argumentCount);
@@ -231,10 +122,7 @@ namespace Atko.Dodge.Dynamic
 
         public static InstanceMethodInvoker InstanceMethod(MethodInfo method, int argumentCount)
         {
-            if (method.IsStatic)
-            {
-                throw new ArgumentException(nameof(method));
-            }
+            Debug.Assert(!method.IsStatic);
 
             var instanceParameter = Expression.Parameter(typeof(object), "instance");
             var castedInstanceParameter = Expression.Convert(instanceParameter, method.DeclaringType);
@@ -270,7 +158,7 @@ namespace Atko.Dodge.Dynamic
             return Expression.Lambda<StaticMethodInvoker>(body, parameters).Compile();
         }
 
-        public static IndexerGetInvoker IndexGetter(PropertyInfo property, int argumentCount)
+        public static IndexerGetInvoker InstanceIndexGetter(PropertyInfo property, int argumentCount)
         {
             var instanceParameter = Expression.Parameter(typeof(object), "instance");
             var castedInstanceParameter = Expression.Convert(instanceParameter, property.DeclaringType);
@@ -288,7 +176,7 @@ namespace Atko.Dodge.Dynamic
             return Expression.Lambda<IndexerGetInvoker>(castedAccessExpression, parameters).Compile();
         }
 
-        public static IndexerSetInvoker IndexSetter(PropertyInfo property, int argumentCount)
+        public static IndexerSetInvoker InstanceIndexSetter(PropertyInfo property, int argumentCount)
         {
             var instanceParameter = Expression.Parameter(typeof(object), "instance");
             var castedInstanceParameter = Expression.Convert(instanceParameter, property.DeclaringType);
@@ -309,31 +197,103 @@ namespace Atko.Dodge.Dynamic
             return Expression.Lambda<IndexerSetInvoker>(assignExpression, parameters).Compile();
         }
 
-        static Expression GetAccessExpression(MemberInfo member, Expression castInstanceExpression = null)
+        static StaticGetInvoker StaticFieldGetter(FieldInfo field)
         {
-            if (member.MemberType == MemberTypes.Property)
+            var name = $"__GENERATED_GET__{field.Name}";
+            var method = new DynamicMethod(name, typeof(object), new Type[] { }, field.DeclaringType, true);
+            var generator = method.GetILGenerator();
+
             {
-                return Expression.Property(castInstanceExpression, (PropertyInfo) member);
+                generator.Emit(OpCodes.Ldsfld, field);
+                if (field.FieldType.IsValueType)
+                {
+                    generator.Emit(OpCodes.Box, field.FieldType);
+                }
+
+                generator.Emit(OpCodes.Castclass, typeof(object));
+                generator.Emit(OpCodes.Ret);
             }
 
-            return Expression.Field(castInstanceExpression, (FieldInfo) member);
+            return (StaticGetInvoker) method.CreateDelegate(typeof(StaticGetInvoker));
         }
 
-        static Expression[] GetArguments(ParameterInfo[] parameters, Expression arguments, int count)
+        static InstanceGetInvoker InstanceFieldGetter(FieldInfo field)
         {
-            var types = parameters
-                .Select((current) => current.ParameterType)
-                .ToArray();
+            var name = $"__GENERATED_GET__{field.Name}";
+            var method = new DynamicMethod(name, typeof(object), new[] {typeof(object)}, field.DeclaringType, true);
+            var generator = method.GetILGenerator();
 
-            return Enumerable.Range(0, count)
-                .Select((i) => Expression.ArrayAccess(arguments, Expression.Constant(i)))
-                .Zip(types, Expression.Convert)
-                .Cast<Expression>()
-                .ToArray();
+            {
+                generator.Emit(OpCodes.Ldarg_0);
+                generator.Emit(OpCodes.Castclass, field.DeclaringType);
+                generator.Emit(OpCodes.Ldfld, field);
+                if (field.FieldType.IsValueType)
+                {
+                    generator.Emit(OpCodes.Box, field.FieldType);
+                }
+
+                generator.Emit(OpCodes.Castclass, typeof(object));
+                generator.Emit(OpCodes.Ret);
+            }
+
+            return (InstanceGetInvoker) method.CreateDelegate(typeof(InstanceGetInvoker));
+        }
+
+        static StaticSetInvoker StaticFieldSetter(FieldInfo field)
+        {
+            var name = $"__GENERIC_SET__{field.Name}";
+            var method = new DynamicMethod(name, typeof(void), new[] {typeof(object)}, field.DeclaringType, true);
+
+            var generator = method.GetILGenerator();
+
+            {
+                generator.Emit(OpCodes.Ldarg_0);
+                if (field.FieldType.IsValueType)
+                {
+                    generator.Emit(OpCodes.Unbox_Any, field.FieldType);
+                }
+                else
+                {
+                    generator.Emit(OpCodes.Castclass, field.FieldType);
+                }
+
+                generator.Emit(OpCodes.Stsfld, field);
+                generator.Emit(OpCodes.Ret);
+            }
+
+            return (StaticSetInvoker) method.CreateDelegate(typeof(StaticSetInvoker));
+        }
+
+        static InstanceSetInvoker InstanceFieldSetter(FieldInfo field)
+        {
+            var name = $"__GENERIC_SET__{field.Name}";
+            var method = new DynamicMethod(name, typeof(void), new[] {typeof(object), typeof(object)},
+                field.DeclaringType, true);
+
+            var generator = method.GetILGenerator();
+
+            {
+                generator.Emit(OpCodes.Ldarg_0);
+                generator.Emit(OpCodes.Castclass, field.DeclaringType);
+                generator.Emit(OpCodes.Ldarg_1);
+                if (field.FieldType.IsValueType)
+                {
+                    generator.Emit(OpCodes.Unbox_Any, field.FieldType);
+                }
+                else
+                {
+                    generator.Emit(OpCodes.Castclass, field.FieldType);
+                }
+
+                generator.Emit(OpCodes.Stfld, field);
+                generator.Emit(OpCodes.Ret);
+            }
+
+            return (InstanceSetInvoker) method.CreateDelegate(typeof(InstanceSetInvoker));
         }
 
         [return: AllowNull]
-        static InstanceGetInvoker ReduceToInstanceFieldGet(MemberInfo accessor)
+        static InstanceGetInvoker ExtractInstanceFieldGetter(MemberInfo accessor)
         {
             if (accessor is FieldInfo field)
             {
@@ -353,7 +313,7 @@ namespace Atko.Dodge.Dynamic
         }
 
         [return: AllowNull]
-        static InstanceSetInvoker ReduceToInstanceFieldSet(MemberInfo accessor)
+        static InstanceSetInvoker ExtractInstanceFieldSetter(MemberInfo accessor)
         {
             if (accessor is FieldInfo field)
             {
@@ -373,7 +333,7 @@ namespace Atko.Dodge.Dynamic
         }
 
         [return: AllowNull]
-        static StaticGetInvoker ReduceToStaticFieldGet(MemberInfo accessor)
+        static StaticGetInvoker ExtractStaticFieldGetter(MemberInfo accessor)
         {
             if (accessor is FieldInfo field)
             {
@@ -393,7 +353,7 @@ namespace Atko.Dodge.Dynamic
         }
 
         [return: AllowNull]
-        static StaticSetInvoker ReduceToStaticFieldSet(MemberInfo accessor)
+        static StaticSetInvoker ExtractStaticFieldSetter(MemberInfo accessor)
         {
             if (accessor is FieldInfo field)
             {
@@ -410,6 +370,51 @@ namespace Atko.Dodge.Dynamic
             }
 
             return null;
+        }
+
+        [return: AllowNull]
+        static Expression GetAccessExpression(MemberInfo member, Expression castInstanceExpression = null)
+        {
+            if (member is PropertyInfo property)
+            {
+                return Expression.Property(castInstanceExpression, property);
+            }
+
+            if (member is FieldInfo field)
+            {
+                return Expression.Field(castInstanceExpression, field);
+            }
+
+            return null;
+        }
+
+        static Expression[] GetArguments(ParameterInfo[] parameters, Expression arguments, int count)
+        {
+            #if DEBUG
+            var minArgumentCount = parameters
+                .TakeWhile((current) => !current.IsOptional)
+                .Count();
+
+            var maxArgumentCount = parameters.Length;
+
+            Debug.Assert(count >= minArgumentCount && count <= maxArgumentCount);
+            #endif
+
+            var types = parameters
+                .Select((current) => current.ParameterType)
+                .ToArray();
+
+            return Enumerable
+                .Range(0, count)
+                .Select((i) => Expression.ArrayAccess(arguments, Expression.Constant(i)))
+                .Zip(types, Expression.Convert)
+                .Cast<Expression>()
+                .ToArray();
+        }
+
+        static bool IsAccessor(MemberInfo member)
+        {
+            return (member.MemberType & (MemberTypes.Property | MemberTypes.Field)) != 0;
         }
     }
 }

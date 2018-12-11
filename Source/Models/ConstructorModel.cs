@@ -1,6 +1,6 @@
 using System;
 using System.Reflection;
-using Atko.Dodge.Dynamic;
+using Atko.Dodge.Generation;
 using NullGuard;
 
 namespace Atko.Dodge.Models
@@ -11,7 +11,7 @@ namespace Atko.Dodge.Models
 
         internal ConstructorModel(Type owner, ConstructorInfo constructor) :
             base(owner, constructor, null,
-                (argumentCount) => CodeGenerator.Constructor(constructor, argumentCount)) { }
+                (argumentCount) => Generate.Constructor(constructor, argumentCount)) { }
 
         public object Call(params object[] arguments)
         {
