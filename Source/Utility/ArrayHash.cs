@@ -53,13 +53,16 @@ namespace Atko.Dodge.Utility
 
         public override int GetHashCode()
         {
-            var code = 0;
-            foreach (var element in Array)
+            unchecked
             {
-                code = (code * 397) ^ element?.GetHashCode() ?? 1;
-            }
+                var code = 0;
+                foreach (var element in Array)
+                {
+                    code = (code * 397) ^ (element?.GetHashCode() ?? 0);
+                }
 
-            return code;
+                return code;
+            }
         }
     }
 }
