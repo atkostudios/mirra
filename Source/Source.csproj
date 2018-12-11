@@ -63,13 +63,11 @@
   <!-- References -->
   <!--*************************************************************************************************************-->
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="NullGuard, Version=1.8.5.0">
       <HintPath>..\packages\NullGuard.Fody.1.8.5\lib\net40\NullGuard.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.CSharp" Condition="$(DefineConstants.Contains('HAVE_DYNAMIC'))" />
   </ItemGroup>
   <!--*************************************************************************************************************-->
   <!-- Source Files -->
