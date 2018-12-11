@@ -35,6 +35,7 @@ namespace Atko.Dodge.Tests.Models
             typeof(Class).GetProperty(nameof(Class.HiddenAutoProperty), bindings)?.SetValue(null, new TestValue(0));
             GetBackingField(typeof(Class).GetProperty(nameof(Class.PublicGetOnlyAutoProperty), bindings))
                 ?.SetValue(null, new TestValue(0));
+
             GetBackingField(typeof(Class).GetProperty(nameof(Class.HiddenGetOnlyAutoProperty), bindings))
                 ?.SetValue(null, new TestValue(0));
         }

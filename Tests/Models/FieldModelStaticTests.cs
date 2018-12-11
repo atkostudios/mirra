@@ -22,7 +22,6 @@ namespace Atko.Dodge.Tests.Models
             static Class()
             {
                 Console.WriteLine(PublicField);
-
             }
         }
         #pragma warning restore 169

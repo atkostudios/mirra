@@ -42,6 +42,7 @@ namespace Atko.Dodge.Models
             var parameters = Property.GetIndexParameters();
             GetInvokers = new InvokerDispatch<IndexerGetInvoker>(parameters,
                 (argumentCount) => CodeGenerator.IndexGetter(Property, argumentCount));
+
             SetInvokers = new InvokerDispatch<IndexerSetInvoker>(parameters,
                 (argumentCount) => CodeGenerator.IndexSetter(Property, argumentCount));
         }
