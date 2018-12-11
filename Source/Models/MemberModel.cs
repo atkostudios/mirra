@@ -8,10 +8,11 @@ namespace Atko.Dodge.Models
     public abstract class MemberModel
     {
         public string Name { get; }
-        public bool IsStatic { get; }
-        public bool IsCompilerGenerated { get; }
 
         public abstract bool IsPublic { get; }
+        public abstract bool IsStatic { get; }
+
+        public bool IsCompilerGenerated { get; }
 
         public bool RequiresInstance => Member.MemberType != MemberTypes.Constructor && !IsStatic;
 
@@ -21,7 +22,6 @@ namespace Atko.Dodge.Models
         {
             Member = member;
             Name = Member.Name.SubstringAfterLast(".");
-            IsStatic = TypeUtility.IsStatic(member);
             IsCompilerGenerated = Member.IsDefined(typeof(CompilerGeneratedAttribute));
         }
 

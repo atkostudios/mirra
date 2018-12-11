@@ -18,10 +18,14 @@ namespace Atko.Dodge.Models
             return !parameters.Any((current) => current.IsIn || current.IsOut || current.IsRetval);
         }
 
+        public override bool IsPublic =>
+            Property.GetMethod.IsPublic ||
+            (Property.SetMethod?.IsPublic ?? false);
+
+        public override bool IsStatic => Property.GetMethod.IsStatic;
+
         public bool CanGet => Property.CanRead;
         public bool CanSet => Property.CanWrite;
-
-        public override bool IsPublic { get; }
 
         public PropertyInfo Property => (PropertyInfo) Member;
 

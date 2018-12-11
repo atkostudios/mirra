@@ -12,6 +12,7 @@ namespace Atko.Dodge.Models
         }
 
         public override bool IsPublic => Field.IsPublic;
+        public override bool IsStatic => Field.IsStatic;
 
         public override bool CanGet => true;
         public override bool CanSet => true;

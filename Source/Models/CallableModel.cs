@@ -14,6 +14,7 @@ namespace Atko.Dodge.Models
         }
 
         public override bool IsPublic => Base.IsPublic;
+        public override bool IsStatic => Base.IsStatic;
 
         MethodBase Base => (MethodBase) Member;
 

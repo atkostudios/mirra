@@ -13,11 +13,12 @@ namespace Atko.Dodge.Models
         }
 
         public override bool IsPublic =>
-            (Property.GetMethod?.IsPublic ?? false) ||
+            Property.GetMethod.IsPublic ||
             (Property.SetMethod?.IsPublic ?? false);
 
-        public override bool CanGet => Property.CanRead || BackingField != null;
+        public override bool IsStatic => Property.GetMethod.IsStatic;
 
+        public override bool CanGet => Property.CanRead || BackingField != null;
         public override bool CanSet => Property.CanWrite || BackingField != null;
 
         [AllowNull]

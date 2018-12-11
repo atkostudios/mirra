@@ -93,49 +93,6 @@ namespace Atko.Dodge.Utility
             return null;
         }
 
-        public static bool IsStatic(MemberInfo member)
-        {
-            switch (member.MemberType)
-            {
-                case MemberTypes.Constructor:
-                    return false;
-                case MemberTypes.Property:
-                    var property = ((PropertyInfo) member);
-                    if (property.CanRead)
-                    {
-                        return property.GetGetMethod(true).IsStatic;
-                    }
-
-                    return property.GetSetMethod(true).IsStatic;
-                case MemberTypes.Field:
-                    return ((FieldInfo) member).IsStatic;
-                case MemberTypes.Method:
-                    return ((MethodInfo) member).IsStatic;
-            }
-
-            throw new ArgumentException(nameof(member));
-        }
-
-        [return: AllowNull]
-        static FieldInfo GetFieldInternal(Type type, bool instance, string name)
-        {
-            if (!instance)
-            {
-                return type.GetField(name, StaticBinding);
-            }
-
-            foreach (var ancestor in Inheritance(type))
-            {
-                var field = ancestor.GetField(name, InstanceBinding);
-                if (field != null)
-                {
-                    return field;
-                }
-            }
-
-            return null;
-        }
-
         static Type GetImplementationInternal(Type type, Type generic)
         {
             if (!generic.IsGenericType || !generic.IsGenericTypeDefinition)

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using NullGuard;
 
 namespace Atko.Dodge.Models
 {
@@ -25,6 +25,7 @@ namespace Atko.Dodge.Models
             }
         }
 
+        [return: AllowNull]
         public T Get(int argumentCount)
         {
             if (argumentCount < MinArgumentCount || argumentCount > MaxArgumentCount)
