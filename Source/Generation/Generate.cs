@@ -200,7 +200,7 @@ namespace Atko.Dodge.Generation
         static StaticGetInvoker StaticFieldGetter(FieldInfo field)
         {
             var name = $"__GENERATED_GET__{field.Name}";
-            var method = new DynamicMethod(name, typeof(object), new Type[] { }, field.DeclaringType, true);
+            var method = new DynamicMethod(name, typeof(object), ArrayUtility<Type>.Empty, field.DeclaringType, true);
             var generator = method.GetILGenerator();
 
             {

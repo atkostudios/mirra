@@ -9,7 +9,7 @@ namespace Atko.Dodge.Models
 {
     public class TypeModel
     {
-        static class StaticTypeAccessorCache<T>
+        static class StaticCache<T>
         {
             public static TypeModel Instance { get; } = Get(typeof(T));
         }
@@ -26,15 +26,15 @@ namespace Atko.Dodge.Models
 
         public static TypeModel Get(Type type)
         {
-            return TypeAccessorCache.GetOrAdd(type, (input) => new TypeModel(input));
+            return Cache.GetOrAdd(type, (input) => new TypeModel(input));
         }
 
         public static TypeModel Get<T>()
         {
-            return StaticTypeAccessorCache<T>.Instance;
+            return StaticCache<T>.Instance;
         }
 
-        static Cache<Type, TypeModel> TypeAccessorCache { get; } = new Cache<Type, TypeModel>();
+        static Cache<Type, TypeModel> Cache { get; } = new Cache<Type, TypeModel>();
 
         static ArrayHash<Type> HashTypes(ParameterInfo[] parameters)
         {
@@ -64,6 +64,28 @@ namespace Atko.Dodge.Models
         public IEnumerable<TypeModel> Interfaces => LazyInterfaces.Value;
         public IEnumerable<ConstructorModel> Constructors => LazyConstructors.Value;
 
+
+        public bool IsGeneric => Type.IsGenericType;
+        public bool IsGenericDefinition => Type.IsGenericTypeDefinition;
+        public bool IsArray => Type.IsArray;
+        public bool IsEnum => Type.IsEnum;
+        public bool IsClass => Type.IsClass;
+        public bool IsInterface => Type.IsInterface;
+        public bool IsStruct => Type.IsValueType;
+        public bool IsPrimitive => Type.IsPrimitive;
+        public bool IsPublic => Type.IsPublic;
+        public bool IsSealed => Type.IsSealed;
+        public bool IsAbstract => Type.IsAbstract;
+
+        public int GenericArgumentCount => GenericArguments.Length;
+
+        public TypeModel GenericDefinition =>
+            IsGeneric && !IsGenericDefinition
+                ? Get(Type.GetGenericTypeDefinition())
+                : this;
+
+        TypeModel[] GenericArguments { get; }
+
         Cache<Type, Type> AssignableTypeCache { get; } = new Cache<Type, Type>();
 
         Lazy<TypeModel[]> LazyInterfaces { get; }
@@ -89,9 +111,12 @@ namespace Atko.Dodge.Models
         TypeModel(Type type)
         {
             Type = type;
-            Base = type.BaseType == null
-                ? null
-                : Get(type.BaseType);
+
+            Base = type.BaseType == null ? null : Get(type.BaseType);
+
+            GenericArguments = IsGeneric
+                ? Type.GetGenericArguments().Select(Get).ToArray()
+                : ArrayUtility<TypeModel>.Empty;
 
             LazyInterfaces = new Lazy<TypeModel[]>(() =>
                 GetInterfaces(Type));
@@ -156,6 +181,11 @@ namespace Atko.Dodge.Models
                     .ToDictionaryByFirst((current) => HashTypes(current.Property.GetIndexParameters())));
         }
 
+        public override string ToString()
+        {
+            return $"{nameof(TypeModel)}({Type})";
+        }
+
         public bool IsAssignableTo(Type target)
         {
             return GetAssignableType(target) != null;
@@ -191,6 +221,18 @@ namespace Atko.Dodge.Models
             }
 
             return AssignableTypeCache[target] = null;
+        }
+
+        public TypeModel GenericArgument(int index)
+        {
+            try
+            {
+                return GenericArguments[index];
+            }
+            catch (IndexOutOfRangeException)
+            {
+                throw new IndexOutOfRangeException(nameof(index));
+            }
         }
 
         [return: AllowNull]
