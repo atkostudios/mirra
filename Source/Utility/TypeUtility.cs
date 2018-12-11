@@ -21,14 +21,8 @@ namespace Atko.Dodge.Utility
         const string BackingFieldPrefix = "<";
         const string BackingFieldSuffix = ">k__BackingField";
 
-        static Cache<(Type, Type), Type> ImplementationCache { get; }
-            = new Cache<(Type, Type), Type>();
-
-        static Cache<(Type, bool, string), FieldInfo> FieldCache { get; } =
-            new Cache<(Type, bool, string), FieldInfo>();
-
-        static Cache<(PropertyInfo, bool), FieldInfo> BackingFieldCache { get; } =
-            new Cache<(PropertyInfo, bool), FieldInfo>();
+        static Cache<KeyValuePair<Type, Type>, Type> ImplementationCache { get; }
+            = new Cache<KeyValuePair<Type, Type>, Type>();
 
         public static IEnumerable<Type> Inheritance(this Type type)
         {
@@ -73,8 +67,8 @@ namespace Atko.Dodge.Utility
                 return type;
             }
 
-            return ImplementationCache.GetOrAdd((type, generic),
-                (input) => GetImplementationInternal(input.Item1, input.Item2));
+            return ImplementationCache.GetOrAdd(new KeyValuePair<Type, Type>(type, generic),
+                (input) => GetImplementationInternal(input.Key, input.Value));
         }
 
         [return: AllowNull]

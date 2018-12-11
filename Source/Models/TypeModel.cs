@@ -69,7 +69,7 @@ namespace Atko.Dodge.Models
         Lazy<IndexerModel[]> LazySurfaceIndexers { get; }
 
         Lazy<Dictionary<ArrayHash<Type>, ConstructorModel>> LazyConstructorMap { get; }
-        Lazy<Dictionary<(string, ArrayHash<Type>), MethodModel>> LazyMethodMap { get; }
+        Lazy<Dictionary<KeyValuePair<string, ArrayHash<Type>>, MethodModel>> LazyMethodMap { get; }
         Lazy<Dictionary<string, PropertyModel>> LazyPropertyMap { get; }
         Lazy<Dictionary<string, FieldModel>> LazyFieldMap { get; }
         Lazy<Dictionary<ArrayHash<Type>, IndexerModel>> LazyIndexerMap { get; }
@@ -124,9 +124,12 @@ namespace Atko.Dodge.Models
                 Constructors
                     .ToDictionaryByFirst((constructor) => HashTypes(constructor.Constructor.GetParameters())));
 
-            LazyMethodMap = new Lazy<Dictionary<(string, ArrayHash<Type>), MethodModel>>(() =>
+            LazyMethodMap = new Lazy<Dictionary<KeyValuePair<string, ArrayHash<Type>>, MethodModel>>(() =>
                 Methods(MemberQuery.All)
-                    .ToDictionaryByFirst((current) => (current.Name, HashTypes(current.Method.GetParameters()))));
+                    .ToDictionaryByFirst((current) =>
+                        new KeyValuePair<string, ArrayHash<Type>>(
+                            current.Name,
+                            HashTypes(current.Method.GetParameters()))));
 
             LazyPropertyMap = new Lazy<Dictionary<string, PropertyModel>>(() =>
                 Properties(MemberQuery.All)
@@ -151,7 +154,7 @@ namespace Atko.Dodge.Models
         [return: AllowNull]
         public MethodModel GetMethod(string name, params Type[] types)
         {
-            LazyMethodMap.Value.TryGetValue((name, types), out var model);
+            LazyMethodMap.Value.TryGetValue(new KeyValuePair<string, ArrayHash<Type>>(name, types), out var model);
             return model;
         }
 
