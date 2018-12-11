@@ -14,6 +14,16 @@ namespace Atko.Dodge.Models
             public static TypeModel Instance { get; } = Get(typeof(T));
         }
 
+        public static implicit operator Type([AllowNull] TypeModel model)
+        {
+            return model == null ? null : model.Type;
+        }
+
+        public static implicit operator TypeModel([AllowNull] Type type)
+        {
+            return type == null ? null : Get(type);
+        }
+
         public static TypeModel Get(Type type)
         {
             return TypeAccessorCache.GetOrAdd(type, (input) => new TypeModel(input));
@@ -53,6 +63,8 @@ namespace Atko.Dodge.Models
 
         public IEnumerable<TypeModel> Interfaces => LazyInterfaces.Value;
         public IEnumerable<ConstructorModel> Constructors => LazyConstructors.Value;
+
+        Cache<Type, Type> AssignableTypeCache { get; } = new Cache<Type, Type>();
 
         Lazy<TypeModel[]> LazyInterfaces { get; }
         Lazy<ConstructorModel[]> LazyConstructors { get; }
@@ -142,6 +154,43 @@ namespace Atko.Dodge.Models
             LazyIndexerMap = new Lazy<Dictionary<ArrayHash<Type>, IndexerModel>>(() =>
                 Indexers(MemberQuery.All)
                     .ToDictionaryByFirst((current) => HashTypes(current.Property.GetIndexParameters())));
+        }
+
+        public bool IsAssignableTo(Type target)
+        {
+            return GetAssignableType(target) != null;
+        }
+
+        [return: AllowNull]
+        public Type GetAssignableType(Type target)
+        {
+            if (Type == target)
+            {
+                return Type;
+            }
+
+            if (AssignableTypeCache.TryGetValue(target, out var cached))
+            {
+                return cached;
+            }
+
+            target = target.IsGenericType
+                ? target.GetGenericTypeDefinition()
+                : target;
+
+            foreach (var model in Inheritance.Concat(Interfaces))
+            {
+                var definition = model.Type.IsGenericType
+                    ? model.Type.GetGenericTypeDefinition()
+                    : model.Type;
+
+                if (definition == target)
+                {
+                    return AssignableTypeCache[target] = model.Type;
+                }
+            }
+
+            return AssignableTypeCache[target] = null;
         }
 
         [return: AllowNull]
