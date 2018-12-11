@@ -49,6 +49,12 @@ namespace Atko.Dodge.Models
             }
         }
 
+        public string Name => Type.Name;
+
+        public IEnumerable<TypeModel> Interfaces => LazyInterfaces.Value;
+        public IEnumerable<ConstructorModel> Constructors => LazyConstructors.Value;
+
+        Lazy<TypeModel[]> LazyInterfaces { get; }
         Lazy<ConstructorModel[]> LazyConstructors { get; }
 
         Lazy<MethodModel[]> LazyLocalMethods { get; }
@@ -71,13 +77,27 @@ namespace Atko.Dodge.Models
         TypeModel(Type type)
         {
             Type = type;
-            Base = type.BaseType?.Model();
+            Base = type.BaseType == null
+                ? null
+                : Get(type.BaseType);
 
-            LazyConstructors = new Lazy<ConstructorModel[]>(() => GetConstructors(Type));
+            LazyInterfaces = new Lazy<TypeModel[]>(() =>
+                GetInterfaces(Type));
 
-            LazyLocalMethods = new Lazy<MethodModel[]>(() => GetMethods(Type, true));
-            LazyLocalProperties = new Lazy<PropertyModel[]>(() => GetProperties(Type, true));
-            LazyLocalFields = new Lazy<FieldModel[]>(() => GetFields(Type, true));
+            LazyConstructors = new Lazy<ConstructorModel[]>(() =>
+                GetConstructors(Type));
+
+            LazyLocalMethods = new Lazy<MethodModel[]>(() =>
+                GetMethods(Type, true));
+
+            LazyLocalProperties = new Lazy<PropertyModel[]>(() =>
+                GetProperties(Type, true));
+
+            LazyLocalFields = new Lazy<FieldModel[]>(() =>
+                GetFields(Type, true));
+
+            LazyLocalIndexers = new Lazy<IndexerModel[]>(() =>
+                GetIndexers(Type, true));
 
             LazyLocalAccessors = new Lazy<AccessorModel[]>(() =>
                 LazyLocalProperties.Value
@@ -85,16 +105,23 @@ namespace Atko.Dodge.Models
                     .Concat(LazyLocalFields.Value)
                     .ToArray());
 
-            LazyLocalIndexers = new Lazy<IndexerModel[]>(() => GetIndexers(Type, true));
+            LazyLocalIndexers = new Lazy<IndexerModel[]>(() =>
+                GetIndexers(Type, true));
 
-            LazySurfaceMethods = new Lazy<MethodModel[]>(() => GetUnique(GetMethods(Type, false)));
-            LazySurfaceProperties = new Lazy<PropertyModel[]>(() => GetUnique(GetProperties(Type, false)));
-            LazySurfaceFields = new Lazy<FieldModel[]>(() => GetUnique(GetFields(Type, false)));
+            LazySurfaceMethods = new Lazy<MethodModel[]>(() =>
+                GetSurfaceMembers(GetMethods(Type, false)));
 
-            LazySurfaceIndexers = new Lazy<IndexerModel[]>(() => GetIndexers(Type, false));
+            LazySurfaceProperties = new Lazy<PropertyModel[]>(() =>
+                GetSurfaceMembers(GetProperties(Type, false)));
+
+            LazySurfaceFields = new Lazy<FieldModel[]>(() =>
+                GetSurfaceMembers(GetFields(Type, false)));
+
+            LazySurfaceIndexers = new Lazy<IndexerModel[]>(() =>
+                GetSurfaceMembers(GetIndexers(Type, false)));
 
             LazyConstructorMap = new Lazy<Dictionary<ArrayHash<Type>, ConstructorModel>>(() =>
-                Constructors()
+                Constructors
                     .ToDictionaryByFirst((constructor) => HashTypes(constructor.Constructor.GetParameters())));
 
             LazyMethodMap = new Lazy<Dictionary<(string, ArrayHash<Type>), MethodModel>>(() =>
@@ -191,18 +218,6 @@ namespace Atko.Dodge.Models
             return GetIndexer(types) ?? throw new DodgeMissingMemberException();
         }
 
-        public enum MemberQuery
-        {
-            Surface,
-            Local,
-            All
-        }
-
-        public IEnumerable<ConstructorModel> Constructors()
-        {
-            return LazyConstructors.Value;
-        }
-
         public IEnumerable<MethodModel> Methods(MemberQuery query = default(MemberQuery))
         {
             switch (query)
@@ -274,6 +289,15 @@ namespace Atko.Dodge.Models
             }
 
             return Enumerable.Empty<IndexerModel>();
+        }
+
+        TypeModel[] GetInterfaces(Type type)
+        {
+            return type
+                .Inheritance()
+                .SelectMany((current) => current.GetInterfaces())
+                .Select(Get)
+                .ToArray();
         }
 
         ConstructorModel[] GetConstructors(Type type)
@@ -406,7 +430,7 @@ namespace Atko.Dodge.Models
             return models.ToArray();
         }
 
-        T[] GetUnique<T>(IEnumerable<T> models) where T : MemberModel
+        T[] GetSurfaceMembers<T>(IEnumerable<T> models) where T : MemberModel
         {
             var seen = new HashSet<string>();
             var unique = new List<T>();
