@@ -1,20 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace Atko.Dodge.Utility
 {
     static class CollectionsUtility
     {
-        public static IEnumerable<T> Iterate<T>(this IEnumerable<T> enumerable)
-        {
-            foreach (var element in enumerable)
-            {
-                yield return element;
-            }
-        }
-
-        public static bool ContentsEqual<T>(this IReadOnlyList<T> collection, IReadOnlyList<T> other)
+        public static bool ElementsAreEqual<T>(this IReadOnlyList<T> collection, IReadOnlyList<T> other)
         {
             if (collection.Count != other.Count)
             {

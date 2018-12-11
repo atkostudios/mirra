@@ -23,22 +23,7 @@ namespace Atko.Dodge.Utility
 
         public bool Equals(ArrayHash<T> other)
         {
-            if (Array.Length != other.Array.Length)
-            {
-                return false;
-            }
-
-            for (var i = 0; i < Array.Length; i++)
-            {
-                if (EqualityComparer<T>.Default.Equals(Array[i], other.Array[i]))
-                {
-                    continue;
-                }
-
-                return false;
-            }
-
-            return true;
+            return Array.ElementsAreEqual(other.Array);
         }
 
         public override bool Equals(object obj)
