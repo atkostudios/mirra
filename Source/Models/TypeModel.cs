@@ -64,7 +64,6 @@ namespace Atko.Dodge.Models
         public IEnumerable<TypeModel> Interfaces => LazyInterfaces.Value;
         public IEnumerable<ConstructorModel> Constructors => LazyConstructors.Value;
 
-
         public bool IsGeneric => Type.IsGenericType;
         public bool IsGenericDefinition => Type.IsGenericTypeDefinition;
         public bool IsArray => Type.IsArray;
@@ -188,11 +187,11 @@ namespace Atko.Dodge.Models
 
         public bool IsAssignableTo(Type target)
         {
-            return GetAssignableType(target) != null;
+            return AssignableType(target) != null;
         }
 
         [return: AllowNull]
-        public Type GetAssignableType(Type target)
+        public Type AssignableType(Type target)
         {
             if (Type == target)
             {
@@ -236,35 +235,35 @@ namespace Atko.Dodge.Models
         }
 
         [return: AllowNull]
-        public ConstructorModel GetConstructor(params Type[] types)
+        public ConstructorModel Constructor(params Type[] types)
         {
             LazyConstructorMap.Value.TryGetValue(types, out var model);
             return model;
         }
 
         [return: AllowNull]
-        public MethodModel GetMethod(string name, params Type[] types)
+        public MethodModel Method(string name, params Type[] types)
         {
             LazyMethodMap.Value.TryGetValue(new KeyValuePair<string, ArrayHash<Type>>(name, types), out var model);
             return model;
         }
 
         [return: AllowNull]
-        public PropertyModel GetProperty(string name)
+        public PropertyModel Property(string name)
         {
             LazyPropertyMap.Value.TryGetValue(name, out var model);
             return model;
         }
 
         [return: AllowNull]
-        public FieldModel GetField(string name)
+        public FieldModel Field(string name)
         {
             LazyFieldMap.Value.TryGetValue(name, out var model);
             return model;
         }
 
         [return: AllowNull]
-        public AccessorModel GetAccessor(string name)
+        public AccessorModel Accessor(string name)
         {
             LazyPropertyMap.Value.TryGetValue(name, out var property);
             if (property != null)
@@ -274,42 +273,6 @@ namespace Atko.Dodge.Models
 
             LazyFieldMap.Value.TryGetValue(name, out var field);
             return field;
-        }
-
-        public IndexerModel GetIndexer(params Type[] types)
-        {
-            LazyIndexerMap.Value.TryGetValue(types, out var model);
-            return model;
-        }
-
-        public ConstructorModel Constructor(params Type[] types)
-        {
-            return GetConstructor(types) ?? throw new DodgeMissingMemberException();
-        }
-
-        public MethodModel Method(string name, params Type[] types)
-        {
-            return GetMethod(name, types) ?? throw new DodgeMissingMemberException();
-        }
-
-        public PropertyModel Property(string name)
-        {
-            return GetProperty(name) ?? throw new DodgeMissingMemberException();
-        }
-
-        public FieldModel Field(string name)
-        {
-            return GetField(name) ?? throw new DodgeMissingMemberException();
-        }
-
-        public AccessorModel Accessor(string name)
-        {
-            return GetAccessor(name) ?? throw new DodgeMissingMemberException();
-        }
-
-        public IndexerModel Indexer(params Type[] types)
-        {
-            return GetIndexer(types) ?? throw new DodgeMissingMemberException();
         }
 
         public IEnumerable<MethodModel> Methods(MemberQuery query = default(MemberQuery))

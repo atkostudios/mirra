@@ -37,7 +37,7 @@ namespace Atko.Dodge.Models
 
         FieldModel GetBackingField()
         {
-            return TypeModel.Get(Property.DeclaringType).GetField(TypeUtility.GetBackingFieldName(Property));
+            return TypeModel.Get(Property.DeclaringType).Field(TypeUtility.GetBackingFieldName(Property));
         }
     }
 }
