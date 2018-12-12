@@ -8,7 +8,7 @@ using Source.Utility;
 
 namespace Atko.Mirra.Images
 {
-    public class TypeImage
+    public class TypeImage : BaseImage
     {
         static class StaticCache<T>
         {
@@ -42,7 +42,7 @@ namespace Atko.Mirra.Images
             return new ArrayHash<Type>(parameters.Select((current) => current.ParameterType).ToArray());
         }
 
-        public Type Type { get; }
+        public Type Type => (Type)Member;
 
         [AllowNull]
         public TypeImage Base { get; }
@@ -60,10 +60,12 @@ namespace Atko.Mirra.Images
             }
         }
 
-        public string Name => Type.Name;
-
         public IEnumerable<TypeImage> Interfaces => LazyInterfaces.Value;
         public IEnumerable<ConstructorImage> Constructors => LazyConstructors.Value;
+
+        public override bool IsPublic => Type.IsPublic;
+
+        public override bool IsStatic => Type.IsAbstract && Type.IsSealed;
 
         public bool IsGeneric => Type.IsGenericType;
         public bool IsGenericDefinition => Type.IsGenericTypeDefinition;
@@ -73,7 +75,6 @@ namespace Atko.Mirra.Images
         public bool IsInterface => Type.IsInterface;
         public bool IsStruct => Type.IsValueType;
         public bool IsPrimitive => Type.IsPrimitive;
-        public bool IsPublic => Type.IsPublic;
         public bool IsSealed => Type.IsSealed;
         public bool IsAbstract => Type.IsAbstract;
 
@@ -107,10 +108,9 @@ namespace Atko.Mirra.Images
         Lazy<Dictionary<string, FieldImage>> LazyFieldMap { get; }
         Lazy<Dictionary<ArrayHash<Type>, IndexerImage>> LazyIndexerMap { get; }
 
-        TypeImage(Type type)
+        TypeImage(Type type) : base(type)
         {
-            Type = type;
-            Base = type.BaseType == null ? null : Get(type.BaseType);
+            Base = Type.BaseType == null ? null : Get(Type.BaseType);
 
             GenericArguments = IsGeneric
                 ? Type.GetGenericArguments().Select(Get).ToArray()
@@ -131,7 +131,7 @@ namespace Atko.Mirra.Images
 
             LazyConstructorMap = new Lazy<Dictionary<ArrayHash<Type>, ConstructorImage>>(() =>
                 Constructors
-                    .ToDictionaryByFirst((constructor) => HashTypes(constructor.Constructor.GetParameters())));
+                    .ToDictionaryByFirst((current) => HashTypes(current.Constructor.GetParameters())));
 
             LazyMethodMap = new Lazy<Dictionary<Pair<string, ArrayHash<Type>>, MethodImage>>(() =>
                 Methods(MemberQuery.All)
@@ -335,7 +335,7 @@ namespace Atko.Mirra.Images
             return Type
                 .GetConstructors(TypeUtility.InstanceBinding)
                 .Where(CallableImage.CanCreateFrom)
-                .Select((current) => new ConstructorImage(Type, current))
+                .Select((current) => new ConstructorImage(current))
                 .ToArray();
         }
 
@@ -345,18 +345,18 @@ namespace Atko.Mirra.Images
             var instanceMembers = Type
                 .GetMethods(TypeUtility.InstanceBinding)
                 .Where(CallableImage.CanCreateFrom)
-                .Select((current) => new MethodImage(Type, current));
+                .Select((current) => new MethodImage(current));
 
             var staticMembers = Type
                 .GetMethods(TypeUtility.StaticBinding)
                 .Where(CallableImage.CanCreateFrom)
-                .Select((current) => new MethodImage(Type, current));
+                .Select((current) => new MethodImage(current));
 
             var interfaceMembers = Type
                 .GetInterfaces()
                 .SelectMany((current) => current.GetMethods(TypeUtility.InstanceBinding))
                 .Where(CallableImage.CanCreateFrom)
-                .Select((current) => new MethodImage(Type, current));
+                .Select((current) => new MethodImage(current));
 
             images.AddRange(instanceMembers);
             images.AddRange(interfaceMembers);
@@ -371,18 +371,18 @@ namespace Atko.Mirra.Images
             var instanceMembers = Type
                 .GetProperties(TypeUtility.InstanceBinding)
                 .Where(PropertyImage.CanCreateFrom)
-                .Select((current) => new PropertyImage(Type, current));
+                .Select((current) => new PropertyImage(current));
 
             var staticMembers = Type
                 .GetProperties(TypeUtility.StaticBinding)
                 .Where(PropertyImage.CanCreateFrom)
-                .Select((current) => new PropertyImage(Type, current));
+                .Select((current) => new PropertyImage(current));
 
             var interfaceMembers = Type
                 .GetInterfaces()
                 .SelectMany((current) => current.GetProperties(TypeUtility.InstanceBinding))
                 .Where(PropertyImage.CanCreateFrom)
-                .Select((current) => new PropertyImage(Type, current));
+                .Select((current) => new PropertyImage(current));
 
             images.AddRange(instanceMembers);
             images.AddRange(interfaceMembers);
@@ -396,11 +396,11 @@ namespace Atko.Mirra.Images
             var images = new List<FieldImage>();
             var instanceMembers = Type
                 .GetFields(TypeUtility.InstanceBinding)
-                .Select((current) => FieldImage.Create(Type, current));
+                .Select((current) => new FieldImage(current));
 
             var staticMembers = Type
                 .GetFields(TypeUtility.StaticBinding)
-                .Select((current) => FieldImage.Create(Type, current));
+                .Select((current) => new FieldImage(current));
 
             images.AddRange(instanceMembers);
             images.AddRange(staticMembers);
@@ -414,13 +414,13 @@ namespace Atko.Mirra.Images
             var instanceMembers = Type
                 .GetProperties(TypeUtility.InstanceBinding)
                 .Where(IndexerImage.CanCreateFrom)
-                .Select((current) => new IndexerImage(Type, current));
+                .Select((current) => new IndexerImage(current));
 
             var interfaceMembers = Type
                 .GetInterfaces()
                 .SelectMany((current) => current.GetProperties(TypeUtility.InstanceBinding))
                 .Where(IndexerImage.CanCreateFrom)
-                .Select((current) => new IndexerImage(Type, current));
+                .Select((current) => new IndexerImage(current));
 
             images.AddRange(instanceMembers);
             images.AddRange(interfaceMembers);

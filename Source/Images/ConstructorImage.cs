@@ -8,9 +8,8 @@ namespace Atko.Mirra.Images
     {
         public ConstructorInfo Constructor => (ConstructorInfo)Member;
 
-        internal ConstructorImage(Type owner, ConstructorInfo constructor) :
-            base(owner, constructor, null,
-                (argumentCount) => Generate.Constructor(constructor, argumentCount))
+        internal ConstructorImage(ConstructorInfo constructor) :
+            base(constructor, null, (argumentCount) => Generate.Constructor(constructor, argumentCount))
         { }
 
         public object Call(params object[] arguments)

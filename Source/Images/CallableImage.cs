@@ -28,9 +28,9 @@ namespace Atko.Mirra.Images
         InvokerDispatch<InstanceMethodInvoker> InstanceInvokers { get; }
         InvokerDispatch<StaticMethodInvoker> StaticInvokers { get; }
 
-        protected CallableImage(Type owner, MethodBase member,
+        protected CallableImage(MethodBase member,
             [AllowNull] Func<int, InstanceMethodInvoker> instanceInvokerFactory,
-            [AllowNull] Func<int, StaticMethodInvoker> staticInvokerFactory) : base(owner, member)
+            [AllowNull] Func<int, StaticMethodInvoker> staticInvokerFactory) : base(member)
         {
             if (!CanCreateFrom(member))
             {

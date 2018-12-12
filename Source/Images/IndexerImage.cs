@@ -35,7 +35,7 @@ namespace Atko.Mirra.Images
         InvokerDispatch<IndexerGetInvoker> GetInvokers { get; }
         InvokerDispatch<IndexerSetInvoker> SetInvokers { get; }
 
-        public IndexerImage(Type owner, PropertyInfo member) : base(owner, member)
+        public IndexerImage(PropertyInfo member) : base(member)
         {
             if (!CanCreateFrom(member))
             {

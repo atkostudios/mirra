@@ -9,7 +9,7 @@ namespace Atko.Mirra.Images
     {
         public MethodInfo Method => (MethodInfo)Member;
 
-        internal MethodImage(Type owner, MethodInfo method) : base(owner, method,
+        internal MethodImage(MethodInfo method) : base(method,
             (argumentCount) => Generate.InstanceMethod(method, argumentCount),
             (argumentCount) => Generate.StaticMethod(method, argumentCount))
         { }

@@ -25,7 +25,7 @@ namespace Atko.Mirra.Images
 
         Lazy<FieldImage> LazyBackingField { get; }
 
-        internal PropertyImage(Type owner, PropertyInfo member) : base(owner, member)
+        internal PropertyImage(PropertyInfo member) : base(member)
         {
             if (!CanCreateFrom(member))
             {

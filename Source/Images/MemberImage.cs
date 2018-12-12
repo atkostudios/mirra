@@ -5,25 +5,12 @@ using Atko.Mirra.Utility;
 
 namespace Atko.Mirra.Images
 {
-    public abstract class MemberImage
+    public abstract class MemberImage : BaseImage
     {
-        public string Name { get; }
-
-        public abstract bool IsPublic { get; }
-        public abstract bool IsStatic { get; }
-
-        public bool IsCompilerGenerated { get; }
-
         public bool RequiresInstance => Member.MemberType != MemberTypes.Constructor && !IsStatic;
 
-        public MemberInfo Member { get; }
-
-        protected MemberImage(Type owner, MemberInfo member)
-        {
-            Member = member;
-            Name = Member.Name.SubstringAfterLast(".");
-            IsCompilerGenerated = Member.IsDefined(typeof(CompilerGeneratedAttribute));
-        }
+        protected MemberImage(MemberInfo member) : base(member)
+        { }
 
         public override string ToString()
         {
