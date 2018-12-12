@@ -6,7 +6,8 @@ namespace Atko.Mirra.Tests.Images
     [TestFixture]
     class ConstructorImageTests
     {
-        public class First { }
+        public class First
+        { }
 
         public class Second
         {

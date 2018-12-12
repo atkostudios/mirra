@@ -20,8 +20,11 @@ namespace Atko.Mirra.Images
         Lazy<StaticGetInvoker> LazyStaticGetInvoker { get; }
         Lazy<StaticSetInvoker> LazyStaticSetInvoker { get; }
 
-        protected AccessorImage(Type owner, PropertyInfo property) : this(owner, (MemberInfo)property) { }
-        protected AccessorImage(Type owner, FieldInfo member) : this(owner, (MemberInfo)member) { }
+        protected AccessorImage(Type owner, PropertyInfo property) : this(owner, (MemberInfo)property)
+        { }
+
+        protected AccessorImage(Type owner, FieldInfo member) : this(owner, (MemberInfo)member)
+        { }
 
         AccessorImage(Type owner, MemberInfo member) : base(owner, member)
         {

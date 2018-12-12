@@ -9,9 +9,11 @@ namespace Atko.Mirra.Tests.Images
     {
         class Class
         {
-            public static void PublicArgumentlessMethodWithVoidReturn() { }
+            public static void PublicArgumentlessMethodWithVoidReturn()
+            { }
 
-            internal static void HiddenArgumentlessMethodWithVoidReturn() { }
+            internal static void HiddenArgumentlessMethodWithVoidReturn()
+            { }
 
             public static int PublicArgumentlessMethod()
             {
