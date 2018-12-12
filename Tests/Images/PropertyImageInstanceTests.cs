@@ -28,23 +28,23 @@ namespace Atko.Mirra.Tests.Images
         public void TestGetSet(string name)
         {
             var instance = new Class();
-            var model = typeof(Class).Image().Property(name);
+            var image = typeof(Class).Image().Property(name);
 
-            Assert.AreEqual(0, model.Get(instance));
+            Assert.AreEqual(0, image.Get(instance));
 
-            if (model.CanSet)
+            if (image.CanSet)
             {
                 Assert.False(name.Contains("Computed"));
-                model.Set(instance, 1);
-                Assert.AreEqual(1, model.Get(instance));
+                image.Set(instance, 1);
+                Assert.AreEqual(1, image.Get(instance));
 
-                model.Set(instance, 2);
-                Assert.AreEqual(2, model.Get(instance));
+                image.Set(instance, 2);
+                Assert.AreEqual(2, image.Get(instance));
             }
             else
             {
                 Assert.True(name.Contains("Computed"));
-                Assert.Throws<MirraInvocationException>(() => model.Set(instance, 1));
+                Assert.Throws<MirraInvocationException>(() => image.Set(instance, 1));
             }
         }
 
@@ -55,10 +55,10 @@ namespace Atko.Mirra.Tests.Images
         [TestCase(nameof(Class.PrivateGetOnlyAutoProperty))]
         public void TestNullInstanceException(string name)
         {
-            var model = typeof(Class).Image().Property(name);
+            var image = typeof(Class).Image().Property(name);
 
-            Assert.Throws<MirraInvocationException>(() => model.Get(null));
-            Assert.Throws<MirraInvocationException>(() => model.Set(null, 1));
+            Assert.Throws<MirraInvocationException>(() => image.Get(null));
+            Assert.Throws<MirraInvocationException>(() => image.Set(null, 1));
         }
 
         [Test]
@@ -73,9 +73,9 @@ namespace Atko.Mirra.Tests.Images
         public void TestArgumentException(string name, object argument)
         {
             var instance = new Class();
-            var model = typeof(Class).Image().Property(name);
+            var image = typeof(Class).Image().Property(name);
 
-            Assert.Throws<MirraInvocationException>(() => model.Set(instance, argument));
+            Assert.Throws<MirraInvocationException>(() => image.Set(instance, argument));
         }
     }
 }

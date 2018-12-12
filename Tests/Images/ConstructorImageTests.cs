@@ -34,37 +34,37 @@ namespace Atko.Mirra.Tests.Images
         [Test]
         public void TestDefaultConstructor()
         {
-            var model = typeof(First).Image().Constructor();
-            var instance = model.Call();
+            var image = typeof(First).Image().Constructor();
+            var instance = image.Call();
             Assert.IsInstanceOf<First>(instance);
         }
 
         [Test]
         public void TestArgumentConstructor()
         {
-            var model = typeof(Second).Image().Constructor(typeof(int));
-            var instance = model.Call(1);
+            var image = typeof(Second).Image().Constructor(typeof(int));
+            var instance = image.Call(1);
             Assert.IsInstanceOf<Second>(instance);
             Assert.AreEqual(1, ((Second)instance).Value);
 
-            Assert.Throws<MirraInvocationException>(() => model.Call());
-            Assert.Throws<MirraInvocationException>(() => model.Call((object)null));
-            Assert.Throws<MirraInvocationException>(() => model.Call("string"));
+            Assert.Throws<MirraInvocationException>(() => image.Call());
+            Assert.Throws<MirraInvocationException>(() => image.Call((object)null));
+            Assert.Throws<MirraInvocationException>(() => image.Call("string"));
         }
 
         [Test]
         public void TestParamsArgumentConstructor()
         {
-            var model = typeof(Third).Image().Constructor(typeof(string), typeof(int[]));
-            var instance = model.Call("string", new[] { 1, 2, 3 });
+            var image = typeof(Third).Image().Constructor(typeof(string), typeof(int[]));
+            var instance = image.Call("string", new[] { 1, 2, 3 });
             Assert.IsInstanceOf<Third>(instance);
             Assert.AreEqual("string", ((Third)instance).Name);
             Assert.AreEqual(new[] { 1, 2, 3 }, ((Third)instance).Values);
 
-            Assert.Throws<MirraInvocationException>(() => model.Call());
-            Assert.Throws<MirraInvocationException>(() => model.Call((object)null));
-            Assert.Throws<MirraInvocationException>(() => model.Call("string"));
-            Assert.Throws<MirraInvocationException>(() => model.Call("string", 1));
+            Assert.Throws<MirraInvocationException>(() => image.Call());
+            Assert.Throws<MirraInvocationException>(() => image.Call((object)null));
+            Assert.Throws<MirraInvocationException>(() => image.Call("string"));
+            Assert.Throws<MirraInvocationException>(() => image.Call("string", 1));
         }
     }
 }

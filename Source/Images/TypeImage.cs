@@ -38,7 +38,7 @@ namespace Atko.Mirra.Images
 
         static ArrayHash<Type> HashTypes(ParameterInfo[] parameters)
         {
-            return parameters.Select((current) => current.ParameterType).ToArray();
+            return new ArrayHash<Type>(parameters.Select((current) => current.ParameterType).ToArray());
         }
 
         public Type Type { get; }
@@ -207,15 +207,15 @@ namespace Atko.Mirra.Images
                 ? target.GetGenericTypeDefinition()
                 : target;
 
-            foreach (var model in Inheritance.Concat(Interfaces))
+            foreach (var image in Inheritance.Concat(Interfaces))
             {
-                var definition = model.Type.IsGenericType
-                    ? model.Type.GetGenericTypeDefinition()
-                    : model.Type;
+                var definition = image.Type.IsGenericType
+                    ? image.Type.GetGenericTypeDefinition()
+                    : image.Type;
 
                 if (definition == target)
                 {
-                    return AssignableTypeCache[target] = model.Type;
+                    return AssignableTypeCache[target] = image.Type;
                 }
             }
 
@@ -237,29 +237,31 @@ namespace Atko.Mirra.Images
         [return: AllowNull]
         public ConstructorImage Constructor(params Type[] types)
         {
-            LazyConstructorMap.Value.TryGetValue(types, out var model);
-            return model;
+            var key = new ArrayHash<Type>(types);
+            LazyConstructorMap.Value.TryGetValue(key, out var image);
+            return image;
         }
 
         [return: AllowNull]
         public MethodImage Method(string name, params Type[] types)
         {
-            LazyMethodMap.Value.TryGetValue(new KeyValuePair<string, ArrayHash<Type>>(name, types), out var model);
-            return model;
+            var key = new KeyValuePair<string, ArrayHash<Type>>(name, new ArrayHash<Type>(types));
+            LazyMethodMap.Value.TryGetValue(key, out var image);
+            return image;
         }
 
         [return: AllowNull]
         public PropertyImage Property(string name)
         {
-            LazyPropertyMap.Value.TryGetValue(name, out var model);
-            return model;
+            LazyPropertyMap.Value.TryGetValue(name, out var image);
+            return image;
         }
 
         [return: AllowNull]
         public FieldImage Field(string name)
         {
-            LazyFieldMap.Value.TryGetValue(name, out var model);
-            return model;
+            LazyFieldMap.Value.TryGetValue(name, out var image);
+            return image;
         }
 
         [return: AllowNull]
@@ -322,14 +324,14 @@ namespace Atko.Mirra.Images
 
         public IEnumerable<AccessorImage> Accessors(MemberQuery query = default(MemberQuery))
         {
-            foreach (var model in Properties(query))
+            foreach (var image in Properties(query))
             {
-                yield return model;
+                yield return image;
             }
 
-            foreach (var model in Fields(query))
+            foreach (var image in Fields(query))
             {
-                yield return model;
+                yield return image;
             }
         }
 
@@ -368,7 +370,7 @@ namespace Atko.Mirra.Images
 
         MethodImage[] GetMethods(Type type, bool local)
         {
-            var models = new List<MethodImage>();
+            var images = new List<MethodImage>();
             foreach (var ancestor in type.Inheritance())
             {
                 var instanceMembers = ancestor
@@ -387,9 +389,9 @@ namespace Atko.Mirra.Images
                     .Where(CallableImage.CanCreateFrom)
                     .Select((current) => new MethodImage(type, current));
 
-                models.AddRange(instanceMembers);
-                models.AddRange(interfaceMembers);
-                models.AddRange(staticMembers);
+                images.AddRange(instanceMembers);
+                images.AddRange(interfaceMembers);
+                images.AddRange(staticMembers);
 
                 if (local)
                 {
@@ -397,12 +399,12 @@ namespace Atko.Mirra.Images
                 }
             }
 
-            return models.ToArray();
+            return images.ToArray();
         }
 
         PropertyImage[] GetProperties(Type type, bool local)
         {
-            var models = new List<PropertyImage>();
+            var images = new List<PropertyImage>();
             foreach (var ancestor in type.Inheritance())
             {
                 var instanceMembers = ancestor
@@ -421,9 +423,9 @@ namespace Atko.Mirra.Images
                     .Where(PropertyImage.CanCreateFrom)
                     .Select((current) => new PropertyImage(type, current));
 
-                models.AddRange(instanceMembers);
-                models.AddRange(interfaceMembers);
-                models.AddRange(staticMembers);
+                images.AddRange(instanceMembers);
+                images.AddRange(interfaceMembers);
+                images.AddRange(staticMembers);
 
                 if (local)
                 {
@@ -431,12 +433,12 @@ namespace Atko.Mirra.Images
                 }
             }
 
-            return models.ToArray();
+            return images.ToArray();
         }
 
         FieldImage[] GetFields(Type type, bool local)
         {
-            var models = new List<FieldImage>();
+            var images = new List<FieldImage>();
             foreach (var ancestor in type.Inheritance())
             {
                 var instanceMembers = ancestor
@@ -447,8 +449,8 @@ namespace Atko.Mirra.Images
                     .GetFields(TypeUtility.StaticBinding)
                     .Select((current) => FieldImage.Create(type, current));
 
-                models.AddRange(instanceMembers);
-                models.AddRange(staticMembers);
+                images.AddRange(instanceMembers);
+                images.AddRange(staticMembers);
 
                 if (local)
                 {
@@ -456,12 +458,12 @@ namespace Atko.Mirra.Images
                 }
             }
 
-            return models.ToArray();
+            return images.ToArray();
         }
 
         IndexerImage[] GetIndexers(Type type, bool local)
         {
-            var models = new List<IndexerImage>();
+            var images = new List<IndexerImage>();
             foreach (var ancestor in type.Inheritance())
             {
                 var instanceMembers = ancestor
@@ -475,8 +477,8 @@ namespace Atko.Mirra.Images
                     .Where(IndexerImage.CanCreateFrom)
                     .Select((current) => new IndexerImage(type, current));
 
-                models.AddRange(instanceMembers);
-                models.AddRange(interfaceMembers);
+                images.AddRange(instanceMembers);
+                images.AddRange(interfaceMembers);
 
                 if (local)
                 {
@@ -484,18 +486,18 @@ namespace Atko.Mirra.Images
                 }
             }
 
-            return models.ToArray();
+            return images.ToArray();
         }
 
-        T[] GetSurfaceMembers<T>(IEnumerable<T> models) where T : MemberImage
+        T[] GetSurfaceMembers<T>(IEnumerable<T> images) where T : MemberImage
         {
             var seen = new HashSet<string>();
             var unique = new List<T>();
-            foreach (var model in models)
+            foreach (var image in images)
             {
-                if (seen.Add(model.Name))
+                if (seen.Add(image.Name))
                 {
-                    unique.Add(model);
+                    unique.Add(image);
                 }
             }
 

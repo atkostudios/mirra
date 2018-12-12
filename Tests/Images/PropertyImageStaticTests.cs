@@ -49,23 +49,23 @@ namespace Atko.Mirra.Tests.Images
         [TestCase(nameof(Class.PrivateComputedProperty))]
         public void TestGetSet(string name)
         {
-            var model = typeof(Class).Image().Property(name);
+            var image = typeof(Class).Image().Property(name);
 
-            Assert.AreEqual(new TestValue(0), model.Get(null));
+            Assert.AreEqual(new TestValue(0), image.Get(null));
 
-            if (model.CanSet)
+            if (image.CanSet)
             {
                 Assert.False(name.Contains("Computed"));
-                model.Set(null, new TestValue(1));
-                Assert.AreEqual(new TestValue(1), model.Get(null));
+                image.Set(null, new TestValue(1));
+                Assert.AreEqual(new TestValue(1), image.Get(null));
 
-                model.Set(null, new TestValue(2));
-                Assert.AreEqual(new TestValue(2), model.Get(null));
+                image.Set(null, new TestValue(2));
+                Assert.AreEqual(new TestValue(2), image.Get(null));
             }
             else
             {
                 Assert.True(name.Contains("Computed"));
-                Assert.Throws<MirraInvocationException>(() => model.Set(null, new TestValue(1)));
+                Assert.Throws<MirraInvocationException>(() => image.Set(null, new TestValue(1)));
             }
         }
 
@@ -77,10 +77,10 @@ namespace Atko.Mirra.Tests.Images
         public void TestInstanceNotNullException(string name)
         {
             var instance = new Class();
-            var model = typeof(Class).Image().Property(name);
+            var image = typeof(Class).Image().Property(name);
 
-            Assert.Throws<MirraInvocationException>(() => model.Get(instance));
-            Assert.Throws<MirraInvocationException>(() => model.Set(instance, new TestValue(1)));
+            Assert.Throws<MirraInvocationException>(() => image.Get(instance));
+            Assert.Throws<MirraInvocationException>(() => image.Set(instance, new TestValue(1)));
         }
 
         [Test]
@@ -94,9 +94,9 @@ namespace Atko.Mirra.Tests.Images
         [TestCase(nameof(Class.HiddenGetOnlyAutoProperty), "string")]
         public void TestArgumentException(string name, object argument)
         {
-            var model = typeof(Class).Image().Property(name);
+            var image = typeof(Class).Image().Property(name);
 
-            Assert.Throws<MirraInvocationException>(() => model.Set(null, argument));
+            Assert.Throws<MirraInvocationException>(() => image.Set(null, argument));
         }
     }
 }
