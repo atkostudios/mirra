@@ -25,6 +25,11 @@ namespace Atko.Mirra.Images
             IsCompilerGenerated = Member.IsDefined(typeof(CompilerGeneratedAttribute));
         }
 
+        public override string ToString()
+        {
+            return $"{GetType().Name}({Member})";
+        }
+
         protected void AssertInstanceMatches(object instance)
         {
             if (instance == null && RequiresInstance)

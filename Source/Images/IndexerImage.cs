@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Atko.Mirra.Generation;
+using Atko.Mirra.Utility;
 
 namespace Atko.Mirra.Images
 {
@@ -15,7 +16,12 @@ namespace Atko.Mirra.Images
                 return false;
             }
 
-            return !parameters.Any((current) => current.IsIn || current.IsOut || current.IsRetval);
+            if (TypeUtility.HasSpecialParameters(parameters))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public override bool IsPublic => Property.GetMethod.IsPublic || (Property.SetMethod?.IsPublic ?? false);

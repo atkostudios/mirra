@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using NullGuard;
@@ -86,6 +87,11 @@ namespace Atko.Mirra.Utility
             }
 
             return null;
+        }
+
+        public static bool HasSpecialParameters(IEnumerable<ParameterInfo> parameters)
+        {
+            return parameters.Any((current) => current.IsIn || current.IsOut || current.ParameterType.IsByRef);
         }
 
         static Type GetImplementationInternal(Type type, Type generic)

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Atko.Mirra.Generation;
+using Atko.Mirra.Utility;
 using NullGuard;
 
 namespace Atko.Mirra.Images
@@ -10,7 +11,13 @@ namespace Atko.Mirra.Images
     {
         public static bool CanCreateFrom(MethodBase method)
         {
-            return !method.GetParameters().Any((current) => current.IsIn || current.IsOut || current.IsRetval);
+            var parameters = method.GetParameters();
+            if (TypeUtility.HasSpecialParameters(parameters))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public override bool IsPublic => Base.IsPublic;

@@ -94,7 +94,6 @@ namespace Atko.Mirra.Images
         Lazy<MethodImage[]> LazyLocalMethods { get; }
         Lazy<PropertyImage[]> LazyLocalProperties { get; }
         Lazy<FieldImage[]> LazyLocalFields { get; }
-        Lazy<AccessorImage[]> LazyLocalAccessors { get; }
         Lazy<IndexerImage[]> LazyLocalIndexers { get; }
 
         Lazy<MethodImage[]> LazySurfaceMethods { get; }
@@ -111,51 +110,24 @@ namespace Atko.Mirra.Images
         TypeImage(Type type)
         {
             Type = type;
-
             Base = type.BaseType == null ? null : Get(type.BaseType);
 
             GenericArguments = IsGeneric
                 ? Type.GetGenericArguments().Select(Get).ToArray()
                 : ArrayUtility<TypeImage>.Empty;
 
-            LazyInterfaces = new Lazy<TypeImage[]>(() =>
-                GetInterfaces(Type));
+            LazyInterfaces = new Lazy<TypeImage[]>(GetInterfaces);
+            LazyConstructors = new Lazy<ConstructorImage[]>(GetConstructors);
 
-            LazyConstructors = new Lazy<ConstructorImage[]>(() =>
-                GetConstructors(Type));
+            LazyLocalMethods = new Lazy<MethodImage[]>(GetLocalMethods);
+            LazyLocalProperties = new Lazy<PropertyImage[]>(GetLocalProperties);
+            LazyLocalFields = new Lazy<FieldImage[]>(GetLocalFields);
+            LazyLocalIndexers = new Lazy<IndexerImage[]>(GetLocalIndexers);
 
-            LazyLocalMethods = new Lazy<MethodImage[]>(() =>
-                GetMethods(Type, true));
-
-            LazyLocalProperties = new Lazy<PropertyImage[]>(() =>
-                GetProperties(Type, true));
-
-            LazyLocalFields = new Lazy<FieldImage[]>(() =>
-                GetFields(Type, true));
-
-            LazyLocalIndexers = new Lazy<IndexerImage[]>(() =>
-                GetIndexers(Type, true));
-
-            LazyLocalAccessors = new Lazy<AccessorImage[]>(() =>
-                LazyLocalProperties.Value
-                    .Cast<AccessorImage>()
-                    .Concat(LazyLocalFields.Value)
-                    .ToArray());
-
-            LazyLocalIndexers = new Lazy<IndexerImage[]>(() =>
-                GetIndexers(Type, true));
-
-            LazySurfaceMethods = new Lazy<MethodImage[]>(() =>
-                GetSurfaceMembers(GetMethods(Type, false)));
-
-            LazySurfaceProperties = new Lazy<PropertyImage[]>(() =>
-                GetSurfaceMembers(GetProperties(Type, false)));
-
-            LazySurfaceFields = new Lazy<FieldImage[]>(() =>
-                GetSurfaceMembers(GetFields(Type, false)));
-
-            LazySurfaceIndexers = new Lazy<IndexerImage[]>(() =>
-                GetSurfaceMembers(GetIndexers(Type, false)));
+            LazySurfaceMethods = new Lazy<MethodImage[]>(() => GetSurfaceMembers(Methods(MemberQuery.All)));
+            LazySurfaceProperties = new Lazy<PropertyImage[]>(() => GetSurfaceMembers(Properties(MemberQuery.All)));
+            LazySurfaceFields = new Lazy<FieldImage[]>(() => GetSurfaceMembers(Fields(MemberQuery.All)));
+            LazySurfaceIndexers = new Lazy<IndexerImage[]>(() => GetSurfaceMembers(Indexers(MemberQuery.All)));
 
             LazyConstructorMap = new Lazy<Dictionary<ArrayHash<Type>, ConstructorImage>>(() =>
                 Constructors
@@ -164,9 +136,7 @@ namespace Atko.Mirra.Images
             LazyMethodMap = new Lazy<Dictionary<Pair<string, ArrayHash<Type>>, MethodImage>>(() =>
                 Methods(MemberQuery.All)
                     .ToDictionaryByFirst((current) =>
-                        new Pair<string, ArrayHash<Type>>(
-                            current.Name,
-                            HashTypes(current.Method.GetParameters()))));
+                        new Pair<string, ArrayHash<Type>>(current.Name, HashTypes(current.Method.GetParameters()))));
 
             LazyPropertyMap = new Lazy<Dictionary<string, PropertyImage>>(() =>
                 Properties(MemberQuery.All)
@@ -351,141 +321,109 @@ namespace Atko.Mirra.Images
             return Enumerable.Empty<IndexerImage>();
         }
 
-        TypeImage[] GetInterfaces(Type type)
+        TypeImage[] GetInterfaces()
         {
-            return type
+            return Type
                 .Inheritance()
                 .SelectMany((current) => current.GetInterfaces())
                 .Select(Get)
                 .ToArray();
         }
 
-        ConstructorImage[] GetConstructors(Type type)
+        ConstructorImage[] GetConstructors()
         {
-            return type
+            return Type
                 .GetConstructors(TypeUtility.InstanceBinding)
                 .Where(CallableImage.CanCreateFrom)
-                .Select((current) => new ConstructorImage(type, current))
+                .Select((current) => new ConstructorImage(Type, current))
                 .ToArray();
         }
 
-        MethodImage[] GetMethods(Type type, bool local)
+        MethodImage[] GetLocalMethods()
         {
             var images = new List<MethodImage>();
-            foreach (var ancestor in type.Inheritance())
-            {
-                var instanceMembers = ancestor
-                    .GetMethods(TypeUtility.InstanceBinding)
-                    .Where(CallableImage.CanCreateFrom)
-                    .Select((current) => new MethodImage(type, current));
+            var instanceMembers = Type
+                .GetMethods(TypeUtility.InstanceBinding)
+                .Where(CallableImage.CanCreateFrom)
+                .Select((current) => new MethodImage(Type, current));
 
-                var staticMembers = ancestor
-                    .GetMethods(TypeUtility.StaticBinding)
-                    .Where(CallableImage.CanCreateFrom)
-                    .Select((current) => new MethodImage(type, current));
+            var staticMembers = Type
+                .GetMethods(TypeUtility.StaticBinding)
+                .Where(CallableImage.CanCreateFrom)
+                .Select((current) => new MethodImage(Type, current));
 
-                var interfaceMembers = ancestor
-                    .GetInterfaces()
-                    .SelectMany((current) => current.GetMethods(TypeUtility.InstanceBinding))
-                    .Where(CallableImage.CanCreateFrom)
-                    .Select((current) => new MethodImage(type, current));
+            var interfaceMembers = Type
+                .GetInterfaces()
+                .SelectMany((current) => current.GetMethods(TypeUtility.InstanceBinding))
+                .Where(CallableImage.CanCreateFrom)
+                .Select((current) => new MethodImage(Type, current));
 
-                images.AddRange(instanceMembers);
-                images.AddRange(interfaceMembers);
-                images.AddRange(staticMembers);
-
-                if (local)
-                {
-                    break;
-                }
-            }
+            images.AddRange(instanceMembers);
+            images.AddRange(interfaceMembers);
+            images.AddRange(staticMembers);
 
             return images.ToArray();
         }
 
-        PropertyImage[] GetProperties(Type type, bool local)
+        PropertyImage[] GetLocalProperties()
         {
             var images = new List<PropertyImage>();
-            foreach (var ancestor in type.Inheritance())
-            {
-                var instanceMembers = ancestor
-                    .GetProperties(TypeUtility.InstanceBinding)
-                    .Where(PropertyImage.CanCreateFrom)
-                    .Select((current) => new PropertyImage(type, current));
+            var instanceMembers = Type
+                .GetProperties(TypeUtility.InstanceBinding)
+                .Where(PropertyImage.CanCreateFrom)
+                .Select((current) => new PropertyImage(Type, current));
 
-                var staticMembers = ancestor
-                    .GetProperties(TypeUtility.StaticBinding)
-                    .Where(PropertyImage.CanCreateFrom)
-                    .Select((current) => new PropertyImage(type, current));
+            var staticMembers = Type
+                .GetProperties(TypeUtility.StaticBinding)
+                .Where(PropertyImage.CanCreateFrom)
+                .Select((current) => new PropertyImage(Type, current));
 
-                var interfaceMembers = ancestor
-                    .GetInterfaces()
-                    .SelectMany((current) => current.GetProperties(TypeUtility.InstanceBinding))
-                    .Where(PropertyImage.CanCreateFrom)
-                    .Select((current) => new PropertyImage(type, current));
+            var interfaceMembers = Type
+                .GetInterfaces()
+                .SelectMany((current) => current.GetProperties(TypeUtility.InstanceBinding))
+                .Where(PropertyImage.CanCreateFrom)
+                .Select((current) => new PropertyImage(Type, current));
 
-                images.AddRange(instanceMembers);
-                images.AddRange(interfaceMembers);
-                images.AddRange(staticMembers);
-
-                if (local)
-                {
-                    break;
-                }
-            }
+            images.AddRange(instanceMembers);
+            images.AddRange(interfaceMembers);
+            images.AddRange(staticMembers);
 
             return images.ToArray();
         }
 
-        FieldImage[] GetFields(Type type, bool local)
+        FieldImage[] GetLocalFields()
         {
             var images = new List<FieldImage>();
-            foreach (var ancestor in type.Inheritance())
-            {
-                var instanceMembers = ancestor
-                    .GetFields(TypeUtility.InstanceBinding)
-                    .Select((current) => FieldImage.Create(type, current));
+            var instanceMembers = Type
+                .GetFields(TypeUtility.InstanceBinding)
+                .Select((current) => FieldImage.Create(Type, current));
 
-                var staticMembers = ancestor
-                    .GetFields(TypeUtility.StaticBinding)
-                    .Select((current) => FieldImage.Create(type, current));
+            var staticMembers = Type
+                .GetFields(TypeUtility.StaticBinding)
+                .Select((current) => FieldImage.Create(Type, current));
 
-                images.AddRange(instanceMembers);
-                images.AddRange(staticMembers);
-
-                if (local)
-                {
-                    break;
-                }
-            }
+            images.AddRange(instanceMembers);
+            images.AddRange(staticMembers);
 
             return images.ToArray();
         }
 
-        IndexerImage[] GetIndexers(Type type, bool local)
+        IndexerImage[] GetLocalIndexers()
         {
             var images = new List<IndexerImage>();
-            foreach (var ancestor in type.Inheritance())
-            {
-                var instanceMembers = ancestor
-                    .GetProperties(TypeUtility.InstanceBinding)
-                    .Where(IndexerImage.CanCreateFrom)
-                    .Select((current) => new IndexerImage(type, current));
+            var instanceMembers = Type
+                .GetProperties(TypeUtility.InstanceBinding)
+                .Where(IndexerImage.CanCreateFrom)
+                .Select((current) => new IndexerImage(Type, current));
 
-                var interfaceMembers = ancestor
-                    .GetInterfaces()
-                    .SelectMany((current) => current.GetProperties(TypeUtility.InstanceBinding))
-                    .Where(IndexerImage.CanCreateFrom)
-                    .Select((current) => new IndexerImage(type, current));
+            var interfaceMembers = Type
+                .GetInterfaces()
+                .SelectMany((current) => current.GetProperties(TypeUtility.InstanceBinding))
+                .Where(IndexerImage.CanCreateFrom)
+                .Select((current) => new IndexerImage(Type, current));
 
-                images.AddRange(instanceMembers);
-                images.AddRange(interfaceMembers);
-
-                if (local)
-                {
-                    break;
-                }
-            }
+            images.AddRange(instanceMembers);
+            images.AddRange(interfaceMembers);
 
             return images.ToArray();
         }
