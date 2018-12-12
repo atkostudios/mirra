@@ -20,9 +20,7 @@ namespace Atko.Mirra.Tests.Images
             internal static readonly TestValue HiddenReadOnlyField = new TestValue(0);
 
             static Class()
-            {
-                Console.WriteLine(PublicField);
-            }
+            { }
         }
 #pragma warning restore 169
 #pragma warning restore 649

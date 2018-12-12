@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using NullGuard;
+using Source.Utility;
 
 namespace Atko.Mirra.Utility
 {
@@ -21,8 +22,8 @@ namespace Atko.Mirra.Utility
         const string BackingFieldPrefix = "<";
         const string BackingFieldSuffix = ">k__BackingField";
 
-        static Cache<KeyValuePair<Type, Type>, Type> ImplementationCache { get; }
-            = new Cache<KeyValuePair<Type, Type>, Type>();
+        static Cache<Pair<Type, Type>, Type> ImplementationCache { get; }
+            = new Cache<Pair<Type, Type>, Type>();
 
         public static IEnumerable<Type> Inheritance(this Type type)
         {
@@ -67,8 +68,8 @@ namespace Atko.Mirra.Utility
                 return type;
             }
 
-            return ImplementationCache.GetOrAdd(new KeyValuePair<Type, Type>(type, generic),
-                (input) => GetImplementationInternal(input.Key, input.Value));
+            return ImplementationCache.GetOrAdd(new Pair<Type, Type>(type, generic),
+                (input) => GetImplementationInternal(input.First, input.Second));
         }
 
         [return: AllowNull]

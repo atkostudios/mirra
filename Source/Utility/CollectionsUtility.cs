@@ -5,6 +5,14 @@ namespace Atko.Mirra.Utility
 {
     static class CollectionsUtility
     {
+        public static T[] CopyArray<T>(this T[] array)
+        {
+            var size = array.Length;
+            var copy = new T[size];
+            Array.Copy(array, copy, size);
+            return copy;
+        }
+
         public static bool ElementsAreEqual<T>(this IReadOnlyList<T> collection, IReadOnlyList<T> other)
         {
             if (collection.Count != other.Count)

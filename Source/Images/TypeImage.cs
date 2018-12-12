@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Atko.Mirra.Utility;
 using NullGuard;
+using Source.Utility;
 
 namespace Atko.Mirra.Images
 {
@@ -102,7 +103,7 @@ namespace Atko.Mirra.Images
         Lazy<IndexerImage[]> LazySurfaceIndexers { get; }
 
         Lazy<Dictionary<ArrayHash<Type>, ConstructorImage>> LazyConstructorMap { get; }
-        Lazy<Dictionary<KeyValuePair<string, ArrayHash<Type>>, MethodImage>> LazyMethodMap { get; }
+        Lazy<Dictionary<Pair<string, ArrayHash<Type>>, MethodImage>> LazyMethodMap { get; }
         Lazy<Dictionary<string, PropertyImage>> LazyPropertyMap { get; }
         Lazy<Dictionary<string, FieldImage>> LazyFieldMap { get; }
         Lazy<Dictionary<ArrayHash<Type>, IndexerImage>> LazyIndexerMap { get; }
@@ -160,10 +161,10 @@ namespace Atko.Mirra.Images
                 Constructors
                     .ToDictionaryByFirst((constructor) => HashTypes(constructor.Constructor.GetParameters())));
 
-            LazyMethodMap = new Lazy<Dictionary<KeyValuePair<string, ArrayHash<Type>>, MethodImage>>(() =>
+            LazyMethodMap = new Lazy<Dictionary<Pair<string, ArrayHash<Type>>, MethodImage>>(() =>
                 Methods(MemberQuery.All)
                     .ToDictionaryByFirst((current) =>
-                        new KeyValuePair<string, ArrayHash<Type>>(
+                        new Pair<string, ArrayHash<Type>>(
                             current.Name,
                             HashTypes(current.Method.GetParameters()))));
 
@@ -245,7 +246,7 @@ namespace Atko.Mirra.Images
         [return: AllowNull]
         public MethodImage Method(string name, params Type[] types)
         {
-            var key = new KeyValuePair<string, ArrayHash<Type>>(name, new ArrayHash<Type>(types));
+            var key = new Pair<string, ArrayHash<Type>>(name, new ArrayHash<Type>(types.CopyArray()));
             LazyMethodMap.Value.TryGetValue(key, out var image);
             return image;
         }
