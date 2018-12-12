@@ -1,7 +1,7 @@
-using Atko.Dodge.Models;
+using Atko.Dodge.Images;
 using NUnit.Framework;
 
-namespace Atko.Dodge.Tests.Models
+namespace Atko.Dodge.Tests.Images
 {
     [TestFixture]
     class ConstructorModelTests
@@ -33,7 +33,7 @@ namespace Atko.Dodge.Tests.Models
         [Test]
         public void TestDefaultConstructor()
         {
-            var model = typeof(First).Model().Constructor();
+            var model = typeof(First).Image().Constructor();
             var instance = model.Call();
             Assert.IsInstanceOf<First>(instance);
         }
@@ -41,27 +41,27 @@ namespace Atko.Dodge.Tests.Models
         [Test]
         public void TestArgumentConstructor()
         {
-            var model = typeof(Second).Model().Constructor(typeof(int));
+            var model = typeof(Second).Image().Constructor(typeof(int));
             var instance = model.Call(1);
             Assert.IsInstanceOf<Second>(instance);
-            Assert.AreEqual(1, ((Second) instance).Value);
+            Assert.AreEqual(1, ((Second)instance).Value);
 
             Assert.Throws<DodgeInvocationException>(() => model.Call());
-            Assert.Throws<DodgeInvocationException>(() => model.Call((object) null));
+            Assert.Throws<DodgeInvocationException>(() => model.Call((object)null));
             Assert.Throws<DodgeInvocationException>(() => model.Call("string"));
         }
 
         [Test]
         public void TestParamsArgumentConstructor()
         {
-            var model = typeof(Third).Model().Constructor(typeof(string), typeof(int[]));
-            var instance = model.Call("string", new[] {1, 2, 3});
+            var model = typeof(Third).Image().Constructor(typeof(string), typeof(int[]));
+            var instance = model.Call("string", new[] { 1, 2, 3 });
             Assert.IsInstanceOf<Third>(instance);
-            Assert.AreEqual("string", ((Third) instance).Name);
-            Assert.AreEqual(new[] {1, 2, 3}, ((Third) instance).Values);
+            Assert.AreEqual("string", ((Third)instance).Name);
+            Assert.AreEqual(new[] { 1, 2, 3 }, ((Third)instance).Values);
 
             Assert.Throws<DodgeInvocationException>(() => model.Call());
-            Assert.Throws<DodgeInvocationException>(() => model.Call((object) null));
+            Assert.Throws<DodgeInvocationException>(() => model.Call((object)null));
             Assert.Throws<DodgeInvocationException>(() => model.Call("string"));
             Assert.Throws<DodgeInvocationException>(() => model.Call("string", 1));
         }

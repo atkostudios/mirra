@@ -3,9 +3,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Atko.Dodge.Utility;
 
-namespace Atko.Dodge.Models
+namespace Atko.Dodge.Images
 {
-    public abstract class MemberModel
+    public abstract class MemberImage
     {
         public string Name { get; }
 
@@ -18,7 +18,7 @@ namespace Atko.Dodge.Models
 
         public MemberInfo Member { get; }
 
-        protected MemberModel(Type owner, MemberInfo member)
+        protected MemberImage(Type owner, MemberInfo member)
         {
             Member = member;
             Name = Member.Name.SubstringAfterLast(".");

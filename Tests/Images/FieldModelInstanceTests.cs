@@ -1,14 +1,13 @@
-using System;
-using Atko.Dodge.Models;
+using Atko.Dodge.Images;
 using NUnit.Framework;
 
-namespace Atko.Dodge.Tests.Models
+namespace Atko.Dodge.Tests.Images
 {
     [TestFixture]
     public class FieldModelInstanceTests
     {
-        #pragma warning disable 169
-        #pragma warning disable 649
+#pragma warning disable 169
+#pragma warning disable 649
         public class Class
         {
             public int PublicField;
@@ -16,8 +15,8 @@ namespace Atko.Dodge.Tests.Models
             internal int HiddenField;
             internal readonly int HiddenReadOnlyField;
         }
-        #pragma warning restore 169
-        #pragma warning restore 649
+#pragma warning restore 169
+#pragma warning restore 649
 
         [Test]
         [TestCase(nameof(Class.PublicField))]
@@ -27,7 +26,7 @@ namespace Atko.Dodge.Tests.Models
         public void TestGetSet(string name)
         {
             var instance = new Class();
-            var model = typeof(Class).Model().Field(name);
+            var model = typeof(Class).Image().Field(name);
 
             Assert.AreEqual(0, model.Get(instance));
 
@@ -36,7 +35,6 @@ namespace Atko.Dodge.Tests.Models
 
             model.Set(instance, 2);
             Assert.AreEqual(2, model.Get(instance));
-            Console.WriteLine(model);
         }
 
         [Test]
@@ -46,7 +44,7 @@ namespace Atko.Dodge.Tests.Models
         [TestCase(nameof(Class.HiddenReadOnlyField))]
         public void TestInstanceNullException(string name)
         {
-            var model = typeof(Class).Model().Field(name);
+            var model = typeof(Class).Image().Field(name);
 
             Assert.Throws<DodgeInvocationException>(() => model.Get(null));
             Assert.Throws<DodgeInvocationException>(() => model.Set(null, 1));
@@ -64,7 +62,7 @@ namespace Atko.Dodge.Tests.Models
         public void TestArgumentException(string name, object argument)
         {
             var instance = new Class();
-            var model = typeof(Class).Model().Field(name);
+            var model = typeof(Class).Image().Field(name);
 
             Assert.Throws<DodgeInvocationException>(() => model.Set(instance, argument));
         }

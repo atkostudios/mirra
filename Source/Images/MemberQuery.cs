@@ -1,4 +1,4 @@
-namespace Atko.Dodge.Models
+namespace Atko.Dodge.Images
 {
     public enum MemberQuery
     {

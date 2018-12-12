@@ -110,7 +110,7 @@ namespace Atko.Dodge.Generation
 
             var body = TypeUtility.GetReturnType(method) == typeof(void)
                 ? Expression.Block(callExpression, Expression.Constant(null, typeof(object)))
-                : (Expression) Expression.Convert(callExpression, typeof(object));
+                : (Expression)Expression.Convert(callExpression, typeof(object));
 
             var parameters = new[]
             {
@@ -132,7 +132,7 @@ namespace Atko.Dodge.Generation
 
             var body = TypeUtility.GetReturnType(method) == typeof(void)
                 ? Expression.Block(callExpression, Expression.Constant(null, typeof(object)))
-                : (Expression) Expression.Convert(callExpression, typeof(object));
+                : (Expression)Expression.Convert(callExpression, typeof(object));
 
             var parameters = new[]
             {
@@ -214,7 +214,7 @@ namespace Atko.Dodge.Generation
                 generator.Emit(OpCodes.Ret);
             }
 
-            return (StaticGetInvoker) method.CreateDelegate(typeof(StaticGetInvoker));
+            return (StaticGetInvoker)method.CreateDelegate(typeof(StaticGetInvoker));
         }
 
         static InstanceGetInvoker InstanceFieldGetter(FieldInfo field)
@@ -236,7 +236,7 @@ namespace Atko.Dodge.Generation
                 generator.Emit(OpCodes.Ret);
             }
 
-            return (InstanceGetInvoker) method.CreateDelegate(typeof(InstanceGetInvoker));
+            return (InstanceGetInvoker)method.CreateDelegate(typeof(InstanceGetInvoker));
         }
 
         static StaticSetInvoker StaticFieldSetter(FieldInfo field)
@@ -261,7 +261,7 @@ namespace Atko.Dodge.Generation
                 generator.Emit(OpCodes.Ret);
             }
 
-            return (StaticSetInvoker) method.CreateDelegate(typeof(StaticSetInvoker));
+            return (StaticSetInvoker)method.CreateDelegate(typeof(StaticSetInvoker));
         }
 
         static InstanceSetInvoker InstanceFieldSetter(FieldInfo field)
@@ -289,7 +289,7 @@ namespace Atko.Dodge.Generation
                 generator.Emit(OpCodes.Ret);
             }
 
-            return (InstanceSetInvoker) method.CreateDelegate(typeof(InstanceSetInvoker));
+            return (InstanceSetInvoker)method.CreateDelegate(typeof(InstanceSetInvoker));
         }
 
         [return: AllowNull]
@@ -380,17 +380,21 @@ namespace Atko.Dodge.Generation
                 return Expression.Property(castInstanceExpression, property);
             }
 
+            #region What
+
             if (member is FieldInfo field)
             {
                 return Expression.Field(castInstanceExpression, field);
             }
+
+            #endregion
 
             return null;
         }
 
         static Expression[] GetArguments(ParameterInfo[] parameters, Expression arguments, int count)
         {
-            #if DEBUG
+#if DEBUG
             var minArgumentCount = parameters
                 .TakeWhile((current) => !current.IsOptional)
                 .Count();
@@ -398,7 +402,7 @@ namespace Atko.Dodge.Generation
             var maxArgumentCount = parameters.Length;
 
             Debug.Assert(count >= minArgumentCount && count <= maxArgumentCount);
-            #endif
+#endif
 
             var types = parameters
                 .Select((current) => current.ParameterType)

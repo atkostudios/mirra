@@ -3,9 +3,9 @@ using System.Reflection;
 using Atko.Dodge.Generation;
 using NullGuard;
 
-namespace Atko.Dodge.Models
+namespace Atko.Dodge.Images
 {
-    public abstract class AccessorModel : MemberModel
+    public abstract class AccessorImage : MemberImage
     {
         public abstract bool CanGet { get; }
         public abstract bool CanSet { get; }
@@ -20,10 +20,10 @@ namespace Atko.Dodge.Models
         Lazy<StaticGetInvoker> LazyStaticGetInvoker { get; }
         Lazy<StaticSetInvoker> LazyStaticSetInvoker { get; }
 
-        protected AccessorModel(Type owner, PropertyInfo property) : this(owner, (MemberInfo) property) { }
-        protected AccessorModel(Type owner, FieldInfo member) : this(owner, (MemberInfo) member) { }
+        protected AccessorImage(Type owner, PropertyInfo property) : this(owner, (MemberInfo)property) { }
+        protected AccessorImage(Type owner, FieldInfo member) : this(owner, (MemberInfo)member) { }
 
-        AccessorModel(Type owner, MemberInfo member) : base(owner, member)
+        AccessorImage(Type owner, MemberInfo member) : base(owner, member)
         {
             LazyStaticGetInvoker = new Lazy<StaticGetInvoker>(() => Generate.StaticGetter(Member));
             LazyStaticSetInvoker = new Lazy<StaticSetInvoker>(() => Generate.StaticSetter(Member));

@@ -5,36 +5,36 @@ using System.Reflection;
 using Atko.Dodge.Utility;
 using NullGuard;
 
-namespace Atko.Dodge.Models
+namespace Atko.Dodge.Images
 {
-    public class TypeModel
+    public class TypeImage
     {
         static class StaticCache<T>
         {
-            public static TypeModel Instance { get; } = Get(typeof(T));
+            public static TypeImage Instance { get; } = Get(typeof(T));
         }
 
-        public static implicit operator Type([AllowNull] TypeModel model)
+        public static implicit operator Type([AllowNull] TypeImage image)
         {
-            return model == null ? null : model.Type;
+            return image == null ? null : image.Type;
         }
 
-        public static implicit operator TypeModel([AllowNull] Type type)
+        public static implicit operator TypeImage([AllowNull] Type type)
         {
             return type == null ? null : Get(type);
         }
 
-        public static TypeModel Get(Type type)
+        public static TypeImage Get(Type type)
         {
-            return Cache.GetOrAdd(type, (input) => new TypeModel(input));
+            return Cache.GetOrAdd(type, (input) => new TypeImage(input));
         }
 
-        public static TypeModel Get<T>()
+        public static TypeImage Get<T>()
         {
             return StaticCache<T>.Instance;
         }
 
-        static Cache<Type, TypeModel> Cache { get; } = new Cache<Type, TypeModel>();
+        static Cache<Type, TypeImage> Cache { get; } = new Cache<Type, TypeImage>();
 
         static ArrayHash<Type> HashTypes(ParameterInfo[] parameters)
         {
@@ -44,9 +44,9 @@ namespace Atko.Dodge.Models
         public Type Type { get; }
 
         [AllowNull]
-        public TypeModel Base { get; }
+        public TypeImage Base { get; }
 
-        public IEnumerable<TypeModel> Inheritance
+        public IEnumerable<TypeImage> Inheritance
         {
             get
             {
@@ -61,8 +61,8 @@ namespace Atko.Dodge.Models
 
         public string Name => Type.Name;
 
-        public IEnumerable<TypeModel> Interfaces => LazyInterfaces.Value;
-        public IEnumerable<ConstructorModel> Constructors => LazyConstructors.Value;
+        public IEnumerable<TypeImage> Interfaces => LazyInterfaces.Value;
+        public IEnumerable<ConstructorImage> Constructors => LazyConstructors.Value;
 
         public bool IsGeneric => Type.IsGenericType;
         public bool IsGenericDefinition => Type.IsGenericTypeDefinition;
@@ -78,36 +78,36 @@ namespace Atko.Dodge.Models
 
         public int GenericArgumentCount => GenericArguments.Length;
 
-        public TypeModel GenericDefinition =>
+        public TypeImage GenericDefinition =>
             IsGeneric && !IsGenericDefinition
                 ? Get(Type.GetGenericTypeDefinition())
                 : this;
 
-        TypeModel[] GenericArguments { get; }
+        TypeImage[] GenericArguments { get; }
 
         Cache<Type, Type> AssignableTypeCache { get; } = new Cache<Type, Type>();
 
-        Lazy<TypeModel[]> LazyInterfaces { get; }
-        Lazy<ConstructorModel[]> LazyConstructors { get; }
+        Lazy<TypeImage[]> LazyInterfaces { get; }
+        Lazy<ConstructorImage[]> LazyConstructors { get; }
 
-        Lazy<MethodModel[]> LazyLocalMethods { get; }
-        Lazy<PropertyModel[]> LazyLocalProperties { get; }
-        Lazy<FieldModel[]> LazyLocalFields { get; }
-        Lazy<AccessorModel[]> LazyLocalAccessors { get; }
-        Lazy<IndexerModel[]> LazyLocalIndexers { get; }
+        Lazy<MethodImage[]> LazyLocalMethods { get; }
+        Lazy<PropertyImage[]> LazyLocalProperties { get; }
+        Lazy<FieldImage[]> LazyLocalFields { get; }
+        Lazy<AccessorImage[]> LazyLocalAccessors { get; }
+        Lazy<IndexerImage[]> LazyLocalIndexers { get; }
 
-        Lazy<MethodModel[]> LazySurfaceMethods { get; }
-        Lazy<PropertyModel[]> LazySurfaceProperties { get; }
-        Lazy<FieldModel[]> LazySurfaceFields { get; }
-        Lazy<IndexerModel[]> LazySurfaceIndexers { get; }
+        Lazy<MethodImage[]> LazySurfaceMethods { get; }
+        Lazy<PropertyImage[]> LazySurfaceProperties { get; }
+        Lazy<FieldImage[]> LazySurfaceFields { get; }
+        Lazy<IndexerImage[]> LazySurfaceIndexers { get; }
 
-        Lazy<Dictionary<ArrayHash<Type>, ConstructorModel>> LazyConstructorMap { get; }
-        Lazy<Dictionary<KeyValuePair<string, ArrayHash<Type>>, MethodModel>> LazyMethodMap { get; }
-        Lazy<Dictionary<string, PropertyModel>> LazyPropertyMap { get; }
-        Lazy<Dictionary<string, FieldModel>> LazyFieldMap { get; }
-        Lazy<Dictionary<ArrayHash<Type>, IndexerModel>> LazyIndexerMap { get; }
+        Lazy<Dictionary<ArrayHash<Type>, ConstructorImage>> LazyConstructorMap { get; }
+        Lazy<Dictionary<KeyValuePair<string, ArrayHash<Type>>, MethodImage>> LazyMethodMap { get; }
+        Lazy<Dictionary<string, PropertyImage>> LazyPropertyMap { get; }
+        Lazy<Dictionary<string, FieldImage>> LazyFieldMap { get; }
+        Lazy<Dictionary<ArrayHash<Type>, IndexerImage>> LazyIndexerMap { get; }
 
-        TypeModel(Type type)
+        TypeImage(Type type)
         {
             Type = type;
 
@@ -115,74 +115,74 @@ namespace Atko.Dodge.Models
 
             GenericArguments = IsGeneric
                 ? Type.GetGenericArguments().Select(Get).ToArray()
-                : ArrayUtility<TypeModel>.Empty;
+                : ArrayUtility<TypeImage>.Empty;
 
-            LazyInterfaces = new Lazy<TypeModel[]>(() =>
+            LazyInterfaces = new Lazy<TypeImage[]>(() =>
                 GetInterfaces(Type));
 
-            LazyConstructors = new Lazy<ConstructorModel[]>(() =>
+            LazyConstructors = new Lazy<ConstructorImage[]>(() =>
                 GetConstructors(Type));
 
-            LazyLocalMethods = new Lazy<MethodModel[]>(() =>
+            LazyLocalMethods = new Lazy<MethodImage[]>(() =>
                 GetMethods(Type, true));
 
-            LazyLocalProperties = new Lazy<PropertyModel[]>(() =>
+            LazyLocalProperties = new Lazy<PropertyImage[]>(() =>
                 GetProperties(Type, true));
 
-            LazyLocalFields = new Lazy<FieldModel[]>(() =>
+            LazyLocalFields = new Lazy<FieldImage[]>(() =>
                 GetFields(Type, true));
 
-            LazyLocalIndexers = new Lazy<IndexerModel[]>(() =>
+            LazyLocalIndexers = new Lazy<IndexerImage[]>(() =>
                 GetIndexers(Type, true));
 
-            LazyLocalAccessors = new Lazy<AccessorModel[]>(() =>
+            LazyLocalAccessors = new Lazy<AccessorImage[]>(() =>
                 LazyLocalProperties.Value
-                    .Cast<AccessorModel>()
+                    .Cast<AccessorImage>()
                     .Concat(LazyLocalFields.Value)
                     .ToArray());
 
-            LazyLocalIndexers = new Lazy<IndexerModel[]>(() =>
+            LazyLocalIndexers = new Lazy<IndexerImage[]>(() =>
                 GetIndexers(Type, true));
 
-            LazySurfaceMethods = new Lazy<MethodModel[]>(() =>
+            LazySurfaceMethods = new Lazy<MethodImage[]>(() =>
                 GetSurfaceMembers(GetMethods(Type, false)));
 
-            LazySurfaceProperties = new Lazy<PropertyModel[]>(() =>
+            LazySurfaceProperties = new Lazy<PropertyImage[]>(() =>
                 GetSurfaceMembers(GetProperties(Type, false)));
 
-            LazySurfaceFields = new Lazy<FieldModel[]>(() =>
+            LazySurfaceFields = new Lazy<FieldImage[]>(() =>
                 GetSurfaceMembers(GetFields(Type, false)));
 
-            LazySurfaceIndexers = new Lazy<IndexerModel[]>(() =>
+            LazySurfaceIndexers = new Lazy<IndexerImage[]>(() =>
                 GetSurfaceMembers(GetIndexers(Type, false)));
 
-            LazyConstructorMap = new Lazy<Dictionary<ArrayHash<Type>, ConstructorModel>>(() =>
+            LazyConstructorMap = new Lazy<Dictionary<ArrayHash<Type>, ConstructorImage>>(() =>
                 Constructors
                     .ToDictionaryByFirst((constructor) => HashTypes(constructor.Constructor.GetParameters())));
 
-            LazyMethodMap = new Lazy<Dictionary<KeyValuePair<string, ArrayHash<Type>>, MethodModel>>(() =>
+            LazyMethodMap = new Lazy<Dictionary<KeyValuePair<string, ArrayHash<Type>>, MethodImage>>(() =>
                 Methods(MemberQuery.All)
                     .ToDictionaryByFirst((current) =>
                         new KeyValuePair<string, ArrayHash<Type>>(
                             current.Name,
                             HashTypes(current.Method.GetParameters()))));
 
-            LazyPropertyMap = new Lazy<Dictionary<string, PropertyModel>>(() =>
+            LazyPropertyMap = new Lazy<Dictionary<string, PropertyImage>>(() =>
                 Properties(MemberQuery.All)
                     .ToDictionaryByFirst((current) => current.Name));
 
-            LazyFieldMap = new Lazy<Dictionary<string, FieldModel>>(() =>
+            LazyFieldMap = new Lazy<Dictionary<string, FieldImage>>(() =>
                 Fields(MemberQuery.All)
                     .ToDictionaryByFirst((current) => current.Name));
 
-            LazyIndexerMap = new Lazy<Dictionary<ArrayHash<Type>, IndexerModel>>(() =>
+            LazyIndexerMap = new Lazy<Dictionary<ArrayHash<Type>, IndexerImage>>(() =>
                 Indexers(MemberQuery.All)
                     .ToDictionaryByFirst((current) => HashTypes(current.Property.GetIndexParameters())));
         }
 
         public override string ToString()
         {
-            return $"{nameof(TypeModel)}({Type})";
+            return $"{nameof(TypeImage)}({Type})";
         }
 
         public bool IsAssignableTo(Type target)
@@ -222,7 +222,7 @@ namespace Atko.Dodge.Models
             return AssignableTypeCache[target] = null;
         }
 
-        public TypeModel GenericArgument(int index)
+        public TypeImage GenericArgument(int index)
         {
             try
             {
@@ -235,35 +235,35 @@ namespace Atko.Dodge.Models
         }
 
         [return: AllowNull]
-        public ConstructorModel Constructor(params Type[] types)
+        public ConstructorImage Constructor(params Type[] types)
         {
             LazyConstructorMap.Value.TryGetValue(types, out var model);
             return model;
         }
 
         [return: AllowNull]
-        public MethodModel Method(string name, params Type[] types)
+        public MethodImage Method(string name, params Type[] types)
         {
             LazyMethodMap.Value.TryGetValue(new KeyValuePair<string, ArrayHash<Type>>(name, types), out var model);
             return model;
         }
 
         [return: AllowNull]
-        public PropertyModel Property(string name)
+        public PropertyImage Property(string name)
         {
             LazyPropertyMap.Value.TryGetValue(name, out var model);
             return model;
         }
 
         [return: AllowNull]
-        public FieldModel Field(string name)
+        public FieldImage Field(string name)
         {
             LazyFieldMap.Value.TryGetValue(name, out var model);
             return model;
         }
 
         [return: AllowNull]
-        public AccessorModel Accessor(string name)
+        public AccessorImage Accessor(string name)
         {
             LazyPropertyMap.Value.TryGetValue(name, out var property);
             if (property != null)
@@ -275,7 +275,7 @@ namespace Atko.Dodge.Models
             return field;
         }
 
-        public IEnumerable<MethodModel> Methods(MemberQuery query = default(MemberQuery))
+        public IEnumerable<MethodImage> Methods(MemberQuery query = default(MemberQuery))
         {
             switch (query)
             {
@@ -287,10 +287,10 @@ namespace Atko.Dodge.Models
                     return Inheritance.SelectMany((current) => current.LazyLocalMethods.Value);
             }
 
-            return Enumerable.Empty<MethodModel>();
+            return Enumerable.Empty<MethodImage>();
         }
 
-        public IEnumerable<FieldModel> Fields(MemberQuery query = default(MemberQuery))
+        public IEnumerable<FieldImage> Fields(MemberQuery query = default(MemberQuery))
         {
             switch (query)
             {
@@ -302,10 +302,10 @@ namespace Atko.Dodge.Models
                     return Inheritance.SelectMany((current) => current.LazyLocalFields.Value);
             }
 
-            return Enumerable.Empty<FieldModel>();
+            return Enumerable.Empty<FieldImage>();
         }
 
-        public IEnumerable<PropertyModel> Properties(MemberQuery query = default(MemberQuery))
+        public IEnumerable<PropertyImage> Properties(MemberQuery query = default(MemberQuery))
         {
             switch (query)
             {
@@ -317,10 +317,10 @@ namespace Atko.Dodge.Models
                     return Inheritance.SelectMany((current) => current.LazyLocalProperties.Value);
             }
 
-            return Enumerable.Empty<PropertyModel>();
+            return Enumerable.Empty<PropertyImage>();
         }
 
-        public IEnumerable<AccessorModel> Accessors(MemberQuery query = default(MemberQuery))
+        public IEnumerable<AccessorImage> Accessors(MemberQuery query = default(MemberQuery))
         {
             foreach (var model in Properties(query))
             {
@@ -333,7 +333,7 @@ namespace Atko.Dodge.Models
             }
         }
 
-        public IEnumerable<IndexerModel> Indexers(MemberQuery query = default(MemberQuery))
+        public IEnumerable<IndexerImage> Indexers(MemberQuery query = default(MemberQuery))
         {
             switch (query)
             {
@@ -345,10 +345,10 @@ namespace Atko.Dodge.Models
                     return Inheritance.SelectMany((current) => current.LazyLocalIndexers.Value);
             }
 
-            return Enumerable.Empty<IndexerModel>();
+            return Enumerable.Empty<IndexerImage>();
         }
 
-        TypeModel[] GetInterfaces(Type type)
+        TypeImage[] GetInterfaces(Type type)
         {
             return type
                 .Inheritance()
@@ -357,35 +357,35 @@ namespace Atko.Dodge.Models
                 .ToArray();
         }
 
-        ConstructorModel[] GetConstructors(Type type)
+        ConstructorImage[] GetConstructors(Type type)
         {
             return type
                 .GetConstructors(TypeUtility.InstanceBinding)
-                .Where(CallableModel.CanCreateFrom)
-                .Select((current) => new ConstructorModel(type, current))
+                .Where(CallableImage.CanCreateFrom)
+                .Select((current) => new ConstructorImage(type, current))
                 .ToArray();
         }
 
-        MethodModel[] GetMethods(Type type, bool local)
+        MethodImage[] GetMethods(Type type, bool local)
         {
-            var models = new List<MethodModel>();
+            var models = new List<MethodImage>();
             foreach (var ancestor in type.Inheritance())
             {
                 var instanceMembers = ancestor
                     .GetMethods(TypeUtility.InstanceBinding)
-                    .Where(CallableModel.CanCreateFrom)
-                    .Select((current) => new MethodModel(type, current));
+                    .Where(CallableImage.CanCreateFrom)
+                    .Select((current) => new MethodImage(type, current));
 
                 var staticMembers = ancestor
                     .GetMethods(TypeUtility.StaticBinding)
-                    .Where(CallableModel.CanCreateFrom)
-                    .Select((current) => new MethodModel(type, current));
+                    .Where(CallableImage.CanCreateFrom)
+                    .Select((current) => new MethodImage(type, current));
 
                 var interfaceMembers = ancestor
                     .GetInterfaces()
                     .SelectMany((current) => current.GetMethods(TypeUtility.InstanceBinding))
-                    .Where(CallableModel.CanCreateFrom)
-                    .Select((current) => new MethodModel(type, current));
+                    .Where(CallableImage.CanCreateFrom)
+                    .Select((current) => new MethodImage(type, current));
 
                 models.AddRange(instanceMembers);
                 models.AddRange(interfaceMembers);
@@ -400,26 +400,26 @@ namespace Atko.Dodge.Models
             return models.ToArray();
         }
 
-        PropertyModel[] GetProperties(Type type, bool local)
+        PropertyImage[] GetProperties(Type type, bool local)
         {
-            var models = new List<PropertyModel>();
+            var models = new List<PropertyImage>();
             foreach (var ancestor in type.Inheritance())
             {
                 var instanceMembers = ancestor
                     .GetProperties(TypeUtility.InstanceBinding)
-                    .Where(PropertyModel.CanCreateFrom)
-                    .Select((current) => new PropertyModel(type, current));
+                    .Where(PropertyImage.CanCreateFrom)
+                    .Select((current) => new PropertyImage(type, current));
 
                 var staticMembers = ancestor
                     .GetProperties(TypeUtility.StaticBinding)
-                    .Where(PropertyModel.CanCreateFrom)
-                    .Select((current) => new PropertyModel(type, current));
+                    .Where(PropertyImage.CanCreateFrom)
+                    .Select((current) => new PropertyImage(type, current));
 
                 var interfaceMembers = ancestor
                     .GetInterfaces()
                     .SelectMany((current) => current.GetProperties(TypeUtility.InstanceBinding))
-                    .Where(PropertyModel.CanCreateFrom)
-                    .Select((current) => new PropertyModel(type, current));
+                    .Where(PropertyImage.CanCreateFrom)
+                    .Select((current) => new PropertyImage(type, current));
 
                 models.AddRange(instanceMembers);
                 models.AddRange(interfaceMembers);
@@ -434,18 +434,18 @@ namespace Atko.Dodge.Models
             return models.ToArray();
         }
 
-        FieldModel[] GetFields(Type type, bool local)
+        FieldImage[] GetFields(Type type, bool local)
         {
-            var models = new List<FieldModel>();
+            var models = new List<FieldImage>();
             foreach (var ancestor in type.Inheritance())
             {
                 var instanceMembers = ancestor
                     .GetFields(TypeUtility.InstanceBinding)
-                    .Select((current) => FieldModel.Create(type, current));
+                    .Select((current) => FieldImage.Create(type, current));
 
                 var staticMembers = ancestor
                     .GetFields(TypeUtility.StaticBinding)
-                    .Select((current) => FieldModel.Create(type, current));
+                    .Select((current) => FieldImage.Create(type, current));
 
                 models.AddRange(instanceMembers);
                 models.AddRange(staticMembers);
@@ -459,21 +459,21 @@ namespace Atko.Dodge.Models
             return models.ToArray();
         }
 
-        IndexerModel[] GetIndexers(Type type, bool local)
+        IndexerImage[] GetIndexers(Type type, bool local)
         {
-            var models = new List<IndexerModel>();
+            var models = new List<IndexerImage>();
             foreach (var ancestor in type.Inheritance())
             {
                 var instanceMembers = ancestor
                     .GetProperties(TypeUtility.InstanceBinding)
-                    .Where(IndexerModel.CanCreateFrom)
-                    .Select((current) => new IndexerModel(type, current));
+                    .Where(IndexerImage.CanCreateFrom)
+                    .Select((current) => new IndexerImage(type, current));
 
                 var interfaceMembers = ancestor
                     .GetInterfaces()
                     .SelectMany((current) => current.GetProperties(TypeUtility.InstanceBinding))
-                    .Where(IndexerModel.CanCreateFrom)
-                    .Select((current) => new IndexerModel(type, current));
+                    .Where(IndexerImage.CanCreateFrom)
+                    .Select((current) => new IndexerImage(type, current));
 
                 models.AddRange(instanceMembers);
                 models.AddRange(interfaceMembers);
@@ -487,7 +487,7 @@ namespace Atko.Dodge.Models
             return models.ToArray();
         }
 
-        T[] GetSurfaceMembers<T>(IEnumerable<T> models) where T : MemberModel
+        T[] GetSurfaceMembers<T>(IEnumerable<T> models) where T : MemberImage
         {
             var seen = new HashSet<string>();
             var unique = new List<T>();

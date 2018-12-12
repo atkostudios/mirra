@@ -1,7 +1,7 @@
-using Atko.Dodge.Models;
+using Atko.Dodge.Images;
 using NUnit.Framework;
 
-namespace Atko.Dodge.Tests.Models
+namespace Atko.Dodge.Tests.Images
 {
     [TestFixture]
     class PropertyModelInstanceTests
@@ -28,7 +28,7 @@ namespace Atko.Dodge.Tests.Models
         public void TestGetSet(string name)
         {
             var instance = new Class();
-            var model = typeof(Class).Model().Property(name);
+            var model = typeof(Class).Image().Property(name);
 
             Assert.AreEqual(0, model.Get(instance));
 
@@ -55,7 +55,7 @@ namespace Atko.Dodge.Tests.Models
         [TestCase(nameof(Class.PrivateGetOnlyAutoProperty))]
         public void TestNullInstanceException(string name)
         {
-            var model = typeof(Class).Model().Property(name);
+            var model = typeof(Class).Image().Property(name);
 
             Assert.Throws<DodgeInvocationException>(() => model.Get(null));
             Assert.Throws<DodgeInvocationException>(() => model.Set(null, 1));
@@ -73,7 +73,7 @@ namespace Atko.Dodge.Tests.Models
         public void TestArgumentException(string name, object argument)
         {
             var instance = new Class();
-            var model = typeof(Class).Model().Property(name);
+            var model = typeof(Class).Image().Property(name);
 
             Assert.Throws<DodgeInvocationException>(() => model.Set(instance, argument));
         }

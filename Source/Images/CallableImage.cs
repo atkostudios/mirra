@@ -4,9 +4,9 @@ using System.Reflection;
 using Atko.Dodge.Generation;
 using NullGuard;
 
-namespace Atko.Dodge.Models
+namespace Atko.Dodge.Images
 {
-    public abstract class CallableModel : MemberModel
+    public abstract class CallableImage : MemberImage
     {
         public static bool CanCreateFrom(MethodBase method)
         {
@@ -16,12 +16,12 @@ namespace Atko.Dodge.Models
         public override bool IsPublic => Base.IsPublic;
         public override bool IsStatic => Base.IsStatic;
 
-        MethodBase Base => (MethodBase) Member;
+        MethodBase Base => (MethodBase)Member;
 
         InvokerDispatch<InstanceMethodInvoker> InstanceInvokers { get; }
         InvokerDispatch<StaticMethodInvoker> StaticInvokers { get; }
 
-        protected CallableModel(Type owner, MethodBase member,
+        protected CallableImage(Type owner, MethodBase member,
             [AllowNull] Func<int, InstanceMethodInvoker> instanceInvokerFactory,
             [AllowNull] Func<int, StaticMethodInvoker> staticInvokerFactory) : base(owner, member)
         {

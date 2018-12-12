@@ -1,9 +1,9 @@
 using System.Reflection;
-using Atko.Dodge.Models;
+using Atko.Dodge.Images;
 using Atko.Dodge.Tests.Utility;
 using NUnit.Framework;
 
-namespace Atko.Dodge.Tests.Models
+namespace Atko.Dodge.Tests.Images
 {
     [TestFixture]
     [SingleThreaded]
@@ -49,7 +49,7 @@ namespace Atko.Dodge.Tests.Models
         [TestCase(nameof(Class.PrivateComputedProperty))]
         public void TestGetSet(string name)
         {
-            var model = typeof(Class).Model().Property(name);
+            var model = typeof(Class).Image().Property(name);
 
             Assert.AreEqual(new TestValue(0), model.Get(null));
 
@@ -77,7 +77,7 @@ namespace Atko.Dodge.Tests.Models
         public void TestInstanceNotNullException(string name)
         {
             var instance = new Class();
-            var model = typeof(Class).Model().Property(name);
+            var model = typeof(Class).Image().Property(name);
 
             Assert.Throws<DodgeInvocationException>(() => model.Get(instance));
             Assert.Throws<DodgeInvocationException>(() => model.Set(instance, new TestValue(1)));
@@ -94,7 +94,7 @@ namespace Atko.Dodge.Tests.Models
         [TestCase(nameof(Class.HiddenGetOnlyAutoProperty), "string")]
         public void TestArgumentException(string name, object argument)
         {
-            var model = typeof(Class).Model().Property(name);
+            var model = typeof(Class).Image().Property(name);
 
             Assert.Throws<DodgeInvocationException>(() => model.Set(null, argument));
         }

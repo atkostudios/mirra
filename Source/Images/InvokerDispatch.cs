@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using NullGuard;
 
-namespace Atko.Dodge.Models
+namespace Atko.Dodge.Images
 {
     public class InvokerDispatch<T> where T : class
     {

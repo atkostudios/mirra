@@ -3,9 +3,9 @@ using System.Reflection;
 using Atko.Dodge.Utility;
 using NullGuard;
 
-namespace Atko.Dodge.Models
+namespace Atko.Dodge.Images
 {
-    public class PropertyModel : AccessorModel
+    public class PropertyImage : AccessorImage
     {
         public static bool CanCreateFrom(PropertyInfo property)
         {
@@ -19,25 +19,25 @@ namespace Atko.Dodge.Models
         public override bool CanSet => Property.CanWrite || BackingField != null;
 
         [AllowNull]
-        public FieldModel BackingField => LazyBackingField.Value;
+        public FieldImage BackingField => LazyBackingField.Value;
 
-        public PropertyInfo Property => (PropertyInfo) Member;
+        public PropertyInfo Property => (PropertyInfo)Member;
 
-        Lazy<FieldModel> LazyBackingField { get; }
+        Lazy<FieldImage> LazyBackingField { get; }
 
-        internal PropertyModel(Type owner, PropertyInfo member) : base(owner, member)
+        internal PropertyImage(Type owner, PropertyInfo member) : base(owner, member)
         {
             if (!CanCreateFrom(member))
             {
                 throw new ArgumentException(nameof(member));
             }
 
-            LazyBackingField = new Lazy<FieldModel>(GetBackingField);
+            LazyBackingField = new Lazy<FieldImage>(GetBackingField);
         }
 
-        FieldModel GetBackingField()
+        FieldImage GetBackingField()
         {
-            return TypeModel.Get(Property.DeclaringType).Field(TypeUtility.GetBackingFieldName(Property));
+            return TypeImage.Get(Property.DeclaringType).Field(TypeUtility.GetBackingFieldName(Property));
         }
     }
 }

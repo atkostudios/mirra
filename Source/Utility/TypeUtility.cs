@@ -77,11 +77,11 @@ namespace Atko.Dodge.Utility
             switch (member.MemberType)
             {
                 case MemberTypes.Field:
-                    return ((FieldInfo) member).FieldType;
+                    return ((FieldInfo)member).FieldType;
                 case MemberTypes.Property:
-                    return ((PropertyInfo) member).PropertyType;
+                    return ((PropertyInfo)member).PropertyType;
                 case MemberTypes.Method:
-                    return ((MethodInfo) member).ReturnType;
+                    return ((MethodInfo)member).ReturnType;
             }
 
             return null;

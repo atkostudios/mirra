@@ -2,13 +2,13 @@ using System;
 using System.Reflection;
 using Atko.Dodge.Utility;
 
-namespace Atko.Dodge.Models
+namespace Atko.Dodge.Images
 {
-    public class FieldModel : AccessorModel
+    public class FieldImage : AccessorImage
     {
-        internal static FieldModel Create(Type owner, FieldInfo field)
+        internal static FieldImage Create(Type owner, FieldInfo field)
         {
-            return new FieldModel(owner, field);
+            return new FieldImage(owner, field);
         }
 
         public override bool IsPublic => Field.IsPublic;
@@ -19,9 +19,9 @@ namespace Atko.Dodge.Models
 
         public bool IsBacking { get; }
 
-        public FieldInfo Field => (FieldInfo) Member;
+        public FieldInfo Field => (FieldInfo)Member;
 
-        FieldModel(Type owner, FieldInfo member) : base(owner, member)
+        FieldImage(Type owner, FieldInfo member) : base(owner, member)
         {
             IsBacking = TypeUtility.IsBackingField(Field);
         }

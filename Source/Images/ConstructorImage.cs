@@ -1,15 +1,14 @@
 using System;
 using System.Reflection;
 using Atko.Dodge.Generation;
-using NullGuard;
 
-namespace Atko.Dodge.Models
+namespace Atko.Dodge.Images
 {
-    public class ConstructorModel : CallableModel
+    public class ConstructorImage : CallableImage
     {
-        public ConstructorInfo Constructor => (ConstructorInfo) Member;
+        public ConstructorInfo Constructor => (ConstructorInfo)Member;
 
-        internal ConstructorModel(Type owner, ConstructorInfo constructor) :
+        internal ConstructorImage(Type owner, ConstructorInfo constructor) :
             base(owner, constructor, null,
                 (argumentCount) => Generate.Constructor(constructor, argumentCount)) { }
 

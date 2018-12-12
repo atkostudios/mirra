@@ -1,17 +1,17 @@
 using System;
 using System.Reflection;
-using Atko.Dodge.Models;
+using Atko.Dodge.Images;
 using Atko.Dodge.Tests.Utility;
 using NUnit.Framework;
 
-namespace Atko.Dodge.Tests.Models
+namespace Atko.Dodge.Tests.Images
 {
     [TestFixture]
     [SingleThreaded]
     public class FieldModelStaticTests
     {
-        #pragma warning disable 169
-        #pragma warning disable 649
+#pragma warning disable 169
+#pragma warning disable 649
         public class Class
         {
             public static TestValue PublicField = new TestValue(0);
@@ -24,8 +24,8 @@ namespace Atko.Dodge.Tests.Models
                 Console.WriteLine(PublicField);
             }
         }
-        #pragma warning restore 169
-        #pragma warning restore 649
+#pragma warning restore 169
+#pragma warning restore 649
 
         [SetUp]
         public void SetUp()
@@ -44,7 +44,7 @@ namespace Atko.Dodge.Tests.Models
         [TestCase(nameof(Class.HiddenReadOnlyField))]
         public void TestGetSet(string name)
         {
-            var model = typeof(Class).Model().Field(name);
+            var model = typeof(Class).Image().Field(name);
 
             Assert.AreEqual(new TestValue(0), model.Get(null));
 
@@ -63,7 +63,7 @@ namespace Atko.Dodge.Tests.Models
         public void TestInstanceNotNullException(string name)
         {
             var instance = new Class();
-            var model = typeof(Class).Model().Field(name);
+            var model = typeof(Class).Image().Field(name);
 
             Assert.Throws<DodgeInvocationException>(() => model.Get(instance));
             Assert.Throws<DodgeInvocationException>(() => model.Set(instance, new TestValue(1)));
@@ -80,7 +80,7 @@ namespace Atko.Dodge.Tests.Models
         [TestCase(nameof(Class.HiddenReadOnlyField), 0)]
         public void TestArgumentException(string name, object argument)
         {
-            var model = typeof(Class).Model().Field(name);
+            var model = typeof(Class).Image().Field(name);
 
             Assert.Throws<DodgeInvocationException>(() => model.Set(null, argument));
         }

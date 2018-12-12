@@ -1,16 +1,15 @@
 using System;
 using System.Reflection;
 using Atko.Dodge.Generation;
-using Atko.Dodge.Utility;
 using NullGuard;
 
-namespace Atko.Dodge.Models
+namespace Atko.Dodge.Images
 {
-    public class MethodModel : CallableModel
+    public class MethodImage : CallableImage
     {
-        public MethodInfo Method => (MethodInfo) Member;
+        public MethodInfo Method => (MethodInfo)Member;
 
-        internal MethodModel(Type owner, MethodInfo method) :
+        internal MethodImage(Type owner, MethodInfo method) :
             base(owner, method,
                 (argumentCount) => Generate.InstanceMethod(method, argumentCount),
                 (argumentCount) => Generate.StaticMethod(method, argumentCount)) { }

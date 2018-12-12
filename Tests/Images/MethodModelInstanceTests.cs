@@ -1,8 +1,8 @@
 using System.Linq;
-using Atko.Dodge.Models;
+using Atko.Dodge.Images;
 using NUnit.Framework;
 
-namespace Atko.Dodge.Tests.Models
+namespace Atko.Dodge.Tests.Images
 {
     [TestFixture]
     class MethodModelInstanceTests
@@ -58,13 +58,13 @@ namespace Atko.Dodge.Tests.Models
         public void TestArgumentlessMethodWithVoidReturn(string name)
         {
             var instance = new Class();
-            var model = typeof(Class).Model().Method(name);
+            var model = typeof(Class).Image().Method(name);
             var result = model.Call(instance);
 
             Assert.AreEqual(1, instance.InvokeCount);
             Assert.IsNull(result);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object) null));
+            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object)null));
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, 1));
             Assert.Throws<DodgeInvocationException>(() => model.Call(null));
         }
@@ -75,13 +75,13 @@ namespace Atko.Dodge.Tests.Models
         public void TestArgumentlessMethod(string name)
         {
             var instance = new Class();
-            var model = typeof(Class).Model().Method(name);
+            var model = typeof(Class).Image().Method(name);
             var result = model.Call(instance);
 
             Assert.AreEqual(1, instance.InvokeCount);
             Assert.AreEqual(1, result);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object) null));
+            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object)null));
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, 1));
             Assert.Throws<DodgeInvocationException>(() => model.Call(null));
         }
@@ -92,14 +92,14 @@ namespace Atko.Dodge.Tests.Models
         public void TestMethod(string name)
         {
             var instance = new Class();
-            var model = typeof(Class).Model().Method(name, typeof(int));
+            var model = typeof(Class).Image().Method(name, typeof(int));
             var result = model.Call(instance, 1);
 
             Assert.AreEqual(2, result);
 
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance));
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, 1, 1));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object) null));
+            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object)null));
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, "string"));
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, "string", 2));
             Assert.Throws<DodgeInvocationException>(() => model.Call(null, 1));
@@ -111,17 +111,17 @@ namespace Atko.Dodge.Tests.Models
         public void TestParamsMethod(string name)
         {
             var instance = new Class();
-            var model = typeof(Class).Model().Method(name, typeof(string), typeof(int[]));
-            var result = model.Call(instance, "string", new[] {1, 2, 3});
+            var model = typeof(Class).Image().Method(name, typeof(string), typeof(int[]));
+            var result = model.Call(instance, "string", new[] { 1, 2, 3 });
 
             Assert.AreEqual(12, result);
 
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance));
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, 1, 1));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object) null));
+            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object)null));
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, "string"));
             Assert.Throws<DodgeInvocationException>(() => model.Call(instance, "string", 2));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null, "string", new[] {1, 2, 3}));
+            Assert.Throws<DodgeInvocationException>(() => model.Call(null, "string", new[] { 1, 2, 3 }));
         }
     }
 }

@@ -3,9 +3,9 @@ using System.Linq;
 using System.Reflection;
 using Atko.Dodge.Generation;
 
-namespace Atko.Dodge.Models
+namespace Atko.Dodge.Images
 {
-    public class IndexerModel : MemberModel
+    public class IndexerImage : MemberImage
     {
         public static bool CanCreateFrom(PropertyInfo property)
         {
@@ -24,12 +24,12 @@ namespace Atko.Dodge.Models
         public bool CanGet => Property.CanRead;
         public bool CanSet => Property.CanWrite;
 
-        public PropertyInfo Property => (PropertyInfo) Member;
+        public PropertyInfo Property => (PropertyInfo)Member;
 
         InvokerDispatch<IndexerGetInvoker> GetInvokers { get; }
         InvokerDispatch<IndexerSetInvoker> SetInvokers { get; }
 
-        public IndexerModel(Type owner, PropertyInfo member) : base(owner, member)
+        public IndexerImage(Type owner, PropertyInfo member) : base(owner, member)
         {
             if (!CanCreateFrom(member))
             {
