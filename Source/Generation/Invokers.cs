@@ -1,4 +1,4 @@
-namespace Atko.Dodge.Generation
+namespace Atko.Mirra.Generation
 {
     public delegate object InstanceMethodInvoker(object instance, object[] arguments);
 

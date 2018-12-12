@@ -1,9 +1,9 @@
 using System;
 using System.Reflection;
-using Atko.Dodge.Generation;
+using Atko.Mirra.Generation;
 using NullGuard;
 
-namespace Atko.Dodge.Images
+namespace Atko.Mirra.Images
 {
     public abstract class AccessorImage : MemberImage
     {
@@ -46,7 +46,7 @@ namespace Atko.Dodge.Images
             }
             catch (Exception exception)
             {
-                throw new DodgeInvocationException(null, exception);
+                throw new MirraInvocationException(null, exception);
             }
         }
 
@@ -66,7 +66,7 @@ namespace Atko.Dodge.Images
             }
             catch (Exception exception)
             {
-                throw new DodgeInvocationException(null, exception);
+                throw new MirraInvocationException(null, exception);
             }
         }
     }

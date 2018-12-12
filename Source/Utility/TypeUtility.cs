@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using NullGuard;
 
-namespace Atko.Dodge.Utility
+namespace Atko.Mirra.Utility
 {
     static class TypeUtility
     {

@@ -1,9 +1,9 @@
 using System;
 using System.Reflection;
-using Atko.Dodge.Utility;
+using Atko.Mirra.Utility;
 using NullGuard;
 
-namespace Atko.Dodge.Images
+namespace Atko.Mirra.Images
 {
     public class PropertyImage : AccessorImage
     {

@@ -1,9 +1,9 @@
 using System;
 using System.Reflection;
-using Atko.Dodge.Generation;
+using Atko.Mirra.Generation;
 using NullGuard;
 
-namespace Atko.Dodge.Images
+namespace Atko.Mirra.Images
 {
     public class MethodImage : CallableImage
     {

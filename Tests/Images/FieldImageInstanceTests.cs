@@ -1,10 +1,10 @@
-using Atko.Dodge.Images;
+using Atko.Mirra.Images;
 using NUnit.Framework;
 
-namespace Atko.Dodge.Tests.Images
+namespace Atko.Mirra.Tests.Images
 {
     [TestFixture]
-    public class FieldModelInstanceTests
+    public class FieldImageInstanceTests
     {
 #pragma warning disable 169
 #pragma warning disable 649
@@ -46,8 +46,8 @@ namespace Atko.Dodge.Tests.Images
         {
             var model = typeof(Class).Image().Field(name);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Get(null));
-            Assert.Throws<DodgeInvocationException>(() => model.Set(null, 1));
+            Assert.Throws<MirraInvocationException>(() => model.Get(null));
+            Assert.Throws<MirraInvocationException>(() => model.Set(null, 1));
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace Atko.Dodge.Tests.Images
             var instance = new Class();
             var model = typeof(Class).Image().Field(name);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Set(instance, argument));
+            Assert.Throws<MirraInvocationException>(() => model.Set(instance, argument));
         }
     }
 }

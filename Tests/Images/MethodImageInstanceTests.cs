@@ -1,11 +1,11 @@
 using System.Linq;
-using Atko.Dodge.Images;
+using Atko.Mirra.Images;
 using NUnit.Framework;
 
-namespace Atko.Dodge.Tests.Images
+namespace Atko.Mirra.Tests.Images
 {
     [TestFixture]
-    class MethodModelInstanceTests
+    class MethodImageInstanceTests
     {
         class Class
         {
@@ -64,9 +64,9 @@ namespace Atko.Dodge.Tests.Images
             Assert.AreEqual(1, instance.InvokeCount);
             Assert.IsNull(result);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object)null));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, 1));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null));
+            Assert.Throws<MirraInvocationException>(() => model.Call(instance, (object)null));
+            Assert.Throws<MirraInvocationException>(() => model.Call(instance, 1));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null));
         }
 
         [Test]
@@ -81,9 +81,9 @@ namespace Atko.Dodge.Tests.Images
             Assert.AreEqual(1, instance.InvokeCount);
             Assert.AreEqual(1, result);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object)null));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, 1));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null));
+            Assert.Throws<MirraInvocationException>(() => model.Call(instance, (object)null));
+            Assert.Throws<MirraInvocationException>(() => model.Call(instance, 1));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null));
         }
 
         [Test]
@@ -97,12 +97,12 @@ namespace Atko.Dodge.Tests.Images
 
             Assert.AreEqual(2, result);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, 1, 1));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object)null));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, "string"));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, "string", 2));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null, 1));
+            Assert.Throws<MirraInvocationException>(() => model.Call(instance));
+            Assert.Throws<MirraInvocationException>(() => model.Call(instance, 1, 1));
+            Assert.Throws<MirraInvocationException>(() => model.Call(instance, (object)null));
+            Assert.Throws<MirraInvocationException>(() => model.Call(instance, "string"));
+            Assert.Throws<MirraInvocationException>(() => model.Call(instance, "string", 2));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null, 1));
         }
 
         [Test]
@@ -116,12 +116,12 @@ namespace Atko.Dodge.Tests.Images
 
             Assert.AreEqual(12, result);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, 1, 1));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, (object)null));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, "string"));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(instance, "string", 2));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null, "string", new[] { 1, 2, 3 }));
+            Assert.Throws<MirraInvocationException>(() => model.Call(instance));
+            Assert.Throws<MirraInvocationException>(() => model.Call(instance, 1, 1));
+            Assert.Throws<MirraInvocationException>(() => model.Call(instance, (object)null));
+            Assert.Throws<MirraInvocationException>(() => model.Call(instance, "string"));
+            Assert.Throws<MirraInvocationException>(() => model.Call(instance, "string", 2));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null, "string", new[] { 1, 2, 3 }));
         }
     }
 }

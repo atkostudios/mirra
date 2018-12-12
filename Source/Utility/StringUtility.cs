@@ -1,7 +1,7 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace Atko.Dodge.Utility
+namespace Atko.Mirra.Utility
 {
     static class StringUtility
     {

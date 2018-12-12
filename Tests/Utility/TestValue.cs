@@ -1,4 +1,4 @@
-namespace Atko.Dodge.Tests.Utility
+namespace Atko.Mirra.Tests.Utility
 {
     public struct TestValue
     {

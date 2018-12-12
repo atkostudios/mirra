@@ -1,13 +1,13 @@
 using System.Reflection;
-using Atko.Dodge.Images;
-using Atko.Dodge.Tests.Utility;
+using Atko.Mirra.Images;
+using Atko.Mirra.Tests.Utility;
 using NUnit.Framework;
 
-namespace Atko.Dodge.Tests.Images
+namespace Atko.Mirra.Tests.Images
 {
     [TestFixture]
     [SingleThreaded]
-    class PropertyModelStaticTests
+    class PropertyImageStaticTests
     {
         public class Class
         {
@@ -65,7 +65,7 @@ namespace Atko.Dodge.Tests.Images
             else
             {
                 Assert.True(name.Contains("Computed"));
-                Assert.Throws<DodgeInvocationException>(() => model.Set(null, new TestValue(1)));
+                Assert.Throws<MirraInvocationException>(() => model.Set(null, new TestValue(1)));
             }
         }
 
@@ -79,8 +79,8 @@ namespace Atko.Dodge.Tests.Images
             var instance = new Class();
             var model = typeof(Class).Image().Property(name);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Get(instance));
-            Assert.Throws<DodgeInvocationException>(() => model.Set(instance, new TestValue(1)));
+            Assert.Throws<MirraInvocationException>(() => model.Get(instance));
+            Assert.Throws<MirraInvocationException>(() => model.Set(instance, new TestValue(1)));
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace Atko.Dodge.Tests.Images
         {
             var model = typeof(Class).Image().Property(name);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Set(null, argument));
+            Assert.Throws<MirraInvocationException>(() => model.Set(null, argument));
         }
     }
 }

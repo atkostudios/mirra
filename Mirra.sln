@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dodge", "Source\Source.csproj", "{CF0A1B62-0FD5-449F-A4C1-9285AFA2B7C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mirra", "Source\Source.csproj", "{CF0A1B62-0FD5-449F-A4C1-9285AFA2B7C4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{01BD43FE-C4BB-4585-BEB2-C72A9C2E0096}"
 EndProject

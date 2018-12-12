@@ -4,10 +4,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using Atko.Dodge.Utility;
+using Atko.Mirra.Utility;
 using NullGuard;
 
-namespace Atko.Dodge.Generation
+namespace Atko.Mirra.Generation
 {
     static class Generate
     {
@@ -220,7 +220,7 @@ namespace Atko.Dodge.Generation
         static InstanceGetInvoker InstanceFieldGetter(FieldInfo field)
         {
             var name = $"__GENERATED_GET__{field.Name}";
-            var method = new DynamicMethod(name, typeof(object), new[] {typeof(object)}, field.DeclaringType, true);
+            var method = new DynamicMethod(name, typeof(object), new[] { typeof(object) }, field.DeclaringType, true);
             var generator = method.GetILGenerator();
 
             {
@@ -242,7 +242,7 @@ namespace Atko.Dodge.Generation
         static StaticSetInvoker StaticFieldSetter(FieldInfo field)
         {
             var name = $"__GENERIC_SET__{field.Name}";
-            var method = new DynamicMethod(name, typeof(void), new[] {typeof(object)}, field.DeclaringType, true);
+            var method = new DynamicMethod(name, typeof(void), new[] { typeof(object) }, field.DeclaringType, true);
 
             var generator = method.GetILGenerator();
 
@@ -267,7 +267,7 @@ namespace Atko.Dodge.Generation
         static InstanceSetInvoker InstanceFieldSetter(FieldInfo field)
         {
             var name = $"__GENERIC_SET__{field.Name}";
-            var method = new DynamicMethod(name, typeof(void), new[] {typeof(object), typeof(object)},
+            var method = new DynamicMethod(name, typeof(void), new[] { typeof(object), typeof(object) },
                 field.DeclaringType, true);
 
             var generator = method.GetILGenerator();

@@ -1,6 +1,6 @@
 using System;
 
-namespace Atko.Dodge.Images
+namespace Atko.Mirra.Images
 {
     public static class TypeImageExtensions
     {

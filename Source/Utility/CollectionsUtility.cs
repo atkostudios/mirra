@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Atko.Dodge.Utility
+namespace Atko.Mirra.Utility
 {
     static class CollectionsUtility
     {

@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Atko.Dodge.Generation;
+using Atko.Mirra.Generation;
 
-namespace Atko.Dodge.Images
+namespace Atko.Mirra.Images
 {
     public class IndexerImage : MemberImage
     {
@@ -46,7 +46,7 @@ namespace Atko.Dodge.Images
 
         public object Get(object instance, object index)
         {
-            return Get(instance, new[] {index});
+            return Get(instance, new[] { index });
         }
 
         public object Get(object instance, object[] index)
@@ -54,7 +54,7 @@ namespace Atko.Dodge.Images
             var invoker = GetInvokers.Get(index.Length);
             if (invoker == null)
             {
-                throw new DodgeInvocationException("Invalid number of index arguments.");
+                throw new MirraInvocationException("Invalid number of index arguments.");
             }
 
             try
@@ -63,13 +63,13 @@ namespace Atko.Dodge.Images
             }
             catch (Exception exception)
             {
-                throw new DodgeInvocationException(null, exception);
+                throw new MirraInvocationException(null, exception);
             }
         }
 
         public void Set(object instance, object index, object value)
         {
-            Set(instance, new[] {index}, value);
+            Set(instance, new[] { index }, value);
         }
 
         public void Set(object instance, object[] index, object value)
@@ -77,7 +77,7 @@ namespace Atko.Dodge.Images
             var invoker = SetInvokers.Get(index.Length);
             if (invoker == null)
             {
-                throw new DodgeInvocationException("Invalid number of index arguments.");
+                throw new MirraInvocationException("Invalid number of index arguments.");
             }
 
             try
@@ -86,7 +86,7 @@ namespace Atko.Dodge.Images
             }
             catch (Exception exception)
             {
-                throw new DodgeInvocationException(null, exception);
+                throw new MirraInvocationException(null, exception);
             }
         }
     }

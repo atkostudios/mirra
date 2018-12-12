@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Atko.Dodge.Generation;
+using Atko.Mirra.Generation;
 using NullGuard;
 
-namespace Atko.Dodge.Images
+namespace Atko.Mirra.Images
 {
     public abstract class CallableImage : MemberImage
     {
@@ -53,7 +53,7 @@ namespace Atko.Dodge.Images
                     var invoker = InstanceInvokers.Get(arguments.Length);
                     if (invoker == null)
                     {
-                        throw new DodgeInvocationException("Invalid number of arguments for invocation.");
+                        throw new MirraInvocationException("Invalid number of arguments for invocation.");
                     }
 
                     return invoker.Invoke(instance, arguments);
@@ -63,7 +63,7 @@ namespace Atko.Dodge.Images
                     var invoker = StaticInvokers.Get(arguments.Length);
                     if (invoker == null)
                     {
-                        throw new DodgeInvocationException("Invalid number of arguments for invocation.");
+                        throw new MirraInvocationException("Invalid number of arguments for invocation.");
                     }
 
                     return invoker.Invoke(arguments);
@@ -71,7 +71,7 @@ namespace Atko.Dodge.Images
             }
             catch (Exception exception)
             {
-                throw new DodgeInvocationException(null, exception);
+                throw new MirraInvocationException(null, exception);
             }
         }
     }

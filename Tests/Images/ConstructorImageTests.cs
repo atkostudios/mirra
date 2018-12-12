@@ -1,10 +1,10 @@
-using Atko.Dodge.Images;
+using Atko.Mirra.Images;
 using NUnit.Framework;
 
-namespace Atko.Dodge.Tests.Images
+namespace Atko.Mirra.Tests.Images
 {
     [TestFixture]
-    class ConstructorModelTests
+    class ConstructorImageTests
     {
         public class First { }
 
@@ -46,9 +46,9 @@ namespace Atko.Dodge.Tests.Images
             Assert.IsInstanceOf<Second>(instance);
             Assert.AreEqual(1, ((Second)instance).Value);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Call());
-            Assert.Throws<DodgeInvocationException>(() => model.Call((object)null));
-            Assert.Throws<DodgeInvocationException>(() => model.Call("string"));
+            Assert.Throws<MirraInvocationException>(() => model.Call());
+            Assert.Throws<MirraInvocationException>(() => model.Call((object)null));
+            Assert.Throws<MirraInvocationException>(() => model.Call("string"));
         }
 
         [Test]
@@ -60,10 +60,10 @@ namespace Atko.Dodge.Tests.Images
             Assert.AreEqual("string", ((Third)instance).Name);
             Assert.AreEqual(new[] { 1, 2, 3 }, ((Third)instance).Values);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Call());
-            Assert.Throws<DodgeInvocationException>(() => model.Call((object)null));
-            Assert.Throws<DodgeInvocationException>(() => model.Call("string"));
-            Assert.Throws<DodgeInvocationException>(() => model.Call("string", 1));
+            Assert.Throws<MirraInvocationException>(() => model.Call());
+            Assert.Throws<MirraInvocationException>(() => model.Call((object)null));
+            Assert.Throws<MirraInvocationException>(() => model.Call("string"));
+            Assert.Throws<MirraInvocationException>(() => model.Call("string", 1));
         }
     }
 }

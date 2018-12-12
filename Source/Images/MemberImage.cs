@@ -1,9 +1,9 @@
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Atko.Dodge.Utility;
+using Atko.Mirra.Utility;
 
-namespace Atko.Dodge.Images
+namespace Atko.Mirra.Images
 {
     public abstract class MemberImage
     {
@@ -30,13 +30,13 @@ namespace Atko.Dodge.Images
             if (instance == null && RequiresInstance)
             {
                 const string message = "Instance cannot be null.";
-                throw new DodgeInvocationException(message);
+                throw new MirraInvocationException(message);
             }
 
             if (instance != null && !RequiresInstance)
             {
                 const string message = "Static member cannot be used with an instance object.";
-                throw new DodgeInvocationException(message);
+                throw new MirraInvocationException(message);
             }
         }
     }

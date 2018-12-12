@@ -1,4 +1,4 @@
-namespace Atko.Dodge.Utility
+namespace Atko.Mirra.Utility
 {
     struct ArrayHash<T>
     {

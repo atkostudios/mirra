@@ -10,8 +10,8 @@
     <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Atko.Dodge</RootNamespace>
-    <AssemblyName>Dodge</AssemblyName>
+    <RootNamespace>Atko.Mirra</RootNamespace>
+    <AssemblyName>Mirra</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

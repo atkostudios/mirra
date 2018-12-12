@@ -1,11 +1,11 @@
 using System.Linq;
-using Atko.Dodge.Images;
+using Atko.Mirra.Images;
 using NUnit.Framework;
 
-namespace Atko.Dodge.Tests.Images
+namespace Atko.Mirra.Tests.Images
 {
     [TestFixture]
-    class MethodModelStaticTests
+    class MethodImageStaticTests
     {
         class Class
         {
@@ -54,9 +54,9 @@ namespace Atko.Dodge.Tests.Images
 
             Assert.IsNull(result);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null, (object)null));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null, 1));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(new Class()));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null, (object)null));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null, 1));
+            Assert.Throws<MirraInvocationException>(() => model.Call(new Class()));
         }
 
         [Test]
@@ -69,9 +69,9 @@ namespace Atko.Dodge.Tests.Images
 
             Assert.AreEqual(1, result);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null, (object)null));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null, 1));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(new Class()));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null, (object)null));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null, 1));
+            Assert.Throws<MirraInvocationException>(() => model.Call(new Class()));
         }
 
         [Test]
@@ -84,12 +84,12 @@ namespace Atko.Dodge.Tests.Images
 
             Assert.AreEqual(2, result);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null, 1, 1));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null, (object)null));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null, "string"));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null, "string", 2));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(new Class(), 1));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null, 1, 1));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null, (object)null));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null, "string"));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null, "string", 2));
+            Assert.Throws<MirraInvocationException>(() => model.Call(new Class(), 1));
         }
 
         [Test]
@@ -102,12 +102,12 @@ namespace Atko.Dodge.Tests.Images
 
             Assert.AreEqual(12, result);
 
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null, 1, 1));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null, (object)null));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null, "string"));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(null, "string", 2));
-            Assert.Throws<DodgeInvocationException>(() => model.Call(new Class(), "string", new[] { 1, 2, 3 }));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null, 1, 1));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null, (object)null));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null, "string"));
+            Assert.Throws<MirraInvocationException>(() => model.Call(null, "string", 2));
+            Assert.Throws<MirraInvocationException>(() => model.Call(new Class(), "string", new[] { 1, 2, 3 }));
         }
     }
 }

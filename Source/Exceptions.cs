@@ -1,21 +1,21 @@
 using System;
 
-namespace Atko.Dodge
+namespace Atko.Mirra
 {
-    public class DodgeException : Exception
+    public class MirraException : Exception
     {
-        public DodgeException(string message = null, Exception inner = null) : base(message, inner) { }
+        public MirraException(string message = null, Exception inner = null) : base(message, inner) { }
     }
 
-    public class DodgeInvocationException : DodgeException
+    public class MirraInvocationException : MirraException
     {
-        public DodgeInvocationException(string message = null, Exception inner = null) :
+        public MirraInvocationException(string message = null, Exception inner = null) :
             base(message ?? "An invocation failed.", inner) { }
     }
 
-    public class DodgeMissingMemberException : DodgeException
+    public class MirraMissingMemberException : MirraException
     {
-        public DodgeMissingMemberException(string message = null, Exception inner = null) :
+        public MirraMissingMemberException(string message = null, Exception inner = null) :
             base(message ?? "Member does not exist on the target type.", inner) { }
     }
 }
