@@ -1,8 +1,13 @@
 using System;
+using System.CodeDom;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Atko.Mirra.Utility;
+using Microsoft.CSharp;
 using NullGuard;
 using Source.Utility;
 
@@ -85,6 +90,10 @@ namespace Atko.Mirra.Images
                 ? Get(Type.GetGenericTypeDefinition())
                 : this;
 
+        public string DisplayName => LazyDisplayName.Value;
+
+        Lazy<string> LazyDisplayName { get; }
+
         TypeImage[] GenericArguments { get; }
 
         Cache<Type, Type> AssignableTypeCache { get; } = new Cache<Type, Type>();
@@ -116,6 +125,8 @@ namespace Atko.Mirra.Images
                 ? Type.GetGenericArguments().Select(Get).ToArray()
                 : ArrayUtility<TypeImage>.Empty;
 
+            LazyDisplayName = new Lazy<string>(GetDisplayName);
+
             LazyInterfaces = new Lazy<TypeImage[]>(GetInterfaces);
             LazyConstructors = new Lazy<ConstructorImage[]>(GetConstructors);
 
@@ -136,15 +147,15 @@ namespace Atko.Mirra.Images
             LazyMethodMap = new Lazy<Dictionary<Pair<string, ArrayHash<Type>>, MethodImage>>(() =>
                 Methods(MemberQuery.All)
                     .ToDictionaryByFirst((current) =>
-                        new Pair<string, ArrayHash<Type>>(current.Name, HashTypes(current.Method.GetParameters()))));
+                        new Pair<string, ArrayHash<Type>>(current.ShortName, HashTypes(current.Method.GetParameters()))));
 
             LazyPropertyMap = new Lazy<Dictionary<string, PropertyImage>>(() =>
                 Properties(MemberQuery.All)
-                    .ToDictionaryByFirst((current) => current.Name));
+                    .ToDictionaryByFirst((current) => current.ShortName));
 
             LazyFieldMap = new Lazy<Dictionary<string, FieldImage>>(() =>
                 Fields(MemberQuery.All)
-                    .ToDictionaryByFirst((current) => current.Name));
+                    .ToDictionaryByFirst((current) => current.ShortName));
 
             LazyIndexerMap = new Lazy<Dictionary<ArrayHash<Type>, IndexerImage>>(() =>
                 Indexers(MemberQuery.All)
@@ -321,6 +332,19 @@ namespace Atko.Mirra.Images
             return Enumerable.Empty<IndexerImage>();
         }
 
+        string GetDisplayName()
+        {
+            StringBuilder builder = new StringBuilder();
+            using (StringWriter writer = new StringWriter(builder))
+            {
+                var expression = new CodeTypeReferenceExpression(Type);
+                var provider = new CSharpCodeProvider();
+                provider.GenerateCodeFromExpression(expression, writer, new CodeGeneratorOptions());
+            }
+
+            return builder.ToString().SubstringAfterLast(".");
+        }
+
         TypeImage[] GetInterfaces()
         {
             return Type
@@ -434,7 +458,7 @@ namespace Atko.Mirra.Images
             var unique = new List<T>();
             foreach (var image in images)
             {
-                if (seen.Add(image.Name))
+                if (seen.Add(image.ShortName))
                 {
                     unique.Add(image);
                 }

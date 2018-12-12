@@ -7,7 +7,9 @@ namespace Atko.Mirra.Images
 {
     public abstract class BaseImage
     {
-        public string Name { get; }
+        public string Name => Member.Name;
+
+        public string ShortName { get; }
 
         public bool IsCompilerGenerated { get; }
 
@@ -22,7 +24,7 @@ namespace Atko.Mirra.Images
         protected BaseImage(MemberInfo member)
         {
             Member = member;
-            Name = Member.Name.SubstringAfterLast(".");
+            ShortName = Member.Name.SubstringAfterLast(".");
             IsCompilerGenerated = Member.IsDefined(typeof(CompilerGeneratedAttribute));
         }
     }
