@@ -111,11 +111,17 @@ namespace Atko.Mirra.Images
             }
         }
 
+        public IEnumerable<TypeImage> Ancestors => Base?.Inheritance ?? Enumerable.Empty<TypeImage>();
+        public IEnumerable<TypeImage> Descendants => new TypeTreeEnumerable(this, true);
+        public IEnumerable<TypeImage> Tree => new TypeTreeEnumerable(this, false);
+
         public IEnumerable<TypeImage> Interfaces => LazyInterfaces.Value;
         public IEnumerable<ConstructorImage> Constructors => LazyConstructors.Value;
 
         public override bool IsPublic => Type.IsPublic;
         public override bool IsStatic => Type.IsAbstract && Type.IsSealed;
+
+        public bool IsConstructable => !Type.IsAbstract && !Type.IsInterface;
 
         public bool IsGeneric => Type.IsGenericType;
         public bool IsGenericDefinition => Type.IsGenericTypeDefinition;
@@ -270,6 +276,20 @@ namespace Atko.Mirra.Images
             catch (IndexOutOfRangeException)
             {
                 throw new IndexOutOfRangeException(nameof(index));
+            }
+        }
+
+        public TypeImage CreateGeneric(params Type[] genericArguments)
+        {
+            AssertIsGeneric();
+
+            try
+            {
+                return Type.MakeGenericType(genericArguments);
+            }
+            catch (ArgumentException)
+            {
+                throw new ArgumentException("The provided generic arguments do not match the generic type definition.");
             }
         }
 
@@ -522,6 +542,16 @@ namespace Atko.Mirra.Images
             }
 
             return unique.ToArray();
+        }
+
+        void AssertIsGeneric()
+        {
+            if (Type.IsGenericTypeDefinition)
+            {
+                return;
+            }
+
+            throw new InvalidOperationException("Type must be generic.");
         }
     }
 }
