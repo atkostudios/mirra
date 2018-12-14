@@ -1,3 +1,5 @@
+#if HAVE_DYNAMIC
+
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -9,7 +11,7 @@ using NullGuard;
 
 namespace Atko.Mirra.Generation
 {
-    static class Generate
+    static partial class Generate
     {
         public static StaticGetInvoker StaticGetter(MemberInfo accessor)
         {
@@ -380,21 +382,16 @@ namespace Atko.Mirra.Generation
                 return Expression.Property(castInstanceExpression, property);
             }
 
-            #region What
-
             if (member is FieldInfo field)
             {
                 return Expression.Field(castInstanceExpression, field);
             }
-
-            #endregion
 
             return null;
         }
 
         static Expression[] GetArguments(ParameterInfo[] parameters, Expression arguments, int count)
         {
-#if DEBUG
             var minArgumentCount = parameters
                 .TakeWhile((current) => !current.IsOptional)
                 .Count();
@@ -402,7 +399,6 @@ namespace Atko.Mirra.Generation
             var maxArgumentCount = parameters.Length;
 
             Debug.Assert(count >= minArgumentCount && count <= maxArgumentCount);
-#endif
 
             var types = parameters
                 .Select((current) => current.ParameterType)
@@ -415,10 +411,7 @@ namespace Atko.Mirra.Generation
                 .Cast<Expression>()
                 .ToArray();
         }
-
-        static bool IsAccessor(MemberInfo member)
-        {
-            return (member.MemberType & (MemberTypes.Property | MemberTypes.Field)) != 0;
-        }
     }
 }
+
+#endif

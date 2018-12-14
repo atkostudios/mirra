@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Source.Utility
+namespace Atko.Mirra.Utility
 {
     public struct Pair<TFirst, TSecond>
     {

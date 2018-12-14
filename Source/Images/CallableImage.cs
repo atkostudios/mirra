@@ -60,7 +60,7 @@ namespace Atko.Mirra.Images
                     var invoker = InstanceInvokers.Get(arguments.Length);
                     if (invoker == null)
                     {
-                        throw new MirraInvocationException("Invalid number of arguments for invocation.");
+                        throw new MirraInvocationArgumentCountException();
                     }
 
                     return invoker.Invoke(instance, arguments);
@@ -70,7 +70,7 @@ namespace Atko.Mirra.Images
                     var invoker = StaticInvokers.Get(arguments.Length);
                     if (invoker == null)
                     {
-                        throw new MirraInvocationException("Invalid number of arguments for invocation.");
+                        throw new MirraInvocationArgumentCountException();
                     }
 
                     return invoker.Invoke(arguments);

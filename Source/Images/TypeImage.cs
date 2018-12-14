@@ -9,7 +9,6 @@ using System.Text;
 using Atko.Mirra.Utility;
 using Microsoft.CSharp;
 using NullGuard;
-using Source.Utility;
 
 namespace Atko.Mirra.Images
 {
@@ -210,7 +209,8 @@ namespace Atko.Mirra.Images
             LazyMethodMap = new Lazy<Dictionary<Pair<string, ArrayHash<Type>>, MethodImage>>(() =>
                 Methods(MemberQuery.All)
                     .ToDictionaryByFirst((current) =>
-                        new Pair<string, ArrayHash<Type>>(current.ShortName, HashTypes(current.Method.GetParameters()))));
+                        new Pair<string, ArrayHash<Type>>(current.ShortName,
+                            HashTypes(current.Method.GetParameters()))));
 
             LazyPropertyMap = new Lazy<Dictionary<string, PropertyImage>>(() =>
                 Properties(MemberQuery.All)
