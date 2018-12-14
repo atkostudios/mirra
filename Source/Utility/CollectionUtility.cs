@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Atko.Mirra.Utility
 {
-    static class CollectionsUtility
+    static class CollectionUtility
     {
         public static IEnumerable<T> Iterate<T>(this IEnumerable<T> enumerable)
         {
