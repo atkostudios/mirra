@@ -5,6 +5,14 @@ namespace Atko.Mirra.Utility
 {
     static class CollectionsUtility
     {
+        public static IEnumerable<T> Iterate<T>(this IEnumerable<T> enumerable)
+        {
+            foreach (var element in enumerable)
+            {
+                yield return element;
+            }
+        }
+
         public static T[] CopyArray<T>(this T[] array)
         {
             var size = array.Length;
@@ -49,6 +57,17 @@ namespace Atko.Mirra.Utility
             }
 
             return dictionary;
+        }
+
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key,
+            Func<TValue> factory)
+        {
+            if (dictionary.TryGetValue(key, out var cached))
+            {
+                return cached;
+            }
+
+            return dictionary[key] = factory();
         }
     }
 }

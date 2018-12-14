@@ -20,6 +20,15 @@ namespace Atko.Mirra.Images
             public static TypeImage Instance { get; } = Get(typeof(T));
         }
 
+        public static IEnumerable<TypeImage> All => LazyAll.Value.Iterate();
+
+        static Lazy<TypeImage[]> LazyAll = new Lazy<TypeImage[]>(() => GetAllTypes().Select(Get).ToArray());
+
+        static Cache<Type, TypeImage> Cache { get; } = new Cache<Type, TypeImage>();
+
+        static Lazy<Dictionary<Type, Type[]>> LazySubclassMap { get; } =
+            new Lazy<Dictionary<Type, Type[]>>(GetSubclassMap);
+
         public static implicit operator Type([AllowNull] TypeImage image)
         {
             return image == null ? null : image.Type;
@@ -40,14 +49,51 @@ namespace Atko.Mirra.Images
             return StaticCache<T>.Instance;
         }
 
-        static Cache<Type, TypeImage> Cache { get; } = new Cache<Type, TypeImage>();
-
         static ArrayHash<Type> HashTypes(ParameterInfo[] parameters)
         {
             return new ArrayHash<Type>(parameters.Select((current) => current.ParameterType).ToArray());
         }
 
+        static Type[] GetAllTypes()
+        {
+            return AppDomain.CurrentDomain
+                .GetAssemblies()
+                .Where((current) => !current.IsDynamic)
+                .SelectMany((current) => current.GetTypes())
+                .ToArray();
+        }
+
+        static Dictionary<Type, Type[]> GetSubclassMap()
+        {
+            var types = GetAllTypes();
+            var subclasses = types.ToDictionary(
+                (current) => current,
+                (current) => new List<Type>());
+
+            foreach (var type in types)
+            {
+                var superclass = type.BaseType;
+                if (superclass == null)
+                {
+                    continue;
+                }
+
+                subclasses.GetOrAdd(superclass, () => new List<Type>()).Add(type);
+
+                if (superclass.IsGenericType)
+                {
+                    subclasses.GetOrAdd(superclass.GetGenericTypeDefinition(), () => new List<Type>()).Add(type);
+                }
+            }
+
+            return subclasses.ToDictionary(
+                (current) => current.Key,
+                (current) => current.Value.Count == 0 ? ArrayUtility<Type>.Empty : current.Value.ToArray());
+        }
+
         public Type Type => (Type)Member;
+
+        public Assembly Assembly => Type.Assembly;
 
         [AllowNull]
         public TypeImage Base { get; }
@@ -69,7 +115,6 @@ namespace Atko.Mirra.Images
         public IEnumerable<ConstructorImage> Constructors => LazyConstructors.Value;
 
         public override bool IsPublic => Type.IsPublic;
-
         public override bool IsStatic => Type.IsAbstract && Type.IsSealed;
 
         public bool IsGeneric => Type.IsGenericType;
@@ -83,7 +128,7 @@ namespace Atko.Mirra.Images
         public bool IsSealed => Type.IsSealed;
         public bool IsAbstract => Type.IsAbstract;
 
-        public int GenericArgumentCount => GenericArguments.Length;
+        public int GenericArgumentCount => LazyGenericArguments.Value.Length;
 
         public TypeImage GenericDefinition =>
             IsGeneric && !IsGenericDefinition
@@ -92,11 +137,9 @@ namespace Atko.Mirra.Images
 
         public string DisplayName => LazyDisplayName.Value;
 
-        Lazy<string> LazyDisplayName { get; }
-
-        TypeImage[] GenericArguments { get; }
-
         Cache<Type, Type> AssignableTypeCache { get; } = new Cache<Type, Type>();
+
+        Lazy<string> LazyDisplayName { get; }
 
         Lazy<TypeImage[]> LazyInterfaces { get; }
         Lazy<ConstructorImage[]> LazyConstructors { get; }
@@ -117,13 +160,27 @@ namespace Atko.Mirra.Images
         Lazy<Dictionary<string, FieldImage>> LazyFieldMap { get; }
         Lazy<Dictionary<ArrayHash<Type>, IndexerImage>> LazyIndexerMap { get; }
 
+        public IEnumerable<TypeImage> Subclasses => LazySubclasses.Value;
+
+        Lazy<TypeImage[]> LazySubclasses { get; }
+        Lazy<TypeImage[]> LazyGenericArguments { get; }
+
         TypeImage(Type type) : base(type)
         {
             Base = Type.BaseType == null ? null : Get(Type.BaseType);
 
-            GenericArguments = IsGeneric
-                ? Type.GetGenericArguments().Select(Get).ToArray()
-                : ArrayUtility<TypeImage>.Empty;
+            LazyGenericArguments = new Lazy<TypeImage[]>(() =>
+                IsGeneric
+                    ? Type.GetGenericArguments().Select(Get).ToArray()
+                    : ArrayUtility<TypeImage>.Empty);
+
+            LazySubclasses = new Lazy<TypeImage[]>(() =>
+            {
+                LazySubclassMap.Value.TryGetValue(Type, out var subclasses);
+                return subclasses != null
+                    ? subclasses.Select(Get).ToArray()
+                    : ArrayUtility<TypeImage>.Empty;
+            });
 
             LazyDisplayName = new Lazy<string>(GetDisplayName);
 
@@ -208,7 +265,7 @@ namespace Atko.Mirra.Images
         {
             try
             {
-                return GenericArguments[index];
+                return LazyGenericArguments.Value[index];
             }
             catch (IndexOutOfRangeException)
             {
