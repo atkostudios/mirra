@@ -4,6 +4,20 @@ namespace Atko.Mirra.Generation
 {
     abstract class CodeGenerator
     {
+        const bool UseDynamic = true;
+
+        static CodeGenerator Reflection { get; } = new ReflectionGenerator();
+
+#if HAVE_DYNAMIC
+        static CodeGenerator Dynamic { get; } = new DynamicGenerator();
+#endif
+
+#if HAVE_DYNAMIC
+        public static CodeGenerator Instance { get; } = UseDynamic ? Dynamic : Reflection;
+#else
+        public static CodeGenerator Instance { get; } = Reflection;
+#endif
+
         public abstract StaticGetInvoker StaticGetter(MemberInfo accessor);
         public abstract InstanceGetInvoker InstanceGetter(MemberInfo accessor);
         public abstract StaticSetInvoker StaticSetter(MemberInfo accessor);

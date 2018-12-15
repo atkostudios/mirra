@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Atko.Mirra.Generation
 {
-    public class ArgumentChecker
+    class ArgumentChecker
     {
         ParameterInfo[] Parameters { get; }
 

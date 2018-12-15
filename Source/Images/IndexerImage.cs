@@ -43,10 +43,10 @@ namespace Atko.Mirra.Images
 
             var parameters = Property.GetIndexParameters();
             GetInvokers = new InvokerDispatch<IndexerGetInvoker>(parameters,
-                (argumentCount) => Generate.InstanceIndexGetter(Property, argumentCount));
+                (argumentCount) => CodeGenerator.Instance.InstanceIndexGetter(Property, argumentCount));
 
             SetInvokers = new InvokerDispatch<IndexerSetInvoker>(parameters,
-                (argumentCount) => Generate.InstanceIndexSetter(Property, argumentCount));
+                (argumentCount) => CodeGenerator.Instance.InstanceIndexSetter(Property, argumentCount));
         }
 
         public object Get(object instance, object index)

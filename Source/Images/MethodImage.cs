@@ -9,8 +9,8 @@ namespace Atko.Mirra.Images
         public MethodInfo Method => (MethodInfo)Member;
 
         internal MethodImage(MethodInfo method) : base(method,
-            (argumentCount) => Generate.InstanceMethod(method, argumentCount),
-            (argumentCount) => Generate.StaticMethod(method, argumentCount))
+            (argumentCount) => CodeGenerator.Instance.InstanceMethod(method, argumentCount),
+            (argumentCount) => CodeGenerator.Instance.StaticMethod(method, argumentCount))
         { }
 
         [return: AllowNull]

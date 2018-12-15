@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Atko.Mirra.Generation;
 using Atko.Mirra.Utility;
 using NullGuard;
 
@@ -11,16 +10,6 @@ namespace Atko.Mirra.Images
 {
     public abstract class BaseImage
     {
-        const bool UseDynamic = true;
-
-#if HAVE_DYNAMIC
-        internal static CodeGenerator Generate { get; } = UseDynamic
-            ? (CodeGenerator)new DynamicGenerator()
-            : new ReflectionGenerator();
-#else
-        internal static CodeGenerator Generate { get; } = new ReflectionGenerator();
-#endif
-
         public string Name => Member.Name;
 
         public string ShortName { get; }

@@ -28,10 +28,10 @@ namespace Atko.Mirra.Images
 
         AccessorImage(MemberInfo member) : base(member)
         {
-            LazyStaticGetInvoker = new Lazy<StaticGetInvoker>(() => Generate.StaticGetter(Member));
-            LazyStaticSetInvoker = new Lazy<StaticSetInvoker>(() => Generate.StaticSetter(Member));
-            LazyInstanceGetInvoker = new Lazy<InstanceGetInvoker>(() => Generate.InstanceGetter(Member));
-            LazyInstanceSetInvoker = new Lazy<InstanceSetInvoker>(() => Generate.InstanceSetter(Member));
+            LazyStaticGetInvoker = new Lazy<StaticGetInvoker>(() => CodeGenerator.Instance.StaticGetter(Member));
+            LazyStaticSetInvoker = new Lazy<StaticSetInvoker>(() => CodeGenerator.Instance.StaticSetter(Member));
+            LazyInstanceGetInvoker = new Lazy<InstanceGetInvoker>(() => CodeGenerator.Instance.InstanceGetter(Member));
+            LazyInstanceSetInvoker = new Lazy<InstanceSetInvoker>(() => CodeGenerator.Instance.InstanceSetter(Member));
         }
 
         [return: AllowNull]
