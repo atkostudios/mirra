@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Reflection;
 using Atko.Mirra.Generation;
 using Atko.Mirra.Utility;
@@ -76,9 +75,14 @@ namespace Atko.Mirra.Images
                     return invoker.Invoke(arguments);
                 }
             }
+            catch (MirraException)
+            {
+                throw;
+            }
             catch (Exception exception)
             {
-                throw new MirraInvocationException(null, exception);
+                CheckException(exception);
+                throw;
             }
         }
     }

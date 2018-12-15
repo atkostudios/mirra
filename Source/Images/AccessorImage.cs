@@ -47,15 +47,26 @@ namespace Atko.Mirra.Images
 
                 return InstanceGetInvoker.Invoke(instance);
             }
+            catch (MirraException)
+            {
+                throw;
+            }
             catch (Exception exception)
             {
-                throw new MirraInvocationException(null, exception);
+                CheckException(exception);
+                throw;
             }
         }
 
         public void Set([AllowNull] object instance, [AllowNull] object value)
         {
             AssertInstanceMatches(instance);
+
+            if (!CanSet)
+            {
+                throw new MirraInvocationCannotSetException();
+            }
+
             try
             {
                 if (IsStatic)
@@ -67,9 +78,14 @@ namespace Atko.Mirra.Images
                     InstanceSetInvoker.Invoke(instance, value);
                 }
             }
+            catch (MirraException)
+            {
+                throw;
+            }
             catch (Exception exception)
             {
-                throw new MirraInvocationException(null, exception);
+                CheckException(exception);
+                throw;
             }
         }
     }

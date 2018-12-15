@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Reflection;
 using Atko.Mirra.Generation;
 using Atko.Mirra.Utility;
@@ -60,16 +59,21 @@ namespace Atko.Mirra.Images
             var invoker = GetInvokers.Get(index.Length);
             if (invoker == null)
             {
-                throw new MirraInvocationException("Invalid number of index arguments.");
+                throw new MirraInvocationArgumentCountException();
             }
 
             try
             {
                 return invoker.Invoke(instance, index);
             }
+            catch (MirraException)
+            {
+                throw;
+            }
             catch (Exception exception)
             {
-                throw new MirraInvocationException(null, exception);
+                CheckException(exception);
+                throw;
             }
         }
 
@@ -80,19 +84,29 @@ namespace Atko.Mirra.Images
 
         public void Set(object instance, object[] index, object value)
         {
+            if (!CanSet)
+            {
+                throw new MirraInvocationCannotSetException();
+            }
+
             var invoker = SetInvokers.Get(index.Length);
             if (invoker == null)
             {
-                throw new MirraInvocationException("Invalid number of index arguments.");
+                throw new MirraInvocationArgumentCountException();
             }
 
             try
             {
                 invoker.Invoke(instance, index, value);
             }
+            catch (MirraException)
+            {
+                throw;
+            }
             catch (Exception exception)
             {
-                throw new MirraInvocationException(null, exception);
+                CheckException(exception);
+                throw;
             }
         }
     }

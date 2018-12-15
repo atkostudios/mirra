@@ -1,4 +1,3 @@
-using System;
 using System.Reflection;
 using Atko.Mirra.Images;
 using Atko.Mirra.Tests.Utility;
@@ -63,8 +62,8 @@ namespace Atko.Mirra.Tests.Images
             var instance = new Class();
             var image = typeof(Class).Image().Field(name);
 
-            Assert.Throws<MirraInvocationException>(() => image.Get(instance));
-            Assert.Throws<MirraInvocationException>(() => image.Set(instance, new TestValue(1)));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Get(instance));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Set(instance, new TestValue(1)));
         }
 
         [Test]
@@ -80,7 +79,7 @@ namespace Atko.Mirra.Tests.Images
         {
             var image = typeof(Class).Image().Field(name);
 
-            Assert.Throws<MirraInvocationException>(() => image.Set(null, argument));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Set(null, argument));
         }
     }
 }

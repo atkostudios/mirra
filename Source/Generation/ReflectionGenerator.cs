@@ -1,5 +1,4 @@
-#if !HAVE_DYNAMIC
-
+using System;
 using System.Diagnostics;
 using System.Reflection;
 using Atko.Mirra.Utility;
@@ -7,9 +6,9 @@ using NullGuard;
 
 namespace Atko.Mirra.Generation
 {
-    static partial class Generate
+    class ReflectionGenerator : CodeGenerator
     {
-        public static StaticGetInvoker StaticGetter(MemberInfo accessor)
+        public override StaticGetInvoker StaticGetter(MemberInfo accessor)
         {
             Debug.Assert(IsAccessor(accessor));
 
@@ -23,7 +22,7 @@ namespace Atko.Mirra.Generation
             return () => property.GetValue(null);
         }
 
-        public static InstanceGetInvoker InstanceGetter(MemberInfo accessor)
+        public override InstanceGetInvoker InstanceGetter(MemberInfo accessor)
         {
             Debug.Assert(IsAccessor(accessor));
 
@@ -34,10 +33,14 @@ namespace Atko.Mirra.Generation
             }
 
             var property = (PropertyInfo)accessor;
-            return (instance) => property.GetValue(instance);
+            return (instance) =>
+            {
+                CheckArgument(property.DeclaringType, instance);
+                return property.GetValue(instance);
+            };
         }
 
-        public static StaticSetInvoker StaticSetter(MemberInfo accessor)
+        public override StaticSetInvoker StaticSetter(MemberInfo accessor)
         {
             Debug.Assert(IsAccessor(accessor));
 
@@ -56,7 +59,7 @@ namespace Atko.Mirra.Generation
             };
         }
 
-        public static InstanceSetInvoker InstanceSetter(MemberInfo accessor)
+        public override InstanceSetInvoker InstanceSetter(MemberInfo accessor)
         {
             Debug.Assert(IsAccessor(accessor));
 
@@ -69,81 +72,84 @@ namespace Atko.Mirra.Generation
             var property = (PropertyInfo)accessor;
             return (instance, value) =>
             {
-                CheckInstance(property.DeclaringType, instance);
+                CheckArgument(property.DeclaringType, instance);
                 CheckArgument(property.PropertyType, value);
                 property.SetValue(instance, value);
             };
         }
 
-        public static StaticMethodInvoker StaticMethod(MethodInfo method, int argumentCount)
+        public override StaticMethodInvoker StaticMethod(MethodInfo method, int argumentCount)
         {
             Debug.Assert(method.IsStatic);
 
-            var checker = new ArgumentChecker(method.GetParameters());
+            var checker = new ArgumentChecker(method.GetParameters(), argumentCount);
             return (arguments) =>
             {
-                checker.Check(arguments);
+                checker.CheckArguments(arguments);
                 return method.Invoke(null, arguments);
             };
         }
 
-        public static InstanceMethodInvoker InstanceMethod(MethodInfo method, int argumentCount)
+        public override InstanceMethodInvoker InstanceMethod(MethodInfo method, int argumentCount)
         {
             Debug.Assert(!method.IsStatic);
 
-            var checker = new ArgumentChecker(method.GetParameters());
+            var checker = new ArgumentChecker(method.GetParameters(), argumentCount);
             return (instance, arguments) =>
             {
-                checker.Check(arguments);
+                CheckArgument(method.DeclaringType, instance);
+                checker.CheckArguments(arguments);
                 return method.Invoke(instance, arguments);
             };
         }
 
-        public static StaticMethodInvoker Constructor(ConstructorInfo constructor, int argumentCount)
+        public override StaticMethodInvoker Constructor(ConstructorInfo constructor, int argumentCount)
         {
-            var checker = new ArgumentChecker(constructor.GetParameters());
+            var checker = new ArgumentChecker(constructor.GetParameters(), argumentCount);
             return (arguments) =>
             {
-                checker.Check(arguments);
+                checker.CheckArguments(arguments);
                 return constructor.Invoke(arguments);
             };
         }
 
-        public static IndexerGetInvoker InstanceIndexGetter(PropertyInfo property, int argumentCount)
+        public override IndexerGetInvoker InstanceIndexGetter(PropertyInfo property, int argumentCount)
         {
-            var checker = new ArgumentChecker(property.GetIndexParameters());
+            var checker = new ArgumentChecker(property.GetIndexParameters(), argumentCount);
             return (instance, index) =>
             {
-                checker.Check(index);
+                CheckArgument(property.DeclaringType, instance);
+                checker.CheckArguments(index);
                 return property.GetValue(instance, index);
             };
         }
 
-        public static IndexerSetInvoker InstanceIndexSetter(PropertyInfo property, int argumentCount)
+        public override IndexerSetInvoker InstanceIndexSetter(PropertyInfo property, int argumentCount)
         {
-            var checker = new ArgumentChecker(property.GetIndexParameters());
+            var checker = new ArgumentChecker(property.GetIndexParameters(), argumentCount);
             return (instance, index, value) =>
             {
-                checker.Check(index);
+                CheckArgument(property.DeclaringType, instance);
+                checker.CheckArguments(index);
                 property.SetValue(instance, value, index);
             };
         }
 
-        static StaticGetInvoker StaticFieldGetter(FieldInfo field)
+        StaticGetInvoker StaticFieldGetter(FieldInfo field)
         {
             return () => field.GetValue(null);
         }
 
-        static InstanceGetInvoker InstanceFieldGetter(FieldInfo field)
+        InstanceGetInvoker InstanceFieldGetter(FieldInfo field)
         {
             return (instance) =>
             {
-                CheckInstance(field.DeclaringType, instance);
+                CheckArgument(field.DeclaringType, instance);
                 return field.GetValue(instance);
             };
         }
 
-        static StaticSetInvoker StaticFieldSetter(FieldInfo field)
+        StaticSetInvoker StaticFieldSetter(FieldInfo field)
         {
             return (value) =>
             {
@@ -152,18 +158,18 @@ namespace Atko.Mirra.Generation
             };
         }
 
-        static InstanceSetInvoker InstanceFieldSetter(FieldInfo field)
+        InstanceSetInvoker InstanceFieldSetter(FieldInfo field)
         {
             return (instance, value) =>
             {
-                CheckInstance(field.DeclaringType, instance);
+                CheckArgument(field.DeclaringType, instance);
                 CheckArgument(field.FieldType, value);
                 field.SetValue(instance, value);
             };
         }
 
         [return: AllowNull]
-        static InstanceGetInvoker ExtractInstanceFieldGetter(MemberInfo accessor)
+        InstanceGetInvoker ExtractInstanceFieldGetter(MemberInfo accessor)
         {
             if (accessor is FieldInfo field)
             {
@@ -183,7 +189,7 @@ namespace Atko.Mirra.Generation
         }
 
         [return: AllowNull]
-        static InstanceSetInvoker ExtractInstanceFieldSetter(MemberInfo accessor)
+        InstanceSetInvoker ExtractInstanceFieldSetter(MemberInfo accessor)
         {
             if (accessor is FieldInfo field)
             {
@@ -203,7 +209,7 @@ namespace Atko.Mirra.Generation
         }
 
         [return: AllowNull]
-        static StaticGetInvoker ExtractStaticFieldGetter(MemberInfo accessor)
+        StaticGetInvoker ExtractStaticFieldGetter(MemberInfo accessor)
         {
             if (accessor is FieldInfo field)
             {
@@ -223,7 +229,7 @@ namespace Atko.Mirra.Generation
         }
 
         [return: AllowNull]
-        static StaticSetInvoker ExtractStaticFieldSetter(MemberInfo accessor)
+        StaticSetInvoker ExtractStaticFieldSetter(MemberInfo accessor)
         {
             if (accessor is FieldInfo field)
             {
@@ -241,7 +247,18 @@ namespace Atko.Mirra.Generation
 
             return null;
         }
+
+        void CheckArgument(Type type, object argument)
+        {
+            if (type.IsValueType && argument == null)
+            {
+                throw new MirraInvocationArgumentException();
+            }
+
+            if (!type.IsInstanceOfType(argument))
+            {
+                throw new MirraInvocationArgumentException();
+            }
+        }
     }
 }
-
-#endif

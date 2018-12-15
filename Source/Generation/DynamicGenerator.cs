@@ -11,9 +11,9 @@ using NullGuard;
 
 namespace Atko.Mirra.Generation
 {
-    static partial class Generate
+    class DynamicGenerator : CodeGenerator
     {
-        public static StaticGetInvoker StaticGetter(MemberInfo accessor)
+        public override StaticGetInvoker StaticGetter(MemberInfo accessor)
         {
             Debug.Assert(IsAccessor(accessor));
 
@@ -29,7 +29,7 @@ namespace Atko.Mirra.Generation
             return Expression.Lambda<StaticGetInvoker>(castAccessExpression).Compile();
         }
 
-        public static InstanceGetInvoker InstanceGetter(MemberInfo accessor)
+        public override InstanceGetInvoker InstanceGetter(MemberInfo accessor)
         {
             Debug.Assert(IsAccessor(accessor));
 
@@ -41,7 +41,6 @@ namespace Atko.Mirra.Generation
 
             var instanceExpression = Expression.Parameter(typeof(object), "instance");
             var castInstanceExpression = Expression.Convert(instanceExpression, accessor.DeclaringType);
-
             var accessExpression = GetAccessExpression(accessor, castInstanceExpression);
             var castFieldExpression = Expression.Convert(accessExpression, typeof(object));
 
@@ -53,7 +52,7 @@ namespace Atko.Mirra.Generation
             return Expression.Lambda<InstanceGetInvoker>(castFieldExpression, parameters).Compile();
         }
 
-        public static StaticSetInvoker StaticSetter(MemberInfo accessor)
+        public override StaticSetInvoker StaticSetter(MemberInfo accessor)
         {
             Debug.Assert(IsAccessor(accessor));
 
@@ -76,7 +75,7 @@ namespace Atko.Mirra.Generation
             return Expression.Lambda<StaticSetInvoker>(assignmentExpression, parameters).Compile();
         }
 
-        public static InstanceSetInvoker InstanceSetter(MemberInfo accessor)
+        public override InstanceSetInvoker InstanceSetter(MemberInfo accessor)
         {
             Debug.Assert(IsAccessor(accessor));
 
@@ -102,7 +101,7 @@ namespace Atko.Mirra.Generation
             return Expression.Lambda<InstanceSetInvoker>(assignExpression, parameters).Compile();
         }
 
-        public static StaticMethodInvoker StaticMethod(MethodInfo method, int argumentCount)
+        public override StaticMethodInvoker StaticMethod(MethodInfo method, int argumentCount)
         {
             Debug.Assert(method.IsStatic);
 
@@ -122,7 +121,7 @@ namespace Atko.Mirra.Generation
             return Expression.Lambda<StaticMethodInvoker>(body, parameters).Compile();
         }
 
-        public static InstanceMethodInvoker InstanceMethod(MethodInfo method, int argumentCount)
+        public override InstanceMethodInvoker InstanceMethod(MethodInfo method, int argumentCount)
         {
             Debug.Assert(!method.IsStatic);
 
@@ -145,7 +144,7 @@ namespace Atko.Mirra.Generation
             return Expression.Lambda<InstanceMethodInvoker>(body, parameters).Compile();
         }
 
-        public static StaticMethodInvoker Constructor(ConstructorInfo constructor, int argumentCount)
+        public override StaticMethodInvoker Constructor(ConstructorInfo constructor, int argumentCount)
         {
             var argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
             var argumentExpressions = GetArguments(constructor.GetParameters(), argumentsParameter, argumentCount);
@@ -160,7 +159,7 @@ namespace Atko.Mirra.Generation
             return Expression.Lambda<StaticMethodInvoker>(body, parameters).Compile();
         }
 
-        public static IndexerGetInvoker InstanceIndexGetter(PropertyInfo property, int argumentCount)
+        public override IndexerGetInvoker InstanceIndexGetter(PropertyInfo property, int argumentCount)
         {
             var instanceParameter = Expression.Parameter(typeof(object), "instance");
             var castedInstanceParameter = Expression.Convert(instanceParameter, property.DeclaringType);
@@ -178,7 +177,7 @@ namespace Atko.Mirra.Generation
             return Expression.Lambda<IndexerGetInvoker>(castedAccessExpression, parameters).Compile();
         }
 
-        public static IndexerSetInvoker InstanceIndexSetter(PropertyInfo property, int argumentCount)
+        public override IndexerSetInvoker InstanceIndexSetter(PropertyInfo property, int argumentCount)
         {
             var instanceParameter = Expression.Parameter(typeof(object), "instance");
             var castedInstanceParameter = Expression.Convert(instanceParameter, property.DeclaringType);
@@ -199,7 +198,7 @@ namespace Atko.Mirra.Generation
             return Expression.Lambda<IndexerSetInvoker>(assignExpression, parameters).Compile();
         }
 
-        static StaticGetInvoker StaticFieldGetter(FieldInfo field)
+        StaticGetInvoker StaticFieldGetter(FieldInfo field)
         {
             var name = $"__GENERATED_GET__{field.Name}";
             var method = new DynamicMethod(name, typeof(object), ArrayUtility<Type>.Empty, field.DeclaringType, true);
@@ -219,7 +218,7 @@ namespace Atko.Mirra.Generation
             return (StaticGetInvoker)method.CreateDelegate(typeof(StaticGetInvoker));
         }
 
-        static InstanceGetInvoker InstanceFieldGetter(FieldInfo field)
+        InstanceGetInvoker InstanceFieldGetter(FieldInfo field)
         {
             var name = $"__GENERATED_GET__{field.Name}";
             var method = new DynamicMethod(name, typeof(object), new[] { typeof(object) }, field.DeclaringType, true);
@@ -241,7 +240,7 @@ namespace Atko.Mirra.Generation
             return (InstanceGetInvoker)method.CreateDelegate(typeof(InstanceGetInvoker));
         }
 
-        static StaticSetInvoker StaticFieldSetter(FieldInfo field)
+        StaticSetInvoker StaticFieldSetter(FieldInfo field)
         {
             var name = $"__GENERIC_SET__{field.Name}";
             var method = new DynamicMethod(name, typeof(void), new[] { typeof(object) }, field.DeclaringType, true);
@@ -266,7 +265,7 @@ namespace Atko.Mirra.Generation
             return (StaticSetInvoker)method.CreateDelegate(typeof(StaticSetInvoker));
         }
 
-        static InstanceSetInvoker InstanceFieldSetter(FieldInfo field)
+        InstanceSetInvoker InstanceFieldSetter(FieldInfo field)
         {
             var name = $"__GENERIC_SET__{field.Name}";
             var method = new DynamicMethod(name, typeof(void), new[] { typeof(object), typeof(object) },
@@ -295,7 +294,7 @@ namespace Atko.Mirra.Generation
         }
 
         [return: AllowNull]
-        static InstanceGetInvoker ExtractInstanceFieldGetter(MemberInfo accessor)
+        InstanceGetInvoker ExtractInstanceFieldGetter(MemberInfo accessor)
         {
             if (accessor is FieldInfo field)
             {
@@ -315,7 +314,7 @@ namespace Atko.Mirra.Generation
         }
 
         [return: AllowNull]
-        static InstanceSetInvoker ExtractInstanceFieldSetter(MemberInfo accessor)
+        InstanceSetInvoker ExtractInstanceFieldSetter(MemberInfo accessor)
         {
             if (accessor is FieldInfo field)
             {
@@ -335,7 +334,7 @@ namespace Atko.Mirra.Generation
         }
 
         [return: AllowNull]
-        static StaticGetInvoker ExtractStaticFieldGetter(MemberInfo accessor)
+        StaticGetInvoker ExtractStaticFieldGetter(MemberInfo accessor)
         {
             if (accessor is FieldInfo field)
             {
@@ -355,7 +354,7 @@ namespace Atko.Mirra.Generation
         }
 
         [return: AllowNull]
-        static StaticSetInvoker ExtractStaticFieldSetter(MemberInfo accessor)
+        StaticSetInvoker ExtractStaticFieldSetter(MemberInfo accessor)
         {
             if (accessor is FieldInfo field)
             {
@@ -375,7 +374,7 @@ namespace Atko.Mirra.Generation
         }
 
         [return: AllowNull]
-        static Expression GetAccessExpression(MemberInfo member, Expression castInstanceExpression = null)
+        Expression GetAccessExpression(MemberInfo member, Expression castInstanceExpression = null)
         {
             if (member is PropertyInfo property)
             {
@@ -390,7 +389,7 @@ namespace Atko.Mirra.Generation
             return null;
         }
 
-        static Expression[] GetArguments(ParameterInfo[] parameters, Expression arguments, int count)
+        Expression[] GetArguments(ParameterInfo[] parameters, Expression arguments, int count)
         {
             var minArgumentCount = parameters
                 .TakeWhile((current) => !current.IsOptional)

@@ -15,38 +15,31 @@ namespace Atko.Mirra
         { }
     }
 
-    public class MirraInvocationStructArgumentNullException : MirraInvocationException
-    {
-        public MirraInvocationStructArgumentNullException(Exception inner = null) :
-            base("A struct argument cannot be null.", inner)
-        { }
-    }
-
-    public class MirraInvocationArgumentCountException : MirraException
-    {
-        public MirraInvocationArgumentCountException(Exception inner = null) :
-            base("Invalid number of arguments for invocation.", inner)
-        { }
-    }
-
-    public class MirraInvocationArgumentTypeException : MirraException
-    {
-        public MirraInvocationArgumentTypeException(Exception inner = null) :
-            base("Invalid argument types for invocation.", inner)
-        { }
-    }
-
-    public class MirraInvocationInstanceTypeException : MirraException
-    {
-        public MirraInvocationInstanceTypeException(Exception inner = null) :
-            base("Invalid instance type for invocation.", inner)
-        { }
-    }
-
     public class MirraMissingMemberException : MirraException
     {
         public MirraMissingMemberException(string message = null, Exception inner = null) :
             base(message ?? "Member does not exist on the target type.", inner)
+        { }
+    }
+
+    public class MirraInvocationCannotSetException : MirraException
+    {
+        public MirraInvocationCannotSetException() :
+            base("Cannot set accessor or indexer.")
+        { }
+    }
+
+    public class MirraInvocationArgumentCountException : MirraInvocationException
+    {
+        public MirraInvocationArgumentCountException() :
+            base("Invalid number of arguments for invocation.")
+        { }
+    }
+
+    public class MirraInvocationArgumentException : MirraInvocationException
+    {
+        public MirraInvocationArgumentException() :
+            base("Invalid instance or argument types for invocation.")
         { }
     }
 }

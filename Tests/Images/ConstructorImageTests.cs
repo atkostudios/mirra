@@ -47,9 +47,9 @@ namespace Atko.Mirra.Tests.Images
             Assert.IsInstanceOf<Second>(instance);
             Assert.AreEqual(1, ((Second)instance).Value);
 
-            Assert.Throws<MirraInvocationException>(() => image.Call());
-            Assert.Throws<MirraInvocationException>(() => image.Call((object)null));
-            Assert.Throws<MirraInvocationException>(() => image.Call("string"));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call());
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call((object)null));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call("string"));
         }
 
         [Test]
@@ -61,10 +61,10 @@ namespace Atko.Mirra.Tests.Images
             Assert.AreEqual("string", ((Third)instance).Name);
             Assert.AreEqual(new[] { 1, 2, 3 }, ((Third)instance).Values);
 
-            Assert.Throws<MirraInvocationException>(() => image.Call());
-            Assert.Throws<MirraInvocationException>(() => image.Call((object)null));
-            Assert.Throws<MirraInvocationException>(() => image.Call("string"));
-            Assert.Throws<MirraInvocationException>(() => image.Call("string", 1));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call());
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call((object)null));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call("string"));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call("string", 1));
         }
     }
 }

@@ -7,18 +7,14 @@ namespace Atko.Mirra.Generation
     {
         ParameterInfo[] Parameters { get; }
 
-        int MinArgumentCount { get; }
-        int MaxArgumentCount => Parameters.Length;
-
-        public ArgumentChecker(ParameterInfo[] parameters)
+        public ArgumentChecker(ParameterInfo[] parameters, int argumentCount)
         {
-            Parameters = parameters;
-            MinArgumentCount = parameters.TakeWhile((current) => !current.IsOptional).Count();
+            Parameters = parameters.Take(argumentCount).ToArray();
         }
 
-        public void Check(object[] arguments)
+        public void CheckArguments(object[] arguments)
         {
-            if (arguments.Length < MinArgumentCount || arguments.Length > MaxArgumentCount)
+            if (arguments.Length != Parameters.Length)
             {
                 throw new MirraInvocationArgumentCountException();
             }
@@ -30,12 +26,12 @@ namespace Atko.Mirra.Generation
 
                 if (parameter.ParameterType.IsValueType && argument == null)
                 {
-                    throw new MirraInvocationArgumentTypeException();
+                    throw new MirraInvocationArgumentException();
                 }
 
                 if (argument != null && !parameter.ParameterType.IsInstanceOfType(argument))
                 {
-                    throw new MirraInvocationArgumentTypeException();
+                    throw new MirraInvocationArgumentException();
                 }
             }
         }

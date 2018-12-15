@@ -46,8 +46,8 @@ namespace Atko.Mirra.Tests.Images
         {
             var image = typeof(Class).Image().Field(name);
 
-            Assert.Throws<MirraInvocationException>(() => image.Get(null));
-            Assert.Throws<MirraInvocationException>(() => image.Set(null, 1));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Get(null));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Set(null, 1));
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace Atko.Mirra.Tests.Images
             var instance = new Class();
             var image = typeof(Class).Image().Field(name);
 
-            Assert.Throws<MirraInvocationException>(() => image.Set(instance, argument));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Set(instance, argument));
         }
     }
 }

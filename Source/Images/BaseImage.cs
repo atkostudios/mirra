@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Atko.Mirra.Generation;
 using Atko.Mirra.Utility;
 using NullGuard;
 
@@ -9,6 +11,16 @@ namespace Atko.Mirra.Images
 {
     public abstract class BaseImage
     {
+        const bool UseDynamic = true;
+
+#if HAVE_DYNAMIC
+        internal static CodeGenerator Generate { get; } = UseDynamic
+            ? (CodeGenerator)new DynamicGenerator()
+            : new ReflectionGenerator();
+#else
+        internal static CodeGenerator Generate { get; } = new ReflectionGenerator();
+#endif
+
         public string Name => Member.Name;
 
         public string ShortName { get; }
@@ -65,6 +77,17 @@ namespace Atko.Mirra.Images
         public IEnumerable<Attribute> Attributes<T>(bool inherit = true) where T : class
         {
             return Attributes(typeof(T), inherit);
+        }
+
+        protected static void CheckException(Exception exception)
+        {
+            var isTypeException = exception is InvalidCastException || exception is NullReferenceException;
+            if (isTypeException && new StackTrace(exception).FrameCount <= 2)
+            {
+                throw new MirraInvocationArgumentException();
+            }
+
+            throw new MirraInvocationException(null, exception);
         }
     }
 }

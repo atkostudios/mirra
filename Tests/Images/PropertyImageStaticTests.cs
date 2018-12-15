@@ -65,7 +65,7 @@ namespace Atko.Mirra.Tests.Images
             else
             {
                 Assert.True(name.Contains("Computed"));
-                Assert.Throws<MirraInvocationException>(() => image.Set(null, new TestValue(1)));
+                Assert.Throws<MirraInvocationCannotSetException>(() => image.Set(null, new TestValue(1)));
             }
         }
 
@@ -79,8 +79,8 @@ namespace Atko.Mirra.Tests.Images
             var instance = new Class();
             var image = typeof(Class).Image().Property(name);
 
-            Assert.Throws<MirraInvocationException>(() => image.Get(instance));
-            Assert.Throws<MirraInvocationException>(() => image.Set(instance, new TestValue(1)));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Get(instance));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Set(instance, new TestValue(1)));
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace Atko.Mirra.Tests.Images
         {
             var image = typeof(Class).Image().Property(name);
 
-            Assert.Throws<MirraInvocationException>(() => image.Set(null, argument));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Set(null, argument));
         }
     }
 }

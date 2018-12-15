@@ -56,9 +56,9 @@ namespace Atko.Mirra.Tests.Images
 
             Assert.IsNull(result);
 
-            Assert.Throws<MirraInvocationException>(() => image.Call(null, (object)null));
-            Assert.Throws<MirraInvocationException>(() => image.Call(null, 1));
-            Assert.Throws<MirraInvocationException>(() => image.Call(new Class()));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null, (object)null));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null, 1));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call(new Class()));
         }
 
         [Test]
@@ -71,9 +71,9 @@ namespace Atko.Mirra.Tests.Images
 
             Assert.AreEqual(1, result);
 
-            Assert.Throws<MirraInvocationException>(() => image.Call(null, (object)null));
-            Assert.Throws<MirraInvocationException>(() => image.Call(null, 1));
-            Assert.Throws<MirraInvocationException>(() => image.Call(new Class()));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null, (object)null));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null, 1));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call(new Class()));
         }
 
         [Test]
@@ -86,12 +86,12 @@ namespace Atko.Mirra.Tests.Images
 
             Assert.AreEqual(2, result);
 
-            Assert.Throws<MirraInvocationException>(() => image.Call(null));
-            Assert.Throws<MirraInvocationException>(() => image.Call(null, 1, 1));
-            Assert.Throws<MirraInvocationException>(() => image.Call(null, (object)null));
-            Assert.Throws<MirraInvocationException>(() => image.Call(null, "string"));
-            Assert.Throws<MirraInvocationException>(() => image.Call(null, "string", 2));
-            Assert.Throws<MirraInvocationException>(() => image.Call(new Class(), 1));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null, 1, 1));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call(null, (object)null));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call(null, "string"));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null, "string", 2));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call(new Class(), 1));
         }
 
         [Test]
@@ -104,12 +104,12 @@ namespace Atko.Mirra.Tests.Images
 
             Assert.AreEqual(12, result);
 
-            Assert.Throws<MirraInvocationException>(() => image.Call(null));
-            Assert.Throws<MirraInvocationException>(() => image.Call(null, 1, 1));
-            Assert.Throws<MirraInvocationException>(() => image.Call(null, (object)null));
-            Assert.Throws<MirraInvocationException>(() => image.Call(null, "string"));
-            Assert.Throws<MirraInvocationException>(() => image.Call(null, "string", 2));
-            Assert.Throws<MirraInvocationException>(() => image.Call(new Class(), "string", new[] { 1, 2, 3 }));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call(null, 1, 1));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null, (object)null));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null, "string"));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call(null, "string", 2));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call(new Class(), "string", new[] { 1, 2, 3 }));
         }
     }
 }

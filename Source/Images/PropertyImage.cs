@@ -37,7 +37,7 @@ namespace Atko.Mirra.Images
 
         FieldImage GetBackingField()
         {
-            return TypeImage.Get(Property.DeclaringType).Field(TypeUtility.GetBackingFieldName(Property));
+            return TypeImage.Get(DeclaringType).Field(TypeUtility.GetBackingFieldName(Property));
         }
     }
 }
