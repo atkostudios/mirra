@@ -34,18 +34,18 @@ namespace Atko.Mirra.Images
 
         public PropertyInfo Property => (PropertyInfo)Member;
 
-        InvokerDispatch<IndexerGetInvoker> GetInvokers { get; }
-        InvokerDispatch<IndexerSetInvoker> SetInvokers { get; }
+        InvokerDispatch<InstanceIndexerGetInvoker> GetInvokers { get; }
+        InvokerDispatch<InstanceIndexerSetInvoker> SetInvokers { get; }
 
         public IndexerImage(PropertyInfo member) : base(member)
         {
             Debug.Assert(CanCreateFrom(member));
 
             var parameters = Property.GetIndexParameters();
-            GetInvokers = new InvokerDispatch<IndexerGetInvoker>(parameters,
+            GetInvokers = new InvokerDispatch<InstanceIndexerGetInvoker>(parameters,
                 (argumentCount) => CodeGenerator.Instance.InstanceIndexGetter(Property, argumentCount));
 
-            SetInvokers = new InvokerDispatch<IndexerSetInvoker>(parameters,
+            SetInvokers = new InvokerDispatch<InstanceIndexerSetInvoker>(parameters,
                 (argumentCount) => CodeGenerator.Instance.InstanceIndexSetter(Property, argumentCount));
         }
 

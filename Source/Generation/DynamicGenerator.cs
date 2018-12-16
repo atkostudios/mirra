@@ -159,7 +159,7 @@ namespace Atko.Mirra.Generation
             return Expression.Lambda<StaticMethodInvoker>(body, parameters).Compile();
         }
 
-        public override IndexerGetInvoker InstanceIndexGetter(PropertyInfo property, int argumentCount)
+        public override InstanceIndexerGetInvoker InstanceIndexGetter(PropertyInfo property, int argumentCount)
         {
             var instanceParameter = Expression.Parameter(typeof(object), "instance");
             var castedInstanceParameter = Expression.Convert(instanceParameter, property.DeclaringType);
@@ -174,10 +174,10 @@ namespace Atko.Mirra.Generation
                 indexParameter
             };
 
-            return Expression.Lambda<IndexerGetInvoker>(castedAccessExpression, parameters).Compile();
+            return Expression.Lambda<InstanceIndexerGetInvoker>(castedAccessExpression, parameters).Compile();
         }
 
-        public override IndexerSetInvoker InstanceIndexSetter(PropertyInfo property, int argumentCount)
+        public override InstanceIndexerSetInvoker InstanceIndexSetter(PropertyInfo property, int argumentCount)
         {
             var instanceParameter = Expression.Parameter(typeof(object), "instance");
             var castedInstanceParameter = Expression.Convert(instanceParameter, property.DeclaringType);
@@ -195,7 +195,7 @@ namespace Atko.Mirra.Generation
                 valueParameter
             };
 
-            return Expression.Lambda<IndexerSetInvoker>(assignExpression, parameters).Compile();
+            return Expression.Lambda<InstanceIndexerSetInvoker>(assignExpression, parameters).Compile();
         }
 
         StaticGetInvoker StaticFieldGetter(FieldInfo field)

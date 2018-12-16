@@ -113,7 +113,7 @@ namespace Atko.Mirra.Generation
             };
         }
 
-        public override IndexerGetInvoker InstanceIndexGetter(PropertyInfo property, int argumentCount)
+        public override InstanceIndexerGetInvoker InstanceIndexGetter(PropertyInfo property, int argumentCount)
         {
             var checker = new ArgumentChecker(property.GetIndexParameters(), argumentCount);
             return (instance, index) =>
@@ -124,7 +124,7 @@ namespace Atko.Mirra.Generation
             };
         }
 
-        public override IndexerSetInvoker InstanceIndexSetter(PropertyInfo property, int argumentCount)
+        public override InstanceIndexerSetInvoker InstanceIndexSetter(PropertyInfo property, int argumentCount)
         {
             var checker = new ArgumentChecker(property.GetIndexParameters(), argumentCount);
             return (instance, index, value) =>

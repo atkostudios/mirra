@@ -25,8 +25,8 @@ namespace Atko.Mirra.Generation
         public abstract StaticMethodInvoker StaticMethod(MethodInfo method, int argumentCount);
         public abstract InstanceMethodInvoker InstanceMethod(MethodInfo method, int argumentCount);
         public abstract StaticMethodInvoker Constructor(ConstructorInfo constructor, int argumentCount);
-        public abstract IndexerGetInvoker InstanceIndexGetter(PropertyInfo property, int argumentCount);
-        public abstract IndexerSetInvoker InstanceIndexSetter(PropertyInfo property, int argumentCount);
+        public abstract InstanceIndexerGetInvoker InstanceIndexGetter(PropertyInfo property, int argumentCount);
+        public abstract InstanceIndexerSetInvoker InstanceIndexSetter(PropertyInfo property, int argumentCount);
 
         protected static bool IsAccessor(MemberInfo member)
         {
