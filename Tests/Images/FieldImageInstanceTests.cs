@@ -51,13 +51,13 @@ namespace Atko.Mirra.Tests.Images
         }
 
         [Test]
-        [TestCase(nameof(Class.PublicField), "string")]
+        [TestCase(nameof(Class.PublicField), "")]
         [TestCase(nameof(Class.PublicField), null)]
-        [TestCase(nameof(Class.PublicReadOnlyField), "string")]
+        [TestCase(nameof(Class.PublicReadOnlyField), "")]
         [TestCase(nameof(Class.PublicReadOnlyField), null)]
-        [TestCase(nameof(Class.HiddenField), "string")]
+        [TestCase(nameof(Class.HiddenField), "")]
         [TestCase(nameof(Class.HiddenField), null)]
-        [TestCase(nameof(Class.HiddenReadOnlyField), "string")]
+        [TestCase(nameof(Class.HiddenReadOnlyField), "")]
         [TestCase(nameof(Class.HiddenReadOnlyField), null)]
         public void TestArgumentException(string name, object argument)
         {

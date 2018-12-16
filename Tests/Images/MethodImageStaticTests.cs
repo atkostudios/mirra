@@ -89,8 +89,8 @@ namespace Atko.Mirra.Tests.Images
             Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null));
             Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null, 1, 1));
             Assert.Throws<MirraInvocationArgumentException>(() => image.Call(null, (object)null));
-            Assert.Throws<MirraInvocationArgumentException>(() => image.Call(null, "string"));
-            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null, "string", 2));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call(null, ""));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null, "", 2));
             Assert.Throws<MirraInvocationArgumentException>(() => image.Call(new Class(), 1));
         }
 
@@ -100,16 +100,16 @@ namespace Atko.Mirra.Tests.Images
         public void TestParamsMethod(string name)
         {
             var image = typeof(Class).Image().Method(name, typeof(string), typeof(int[]));
-            var result = image.Call(null, "string", new[] { 1, 2, 3 });
+            var result = image.Call(null, "", new[] { 1, 2, 3 });
 
-            Assert.AreEqual(12, result);
+            Assert.AreEqual(6, result);
 
             Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null));
             Assert.Throws<MirraInvocationArgumentException>(() => image.Call(null, 1, 1));
             Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null, (object)null));
-            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null, "string"));
-            Assert.Throws<MirraInvocationArgumentException>(() => image.Call(null, "string", 2));
-            Assert.Throws<MirraInvocationArgumentException>(() => image.Call(new Class(), "string", new[] { 1, 2, 3 }));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(null, ""));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call(null, "", 2));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call(new Class(), "", new[] { 1, 2, 3 }));
         }
     }
 }

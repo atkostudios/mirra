@@ -28,7 +28,7 @@ namespace Atko.Mirra.Images
         public override bool IsPublic => Property.GetMethod.IsPublic || (Property.SetMethod?.IsPublic ?? false);
         public override bool IsStatic => Property.GetMethod.IsStatic;
 
-        public override bool CanSet => Property.CanWrite;
+        public override bool CanSet => Property.SetMethod != null;
 
         public override Type Type => Property.PropertyType;
 
@@ -88,8 +88,8 @@ namespace Atko.Mirra.Images
 
         public void Set(object instance, object[] index, object value)
         {
-            AssertInstanceMatches(instance);
             AssertCanSet();
+            AssertInstanceMatches(instance);
 
             var invoker = SetInvokers.Get(index.Length);
             if (invoker == null)

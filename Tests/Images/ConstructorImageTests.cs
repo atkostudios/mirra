@@ -49,22 +49,22 @@ namespace Atko.Mirra.Tests.Images
 
             Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call());
             Assert.Throws<MirraInvocationArgumentException>(() => image.Call((object)null));
-            Assert.Throws<MirraInvocationArgumentException>(() => image.Call("string"));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call(""));
         }
 
         [Test]
         public void TestParamsArgumentConstructor()
         {
             var image = typeof(Third).Image().Constructor(typeof(string), typeof(int[]));
-            var instance = image.Call("string", new[] { 1, 2, 3 });
+            var instance = image.Call("", new[] { 1, 2, 3 });
             Assert.IsInstanceOf<Third>(instance);
-            Assert.AreEqual("string", ((Third)instance).Name);
+            Assert.AreEqual("", ((Third)instance).Name);
             Assert.AreEqual(new[] { 1, 2, 3 }, ((Third)instance).Values);
 
             Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call());
             Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call((object)null));
-            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call("string"));
-            Assert.Throws<MirraInvocationArgumentException>(() => image.Call("string", 1));
+            Assert.Throws<MirraInvocationArgumentCountException>(() => image.Call(""));
+            Assert.Throws<MirraInvocationArgumentException>(() => image.Call("", 1));
         }
     }
 }

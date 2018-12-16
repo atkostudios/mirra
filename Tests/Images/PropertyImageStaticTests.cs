@@ -85,13 +85,13 @@ namespace Atko.Mirra.Tests.Images
 
         [Test]
         [TestCase(nameof(Class.PublicAutoProperty), 1)]
-        [TestCase(nameof(Class.PublicAutoProperty), "string")]
+        [TestCase(nameof(Class.PublicAutoProperty), "")]
         [TestCase(nameof(Class.HiddenAutoProperty), 1)]
-        [TestCase(nameof(Class.HiddenAutoProperty), "string")]
+        [TestCase(nameof(Class.HiddenAutoProperty), "")]
         [TestCase(nameof(Class.PublicGetOnlyAutoProperty), 1)]
-        [TestCase(nameof(Class.PublicGetOnlyAutoProperty), "string")]
+        [TestCase(nameof(Class.PublicGetOnlyAutoProperty), "")]
         [TestCase(nameof(Class.HiddenGetOnlyAutoProperty), 1)]
-        [TestCase(nameof(Class.HiddenGetOnlyAutoProperty), "string")]
+        [TestCase(nameof(Class.HiddenGetOnlyAutoProperty), "")]
         public void TestArgumentException(string name, object argument)
         {
             var image = typeof(Class).Image().Property(name);

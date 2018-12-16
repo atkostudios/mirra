@@ -336,6 +336,13 @@ namespace Atko.Mirra.Images
             return field;
         }
 
+        [return: AllowNull]
+        public IndexerImage Indexer(params Type[] types)
+        {
+            LazyIndexerMap.Value.TryGetValue(new ArrayHash<Type>(types), out var indexer);
+            return indexer;
+        }
+
         public IEnumerable<MethodImage> Methods(MemberQuery query = default(MemberQuery))
         {
             switch (query)
