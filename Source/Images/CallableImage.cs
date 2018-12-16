@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using Atko.Mirra.Generation;
 using Atko.Mirra.Utility;
@@ -31,10 +32,7 @@ namespace Atko.Mirra.Images
             [AllowNull] Func<int, InstanceMethodInvoker> instanceInvokerFactory,
             [AllowNull] Func<int, StaticMethodInvoker> staticInvokerFactory) : base(member)
         {
-            if (!CanCreateFrom(member))
-            {
-                throw new ArgumentException(nameof(member));
-            }
+            Debug.Assert(CanCreateFrom(member));
 
             var parameters = Base.GetParameters();
 

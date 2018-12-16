@@ -1,11 +1,13 @@
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using Atko.Mirra.Generation;
 using Atko.Mirra.Utility;
+using NullGuard;
 
 namespace Atko.Mirra.Images
 {
-    public class IndexerImage : MemberImage
+    public class IndexerImage : GetSetImage
     {
         public static bool CanCreateFrom(PropertyInfo property)
         {
@@ -26,8 +28,9 @@ namespace Atko.Mirra.Images
         public override bool IsPublic => Property.GetMethod.IsPublic || (Property.SetMethod?.IsPublic ?? false);
         public override bool IsStatic => Property.GetMethod.IsStatic;
 
-        public bool CanGet => Property.CanRead;
-        public bool CanSet => Property.CanWrite;
+        public override bool CanSet => Property.CanWrite;
+
+        public override Type Type => Property.PropertyType;
 
         public PropertyInfo Property => (PropertyInfo)Member;
 
@@ -36,10 +39,7 @@ namespace Atko.Mirra.Images
 
         public IndexerImage(PropertyInfo member) : base(member)
         {
-            if (!CanCreateFrom(member))
-            {
-                throw new ArgumentException(nameof(member));
-            }
+            Debug.Assert(CanCreateFrom(member));
 
             var parameters = Property.GetIndexParameters();
             GetInvokers = new InvokerDispatch<IndexerGetInvoker>(parameters,
@@ -49,13 +49,17 @@ namespace Atko.Mirra.Images
                 (argumentCount) => CodeGenerator.Instance.InstanceIndexSetter(Property, argumentCount));
         }
 
-        public object Get(object instance, object index)
+        [return: AllowNull]
+        public object Get([AllowNull] object instance, object index)
         {
             return Get(instance, new[] { index });
         }
 
-        public object Get(object instance, object[] index)
+        [return: AllowNull]
+        public object Get([AllowNull] object instance, object[] index)
         {
+            AssertInstanceMatches(instance);
+
             var invoker = GetInvokers.Get(index.Length);
             if (invoker == null)
             {
@@ -84,10 +88,8 @@ namespace Atko.Mirra.Images
 
         public void Set(object instance, object[] index, object value)
         {
-            if (!CanSet)
-            {
-                throw new MirraInvocationCannotSetException();
-            }
+            AssertInstanceMatches(instance);
+            AssertCanSet();
 
             var invoker = SetInvokers.Get(index.Length);
             if (invoker == null)

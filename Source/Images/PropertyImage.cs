@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using Atko.Mirra.Utility;
 using NullGuard;
@@ -15,24 +16,36 @@ namespace Atko.Mirra.Images
         public override bool IsPublic => Property.GetMethod.IsPublic || (Property.SetMethod?.IsPublic ?? false);
         public override bool IsStatic => Property.GetMethod.IsStatic;
 
-        public override bool CanGet => Property.CanRead || BackingField != null;
-        public override bool CanSet => Property.CanWrite || BackingField != null;
+        public override bool CanSet { get; }
+
+        public override Type Type => Property.PropertyType;
 
         [AllowNull]
-        public FieldImage BackingField => LazyBackingField.Value;
+        public FieldImage BackingField { get; }
 
         public PropertyInfo Property => (PropertyInfo)Member;
 
-        Lazy<FieldImage> LazyBackingField { get; }
-
         internal PropertyImage(PropertyInfo member) : base(member)
         {
-            if (!CanCreateFrom(member))
+            Debug.Assert(CanCreateFrom(member));
+
+            BackingField = GetBackingField();
+            CanSet = GetCanSet();
+        }
+
+        bool GetCanSet()
+        {
+            if (Property.CanWrite)
             {
-                throw new ArgumentException(nameof(member));
+                return true;
             }
 
-            LazyBackingField = new Lazy<FieldImage>(GetBackingField);
+            if (BackingField != null && BackingField.CanSet)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         FieldImage GetBackingField()

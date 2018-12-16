@@ -1,4 +1,5 @@
 using System.Reflection;
+using NullGuard;
 
 namespace Atko.Mirra.Images
 {
@@ -14,7 +15,7 @@ namespace Atko.Mirra.Images
             return $"{GetType().Name}({Member})";
         }
 
-        protected void AssertInstanceMatches(object instance)
+        protected void AssertInstanceMatches([AllowNull] object instance)
         {
             if ((instance != null) != RequiresInstance)
             {

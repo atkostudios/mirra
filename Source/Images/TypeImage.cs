@@ -424,8 +424,7 @@ namespace Atko.Mirra.Images
 
         TypeImage[] GetInterfaces()
         {
-            return Type
-                .Inheritance()
+            return TypeUtility.Inheritance(Type)
                 .SelectMany((current) => current.GetInterfaces())
                 .Select(Get)
                 .ToArray();

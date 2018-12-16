@@ -22,10 +22,7 @@ namespace Atko.Mirra.Utility
         const string BackingFieldPrefix = "<";
         const string BackingFieldSuffix = ">k__BackingField";
 
-        static Cache<Pair<Type, Type>, Type> ImplementationCache { get; }
-            = new Cache<Pair<Type, Type>, Type>();
-
-        public static IEnumerable<Type> Inheritance(this Type type)
+        public static IEnumerable<Type> Inheritance(Type type)
         {
             var current = type;
             while (current != null)
@@ -40,7 +37,7 @@ namespace Atko.Mirra.Utility
             return $"{BackingFieldPrefix}{property.Name}{BackingFieldSuffix}";
         }
 
-        public static bool IsBackingField(this FieldInfo field)
+        public static bool IsBackingField(FieldInfo field)
         {
             return field.IsDefined(typeof(CompilerGeneratedAttribute)) &&
                    field.Name.StartsWith(BackingFieldPrefix) &&
@@ -58,18 +55,6 @@ namespace Atko.Mirra.Utility
             }
 
             return type.GetField(name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic);
-        }
-
-        [return: AllowNull]
-        public static Type GetImplementation(Type type, Type generic)
-        {
-            if (type == generic)
-            {
-                return type;
-            }
-
-            return ImplementationCache.GetOrAdd(new Pair<Type, Type>(type, generic),
-                (input) => GetImplementationInternal(input.First, input.Second));
         }
 
         [return: AllowNull]
@@ -93,41 +78,14 @@ namespace Atko.Mirra.Utility
             return parameters.Any((current) => current.IsIn || current.IsOut || current.ParameterType.IsByRef);
         }
 
-        static Type GetImplementationInternal(Type type, Type generic)
+        public static bool CanBeConstant(Type type)
         {
-            if (!generic.IsGenericType || !generic.IsGenericTypeDefinition)
-            {
-                return generic.IsAssignableFrom(type) ? generic : null;
-            }
+            return type.IsPrimitive || type.IsEnum || type == typeof(String);
+        }
 
-            if (generic.IsInterface)
-            {
-                foreach (var ancestor in Inheritance(type))
-                {
-                    var interfaces = ancestor.GetInterfaces();
-                    foreach (var implemented in interfaces)
-                    {
-                        if (implemented.IsGenericType &&
-                            implemented.GetGenericTypeDefinition() == generic)
-                        {
-                            return implemented;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                foreach (var ancestor in Inheritance(type))
-                {
-                    if (ancestor.IsGenericType &&
-                        ancestor.GetGenericTypeDefinition() == generic)
-                    {
-                        return ancestor;
-                    }
-                }
-            }
-
-            return null;
+        public static bool CanBeConstantStruct(Type type)
+        {
+            return type.IsPrimitive || type.IsEnum;
         }
     }
 }

@@ -5,16 +5,8 @@ using NullGuard;
 
 namespace Atko.Mirra.Images
 {
-    public abstract class AccessorImage : MemberImage
+    public abstract class AccessorImage : GetSetImage
     {
-        public abstract bool CanGet { get; }
-        public abstract bool CanSet { get; }
-
-        InstanceGetInvoker InstanceGetInvoker => LazyInstanceGetInvoker.Value;
-        InstanceSetInvoker InstanceSetInvoker => LazyInstanceSetInvoker.Value;
-        StaticGetInvoker StaticGetInvoker => LazyStaticGetInvoker.Value;
-        StaticSetInvoker StaticSetInvoker => LazyStaticSetInvoker.Value;
-
         Lazy<InstanceGetInvoker> LazyInstanceGetInvoker { get; }
         Lazy<InstanceSetInvoker> LazyInstanceSetInvoker { get; }
         Lazy<StaticGetInvoker> LazyStaticGetInvoker { get; }
@@ -38,14 +30,15 @@ namespace Atko.Mirra.Images
         public object Get([AllowNull] object instance)
         {
             AssertInstanceMatches(instance);
+
             try
             {
                 if (IsStatic)
                 {
-                    return StaticGetInvoker.Invoke();
+                    return LazyStaticGetInvoker.Value.Invoke();
                 }
 
-                return InstanceGetInvoker.Invoke(instance);
+                return LazyInstanceGetInvoker.Value.Invoke(instance);
             }
             catch (MirraException)
             {
@@ -60,22 +53,18 @@ namespace Atko.Mirra.Images
 
         public void Set([AllowNull] object instance, [AllowNull] object value)
         {
+            AssertCanSet();
             AssertInstanceMatches(instance);
-
-            if (!CanSet)
-            {
-                throw new MirraInvocationCannotSetException();
-            }
 
             try
             {
                 if (IsStatic)
                 {
-                    StaticSetInvoker.Invoke(value);
+                    LazyStaticSetInvoker.Value.Invoke(value);
                 }
                 else
                 {
-                    InstanceSetInvoker.Invoke(instance, value);
+                    LazyInstanceSetInvoker.Value.Invoke(instance, value);
                 }
             }
             catch (MirraException)
