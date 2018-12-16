@@ -11,7 +11,7 @@ namespace Atko.Mirra.Utility
 
         public static bool operator !=(Pair<TFirst, TSecond> left, Pair<TFirst, TSecond> right)
         {
-            return !left.Equals(right);
+            return !(left == right);
         }
 
         public TFirst First { get; }
