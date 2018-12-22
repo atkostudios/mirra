@@ -1,13 +1,8 @@
 using System;
-using System.CodeDom;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Atko.Mirra.Utility;
-using Microsoft.CSharp;
 using NullGuard;
 
 namespace Atko.Mirra.Images
@@ -140,11 +135,7 @@ namespace Atko.Mirra.Images
                 ? Get(Type.GetGenericTypeDefinition())
                 : this;
 
-        public string DisplayName => LazyDisplayName.Value;
-
         Cache<Type, Type> AssignableTypeCache { get; } = new Cache<Type, Type>();
-
-        Lazy<string> LazyDisplayName { get; }
 
         Lazy<TypeImage[]> LazyInterfaces { get; }
         Lazy<ConstructorImage[]> LazyConstructors { get; }
@@ -186,8 +177,6 @@ namespace Atko.Mirra.Images
                     ? subclasses.Select(Get).ToArray()
                     : ArrayUtility<TypeImage>.Empty;
             });
-
-            LazyDisplayName = new Lazy<string>(GetDisplayName);
 
             LazyInterfaces = new Lazy<TypeImage[]>(GetInterfaces);
             LazyConstructors = new Lazy<ConstructorImage[]>(GetConstructors);
@@ -414,19 +403,6 @@ namespace Atko.Mirra.Images
             }
 
             return Enumerable.Empty<IndexerImage>();
-        }
-
-        string GetDisplayName()
-        {
-            StringBuilder builder = new StringBuilder();
-            using (StringWriter writer = new StringWriter(builder))
-            {
-                var expression = new CodeTypeReferenceExpression(Type);
-                var provider = new CSharpCodeProvider();
-                provider.GenerateCodeFromExpression(expression, writer, new CodeGeneratorOptions());
-            }
-
-            return builder.ToString().SubstringAfterLast(".");
         }
 
         TypeImage[] GetInterfaces()
