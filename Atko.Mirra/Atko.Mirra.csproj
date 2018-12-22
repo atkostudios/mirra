@@ -2,12 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <PackageId>Mirra</PackageId>
+    <PackageId>Atko.Mirra</PackageId>
     <Version>0.0.1</Version>
     <Authors>ComfortStereo</Authors>
     <Company>Atko</Company>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>An absurdly simple and performant reflection library.</Description>
     <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
