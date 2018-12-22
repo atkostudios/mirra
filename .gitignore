@@ -5,6 +5,9 @@ packages
 
 bin
 obj
-Tests/Playground.cs
+
+Atko.Mirra.Tests/Playground.cs
+
+FodyWeavers.xsd
 
 .DS_Store
