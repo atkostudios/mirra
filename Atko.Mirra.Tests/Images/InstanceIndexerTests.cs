@@ -3,26 +3,20 @@ using NUnit.Framework;
 namespace Atko.Mirra.Images
 {
     [TestFixture]
-    public class InstanceIndexerImageTests
+    public class IndexerImageInstanceTests
     {
         class GetClass
         {
-            public int[] Integers { get; } = new int[] { 0, 1, 2 };
+            public int[] Integers { get; } = { 0, 1, 2 };
 
-            int this[int index]
-            {
-                get => Integers[index];
-            }
+            int this[int index] => Integers[index];
 
-            int this[int first, int second]
-            {
-                get => Integers[first] + Integers[second];
-            }
+            int this[int first, int second] => Integers[first] + Integers[second];
         }
 
         class GetSetClass
         {
-            public int[] Integers { get; } = new int[] { 0, 1, 2 };
+            public int[] Integers { get; } = { 0, 1, 2 };
 
             int this[int index]
             {
