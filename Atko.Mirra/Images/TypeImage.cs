@@ -18,26 +18,40 @@ namespace Atko.Mirra.Images
 
         static Lazy<TypeImage[]> LazyAll = new Lazy<TypeImage[]>(() => GetAllTypes().Select(Get).ToArray());
 
-        static Cache<Type, TypeImage> Cache { get; } = new Cache<Type, TypeImage>();
-
         static Lazy<Dictionary<Type, Type[]>> LazySubclassMap { get; } =
             new Lazy<Dictionary<Type, Type[]>>(GetSubclassMap);
 
-        public static implicit operator Type([AllowNull] TypeImage image)
-        {
-            return image == null ? null : image.Type;
-        }
+        static Cache<Type, TypeImage> Cache { get; } = new Cache<Type, TypeImage>();
 
-        public static implicit operator TypeImage([AllowNull] Type type)
-        {
-            return type == null ? null : Get(type);
-        }
+        /// <summary>
+        /// Implicitly convert a <see cref="TypeImage"/> into its associated <see cref="Type"/>.
+        /// </summary>
+        /// <param name="image">The <see cref="TypeImage"/> to convert.</param>
+        /// <returns>The associated <see cref="Type"/>.</returns>
+        public static implicit operator Type([AllowNull] TypeImage image) => image == null ? null : image.Type;
 
+        /// <summary>
+        /// Implicitly convert a <see cref="Type"/> into its associated <see cref="TypeImage"/>.
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> to convert.</param>
+        /// <returns>The associated <see cref="TypeImage"/>.</returns>
+        public static implicit operator TypeImage([AllowNull] Type type) => type == null ? null : Get(type);
+
+        /// <summary>
+        /// Return the <see cref="TypeImage"/> associated with the provided <see cref="Type"/>./>
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> to get the <see cref="TypeImage"/> of.</param>
+        /// <returns>The associated <see cref="TypeImage"/>.</returns>
         public static TypeImage Get(Type type)
         {
             return Cache.GetOrAdd(type, (input) => new TypeImage(input));
         }
 
+        /// <summary>
+        /// Return the <see cref="TypeImage"/> associated with the provided <see cref="Type"/>./>
+        /// </summary>
+        /// <typeparam name="T">The <see cref="Type"/> to get the <see cref="TypeImage"/> of.</typeparam>
+        /// <returns>The associated <see cref="TypeImage"/>.</returns>
         public static TypeImage Get<T>()
         {
             return StaticCache<T>.Instance;
@@ -85,13 +99,27 @@ namespace Atko.Mirra.Images
                 (current) => current.Value.Count == 0 ? ArrayUtility<Type>.Empty : current.Value.ToArray());
         }
 
+        /// <summary>
+        /// The inner <see cref="Type"/> of the <see cref="TypeImage"/>.
+        /// </summary>
         public Type Type => (Type)Member;
 
+        /// <summary>
+        /// The <see cref="Assembly"/> the <see cref="TypeImage"/> belongs to.
+        /// </summary>
         public Assembly Assembly => Type.Assembly;
 
+        /// <summary>
+        /// The base type of the <see cref="TypeImage"/>. Null if the current <see cref="TypeImage"/> is
+        /// <see cref="object"/>.
+        /// </summary>
         [AllowNull]
         public TypeImage Base { get; }
 
+        /// <summary>
+        /// Ascend the inheritance tree, yielding all classes from this <see cref="TypeImage"/> up to
+        /// <see cref="object"/>.
+        /// </summary>
         public IEnumerable<TypeImage> Inheritance
         {
             get
@@ -105,37 +133,121 @@ namespace Atko.Mirra.Images
             }
         }
 
-        public IEnumerable<TypeImage> Ancestors => Base?.Inheritance ?? Enumerable.Empty<TypeImage>();
+        /// <summary>
+        /// Yield all <see cref="TypeImage"/>s that directly inherit or implement this <see cref="TypeImage"/>.
+        /// </summary>
+        public IEnumerable<TypeImage> Subclasses => LazySubclasses.Value;
+
+        /// <summary>
+        /// Yield all <see cref="TypeImage"/>s that inherit or implement this <see cref="TypeImage"/>.
+        /// </summary>
         public IEnumerable<TypeImage> Descendants => new TypeTreeEnumerable(this, true);
+
+        /// <summary>
+        /// Yield this <see cref="TypeImage"/> followed by all <see cref="TypeImage"/>s that inherit or implement
+        /// this <see cref="TypeImage"/>.
+        /// </summary>
         public IEnumerable<TypeImage> Tree => new TypeTreeEnumerable(this, false);
 
+        /// <summary>
+        /// Ascend the inheritance tree, yielding all classes from the base class of this <see cref="TypeImage"/> up to
+        /// <see cref="object"/>.
+        /// </summary>
+        public IEnumerable<TypeImage> Ancestors => Base?.Inheritance ?? Enumerable.Empty<TypeImage>();
+
+        /// <summary>
+        /// Yield all interfaces implemented by this <see cref="TypeImage"/>.
+        /// </summary>
         public IEnumerable<TypeImage> Interfaces => LazyInterfaces.Value;
+
+        /// <summary>
+        /// Yield all constructors available for this <see cref="TypeImage"/>.
+        /// </summary>
         public IEnumerable<ConstructorImage> Constructors => LazyConstructors.Value;
 
+        /// <summary>
+        /// True if the <see cref="TypeImage"/> has public visibility.
+        /// </summary>
         public override bool IsPublic => Type.IsPublic;
+
+        /// <summary>
+        /// True if the <see cref="TypeImage"/> is a static class.
+        /// </summary>
         public override bool IsStatic => Type.IsAbstract && Type.IsSealed;
 
+        /// <summary>
+        /// True if the <see cref="TypeImage"/> can be constructed directly. For this to be true it cannot be abstract
+        /// class or an interface.
+        /// </summary>
         public bool IsConstructable => !Type.IsAbstract && !Type.IsInterface;
 
+        /// <summary>
+        /// True if the <see cref="TypeImage"/> is generic, supporting generic parameters.
+        /// </summary>
         public bool IsGeneric => Type.IsGenericType;
+
+        /// <summary>
+        /// True if the <see cref="TypeImage"/> is a generic definition.
+        /// </summary>
         public bool IsGenericDefinition => Type.IsGenericTypeDefinition;
+
+        /// <summary>
+        /// True if the <see cref="TypeImage"/> is an array.
+        /// </summary>
         public bool IsArray => Type.IsArray;
+
+        /// <summary>
+        /// True if the <see cref="TypeImage"/> is an enum.
+        /// </summary>
         public bool IsEnum => Type.IsEnum;
+
+        /// <summary>
+        /// True if the <see cref="TypeImage"/> is a class.
+        /// </summary>
         public bool IsClass => Type.IsClass;
+
+        /// <summary>
+        /// True if the <see cref="TypeImage"/> is an interface.
+        /// </summary>
         public bool IsInterface => Type.IsInterface;
+
+        /// <summary>
+        /// True if the <see cref="TypeImage"/> is a struct.
+        /// </summary>
         public bool IsStruct => Type.IsValueType;
+
+        /// <summary>
+        /// True if the <see cref="TypeImage"/> is a primitive.
+        /// </summary>
         public bool IsPrimitive => Type.IsPrimitive;
+
+        /// <summary>
+        /// True if the <see cref="TypeImage"/> is a sealed class.
+        /// </summary>
         public bool IsSealed => Type.IsSealed;
+
+        /// <summary>
+        /// True if the <see cref="TypeImage"/> is an abstract class.
+        /// </summary>
         public bool IsAbstract => Type.IsAbstract;
 
+        /// <summary>
+        /// The number of generic arguments the <see cref="TypeImage"/> requires. This is zero if the
+        /// <see cref="TypeImage"/> is not generic.
+        /// </summary>
         public int GenericArgumentCount => LazyGenericArguments.Value.Length;
 
+        /// <summary>
+        /// The generic definition of the <see cref="TypeImage"/>.
+        /// If the <see cref="TypeImage"/> is not a generic type or is already a generic definition, the same
+        /// <see cref="TypeImage"/> will be returned.
+        /// </summary>
         public TypeImage GenericDefinition =>
             IsGeneric && !IsGenericDefinition
                 ? Get(Type.GetGenericTypeDefinition())
                 : this;
 
-        Cache<Type, Type> AssignableTypeCache { get; } = new Cache<Type, Type>();
+        Cache<Type, TypeImage> AssignableTypeCache { get; } = new Cache<Type, TypeImage>();
 
         Lazy<TypeImage[]> LazyInterfaces { get; }
         Lazy<ConstructorImage[]> LazyConstructors { get; }
@@ -156,8 +268,6 @@ namespace Atko.Mirra.Images
         Lazy<Dictionary<string, FieldImage>> LazyFieldMap { get; }
         Lazy<Dictionary<ArrayHash<Type>, IndexerImage>> LazyIndexerMap { get; }
 
-        public IEnumerable<TypeImage> Subclasses => LazySubclasses.Value;
-
         Lazy<TypeImage[]> LazySubclasses { get; }
         Lazy<TypeImage[]> LazyGenericArguments { get; }
 
@@ -170,48 +280,55 @@ namespace Atko.Mirra.Images
                     ? Type.GetGenericArguments().Select(Get).ToArray()
                     : ArrayUtility<TypeImage>.Empty);
 
-            LazySubclasses = new Lazy<TypeImage[]>(() =>
             {
-                LazySubclassMap.Value.TryGetValue(Type, out var subclasses);
-                return subclasses != null
-                    ? subclasses.Select(Get).ToArray()
-                    : ArrayUtility<TypeImage>.Empty;
-            });
+                LazySubclasses = new Lazy<TypeImage[]>(() =>
+                {
+                    LazySubclassMap.Value.TryGetValue(Type, out var subclasses);
+                    return subclasses != null
+                        ? subclasses.Select(Get).ToArray()
+                        : ArrayUtility<TypeImage>.Empty;
+                });
 
-            LazyInterfaces = new Lazy<TypeImage[]>(GetInterfaces);
-            LazyConstructors = new Lazy<ConstructorImage[]>(GetConstructors);
+                LazyInterfaces = new Lazy<TypeImage[]>(GetInterfaces);
+            }
 
-            LazyLocalMethods = new Lazy<MethodImage[]>(GetLocalMethods);
-            LazyLocalProperties = new Lazy<PropertyImage[]>(GetLocalProperties);
-            LazyLocalFields = new Lazy<FieldImage[]>(GetLocalFields);
-            LazyLocalIndexers = new Lazy<IndexerImage[]>(GetLocalIndexers);
+            {
+                LazyConstructors = new Lazy<ConstructorImage[]>(GetConstructors);
 
-            LazySurfaceMethods = new Lazy<MethodImage[]>(() => GetSurfaceMembers(Methods(MemberQuery.All)));
-            LazySurfaceProperties = new Lazy<PropertyImage[]>(() => GetSurfaceMembers(Properties(MemberQuery.All)));
-            LazySurfaceFields = new Lazy<FieldImage[]>(() => GetSurfaceMembers(Fields(MemberQuery.All)));
-            LazySurfaceIndexers = new Lazy<IndexerImage[]>(() => GetSurfaceMembers(Indexers(MemberQuery.All)));
+                LazyLocalMethods = new Lazy<MethodImage[]>(GetLocalMethods);
+                LazyLocalProperties = new Lazy<PropertyImage[]>(GetLocalProperties);
+                LazyLocalFields = new Lazy<FieldImage[]>(GetLocalFields);
+                LazyLocalIndexers = new Lazy<IndexerImage[]>(GetLocalIndexers);
 
-            LazyConstructorMap = new Lazy<Dictionary<ArrayHash<Type>, ConstructorImage>>(() =>
-                Constructors
-                    .ToDictionaryByFirst((current) => HashTypes(current.Constructor.GetParameters())));
+                LazySurfaceMethods = new Lazy<MethodImage[]>(() => GetSurfaceMembers(Methods(MemberQuery.All)));
+                LazySurfaceProperties = new Lazy<PropertyImage[]>(() => GetSurfaceMembers(Properties(MemberQuery.All)));
+                LazySurfaceFields = new Lazy<FieldImage[]>(() => GetSurfaceMembers(Fields(MemberQuery.All)));
+                LazySurfaceIndexers = new Lazy<IndexerImage[]>(() => GetSurfaceMembers(Indexers(MemberQuery.All)));
+            }
 
-            LazyMethodMap = new Lazy<Dictionary<Pair<string, ArrayHash<Type>>, MethodImage>>(() =>
-                Methods(MemberQuery.All)
-                    .ToDictionaryByFirst((current) =>
-                        new Pair<string, ArrayHash<Type>>(current.ShortName,
-                            HashTypes(current.Method.GetParameters()))));
+            {
+                LazyConstructorMap = new Lazy<Dictionary<ArrayHash<Type>, ConstructorImage>>(() =>
+                    Constructors
+                        .ToDictionaryByFirst((current) => HashTypes(current.Constructor.GetParameters())));
 
-            LazyPropertyMap = new Lazy<Dictionary<string, PropertyImage>>(() =>
-                Properties(MemberQuery.All)
-                    .ToDictionaryByFirst((current) => current.ShortName));
+                LazyMethodMap = new Lazy<Dictionary<Pair<string, ArrayHash<Type>>, MethodImage>>(() =>
+                    Methods(MemberQuery.All)
+                        .ToDictionaryByFirst((current) =>
+                            new Pair<string, ArrayHash<Type>>(current.ShortName,
+                                HashTypes(current.Method.GetParameters()))));
 
-            LazyFieldMap = new Lazy<Dictionary<string, FieldImage>>(() =>
-                Fields(MemberQuery.All)
-                    .ToDictionaryByFirst((current) => current.ShortName));
+                LazyPropertyMap = new Lazy<Dictionary<string, PropertyImage>>(() =>
+                    Properties(MemberQuery.All)
+                        .ToDictionaryByFirst((current) => current.ShortName));
 
-            LazyIndexerMap = new Lazy<Dictionary<ArrayHash<Type>, IndexerImage>>(() =>
-                Indexers(MemberQuery.All)
-                    .ToDictionaryByFirst((current) => HashTypes(current.Property.GetIndexParameters())));
+                LazyFieldMap = new Lazy<Dictionary<string, FieldImage>>(() =>
+                    Fields(MemberQuery.All)
+                        .ToDictionaryByFirst((current) => current.ShortName));
+
+                LazyIndexerMap = new Lazy<Dictionary<ArrayHash<Type>, IndexerImage>>(() =>
+                    Indexers(MemberQuery.All)
+                        .ToDictionaryByFirst((current) => HashTypes(current.Property.GetIndexParameters())));
+            }
         }
 
         public override string ToString()
@@ -219,13 +336,24 @@ namespace Atko.Mirra.Images
             return $"{nameof(TypeImage)}({Type})";
         }
 
+        /// <summary>
+        /// Returns true if the type of the <see cref="TypeImage"/> is assignable to the specified type.
+        /// </summary>
+        /// <param name="target">The type to which assignability will be determined.</param>
+        /// <returns>True if the <see cref="TypeImage"/> can be assigned.</returns>
         public bool IsAssignableTo(Type target)
         {
             return AssignableType(target) != null;
         }
 
+        /// <summary>
+        /// Returns the type this <see cref="TypeImage"/> has inherited from or implemented in order to make it
+        /// assignable to the provided target type. Returns null if the <see cref="TypeImage"/> is not assignable.
+        /// </summary>
+        /// <param name="target">The type to which the assignable type will be determined.</param>
+        /// <returns>The <see cref="TypeImage"/> of the assignable type, or null if it doesn't exist.</returns>
         [return: AllowNull]
-        public Type AssignableType(Type target)
+        public TypeImage AssignableType(Type target)
         {
             if (Type == target)
             {
@@ -243,11 +371,7 @@ namespace Atko.Mirra.Images
 
             foreach (var image in Inheritance.Concat(Interfaces))
             {
-                var definition = image.Type.IsGenericType
-                    ? image.Type.GetGenericTypeDefinition()
-                    : image.Type;
-
-                if (definition == target)
+                if (image.GenericDefinition == target)
                 {
                     return AssignableTypeCache[target] = image.Type;
                 }
@@ -256,6 +380,12 @@ namespace Atko.Mirra.Images
             return AssignableTypeCache[target] = null;
         }
 
+        /// <summary>
+        /// Returns the <see cref="TypeImage"/> of the generic argument at the provided index. Throws an
+        /// <see cref="IndexOutOfRangeException"/> if the index is out of bounds.
+        /// </summary>
+        /// <param name="index">The index of the generic argument to retrieve.</param>
+        /// <returns>The <see cref="TypeImage"/> of the generic argument.</returns>
         public TypeImage GenericArgument(int index)
         {
             try
@@ -268,13 +398,19 @@ namespace Atko.Mirra.Images
             }
         }
 
-        public TypeImage CreateGeneric(params Type[] genericArguments)
+        /// <summary>
+        /// Convert the <see cref="TypeImage"/>, representing a generic definition, into the <see cref="TypeImage"/>
+        /// of a real generic type.
+        /// </summary>
+        /// <param name="arguments">The generic arguments to use to create the generic type.</param>
+        /// <returns>The <see cref="TypeImage"/> of the created generic type.</returns>
+        public TypeImage CreateGeneric(params Type[] arguments)
         {
-            AssertIsGeneric();
+            AssertIsGenericDefinition();
 
             try
             {
-                return Type.MakeGenericType(genericArguments);
+                return Type.MakeGenericType(arguments);
             }
             catch (ArgumentException)
             {
@@ -526,7 +662,7 @@ namespace Atko.Mirra.Images
             return unique.ToArray();
         }
 
-        void AssertIsGeneric()
+        void AssertIsGenericDefinition()
         {
             if (Type.IsGenericTypeDefinition)
             {
