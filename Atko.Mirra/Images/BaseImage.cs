@@ -10,8 +10,14 @@ namespace Atko.Mirra.Images
 {
     public abstract class BaseImage
     {
+        /// <summary>
+        /// The name of the member.
+        /// </summary>
         public string Name => Member.Name;
 
+        /// <summary>
+        /// The non-qualified name of the member.
+        /// </summary>
         public string ShortName { get; }
 
         public bool IsCompilerGenerated { get; }

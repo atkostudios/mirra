@@ -7,6 +7,9 @@ using NullGuard;
 
 namespace Atko.Mirra.Images
 {
+    /// <summary>
+    /// Wrapper class for <see cref="Type"/> that provides extended functionality and reflection performance.
+    /// </summary>
     public class TypeImage : BaseImage
     {
         static class StaticCache<T>
@@ -14,6 +17,10 @@ namespace Atko.Mirra.Images
             public static TypeImage Instance { get; } = Get(typeof(T));
         }
 
+        /// <summary>
+        /// Iterate over every type from all assemblies in the current program.
+        /// </summary>
+        /// <returns>Every type from all assemblies in the current program.</returns>
         public static IEnumerable<TypeImage> All => LazyAll.Value.Iterate();
 
         static Lazy<TypeImage[]> LazyAll = new Lazy<TypeImage[]>(() => GetAllTypes().Select(Get).ToArray());
@@ -418,6 +425,11 @@ namespace Atko.Mirra.Images
             }
         }
 
+        /// <summary>
+        /// Get the constructor with the provided parameter types. Returns null if not found.
+        /// </summary>
+        /// <param name="types">The parameter types to match.</param>
+        /// <returns>The constructor or null if it does not exist.</returns>
         [return: AllowNull]
         public ConstructorImage Constructor(params Type[] types)
         {
@@ -426,6 +438,12 @@ namespace Atko.Mirra.Images
             return image;
         }
 
+        /// <summary>
+        /// Get the method with the provided name and parameter types. Returns null if not found.
+        /// </summary>
+        /// <param name="name">The name of the method to find.</param>
+        /// <param name="types">The parameter types to match.</param>
+        /// <returns>The method or null if it does not exist.</returns>
         [return: AllowNull]
         public MethodImage Method(string name, params Type[] types)
         {
@@ -434,6 +452,11 @@ namespace Atko.Mirra.Images
             return image;
         }
 
+        /// <summary>
+        /// Get the property with the provided name. Returns null if not found.
+        /// </summary>
+        /// <param name="name">The name of the property to find.</param>
+        /// <returns>The property or null if it does not exist.</returns>
         [return: AllowNull]
         public PropertyImage Property(string name)
         {
@@ -441,6 +464,11 @@ namespace Atko.Mirra.Images
             return image;
         }
 
+        /// <summary>
+        /// Get the field with the provided name. Returns null if not found.
+        /// </summary>
+        /// <param name="name">The name of the field to find.</param>
+        /// <returns>The field or null if it does not exist.</returns>
         [return: AllowNull]
         public FieldImage Field(string name)
         {
@@ -448,6 +476,11 @@ namespace Atko.Mirra.Images
             return image;
         }
 
+        /// <summary>
+        /// Get the property or field with the provided name. Returns null if not found.
+        /// </summary>
+        /// <param name="name">The name of the property or field to find.</param>
+        /// <returns>The property, field or null if it does not exist.</returns>
         [return: AllowNull]
         public AccessorImage Accessor(string name)
         {
@@ -461,6 +494,11 @@ namespace Atko.Mirra.Images
             return field;
         }
 
+        /// <summary>
+        /// Get the indexer with the provided parameter type(s). Returns null if not found.
+        /// </summary>
+        /// <param name="types">The parameter types to match.</param>
+        /// <returns>The indexer or null if it does not exist.</returns>
         [return: AllowNull]
         public IndexerImage Indexer(params Type[] types)
         {
@@ -468,14 +506,19 @@ namespace Atko.Mirra.Images
             return indexer;
         }
 
+        /// <summary>
+        /// Return all methods on the type matching a provided <see cref="MemberQuery"/>.
+        /// </summary>
+        /// <param name="query">The query type.</param>
+        /// <returns>All methods matching the query.</returns>
         public IEnumerable<MethodImage> Methods(MemberQuery query = default(MemberQuery))
         {
             switch (query)
             {
                 case MemberQuery.Surface:
-                    return LazySurfaceMethods.Value;
+                    return LazySurfaceMethods.Value.Iterate();
                 case MemberQuery.Local:
-                    return LazyLocalMethods.Value;
+                    return LazyLocalMethods.Value.Iterate();
                 case MemberQuery.All:
                     return Inheritance.SelectMany((current) => current.LazyLocalMethods.Value);
             }
@@ -483,14 +526,19 @@ namespace Atko.Mirra.Images
             return Enumerable.Empty<MethodImage>();
         }
 
+        /// <summary>
+        /// Return all fields on the type matching a provided <see cref="MemberQuery"/>.
+        /// </summary>
+        /// <param name="query">The query type.</param>
+        /// <returns>All fields matching the query.</returns>
         public IEnumerable<FieldImage> Fields(MemberQuery query = default(MemberQuery))
         {
             switch (query)
             {
                 case MemberQuery.Surface:
-                    return LazySurfaceFields.Value;
+                    return LazySurfaceFields.Value.Iterate();
                 case MemberQuery.Local:
-                    return LazyLocalFields.Value;
+                    return LazyLocalFields.Value.Iterate();
                 case MemberQuery.All:
                     return Inheritance.SelectMany((current) => current.LazyLocalFields.Value);
             }
@@ -498,14 +546,19 @@ namespace Atko.Mirra.Images
             return Enumerable.Empty<FieldImage>();
         }
 
+        /// <summary>
+        /// Return all properties on the type matching a provided <see cref="MemberQuery"/>.
+        /// </summary>
+        /// <param name="query">The query type.</param>
+        /// <returns>All properties matching the query.</returns>
         public IEnumerable<PropertyImage> Properties(MemberQuery query = default(MemberQuery))
         {
             switch (query)
             {
                 case MemberQuery.Surface:
-                    return LazySurfaceProperties.Value;
+                    return LazySurfaceProperties.Value.Iterate();
                 case MemberQuery.Local:
-                    return LazyLocalProperties.Value;
+                    return LazyLocalProperties.Value.Iterate();
                 case MemberQuery.All:
                     return Inheritance.SelectMany((current) => current.LazyLocalProperties.Value);
             }
@@ -513,6 +566,11 @@ namespace Atko.Mirra.Images
             return Enumerable.Empty<PropertyImage>();
         }
 
+        /// <summary>
+        /// Return all properties and fields on the type matching a provided <see cref="MemberQuery"/>.
+        /// </summary>
+        /// <param name="query">The query type.</param>
+        /// <returns>All properties and fields matching the query.</returns>
         public IEnumerable<AccessorImage> Accessors(MemberQuery query = default(MemberQuery))
         {
             foreach (var image in Properties(query))
@@ -526,14 +584,19 @@ namespace Atko.Mirra.Images
             }
         }
 
+        /// <summary>
+        /// Return all indexers on the type matching a provided <see cref="MemberQuery"/>.
+        /// </summary>
+        /// <param name="query">The query type.</param>
+        /// <returns>All indexers matching the query.</returns>
         public IEnumerable<IndexerImage> Indexers(MemberQuery query = default(MemberQuery))
         {
             switch (query)
             {
                 case MemberQuery.Surface:
-                    return LazySurfaceIndexers.Value;
+                    return LazySurfaceIndexers.Value.Iterate();
                 case MemberQuery.Local:
-                    return LazyLocalIndexers.Value;
+                    return LazyLocalIndexers.Value.Iterate();
                 case MemberQuery.All:
                     return Inheritance.SelectMany((current) => current.LazyLocalIndexers.Value);
             }

@@ -5,6 +5,10 @@ using NullGuard;
 
 namespace Atko.Mirra.Images
 {
+    /// <summary>
+    /// Wrapper class for both <see cref="PropertyImage"/> and <see cref="FieldImage"/> that provides extended
+    /// functionality and reflection performance.
+    /// </summary>
     public abstract class AccessorImage : GetSetImage
     {
         Lazy<InstanceGetInvoker> LazyInstanceGetInvoker { get; }
@@ -26,6 +30,13 @@ namespace Atko.Mirra.Images
             LazyInstanceSetInvoker = new Lazy<InstanceSetInvoker>(() => CodeGenerator.Instance.InstanceSetter(Member));
         }
 
+        /// <summary>
+        /// Get the value of the property or field on a provided instance object.
+        /// If the property or field is non-static, the instance parameter must be an instance of the correct type.
+        /// If the property or field is static, the instance parameter must be null.
+        /// </summary>
+        /// <param name="instance">The instance to get the property or field value from.</param>
+        /// <returns>The value of the property or field.</returns>
         [return: AllowNull]
         public object Get([AllowNull] object instance)
         {
@@ -51,6 +62,14 @@ namespace Atko.Mirra.Images
             }
         }
 
+        /// <summary>
+        /// Set the value of the property or field on a provided instance object.
+        /// If the property or field is non-static, the instance parameter must be an instance of the correct type.
+        /// If the property or field is static, the instance parameter must be null.
+        /// </summary>
+        /// <param name="instance">The instance to set the property or field value on.</param>
+        /// <param name="value">The value to assign to the property or field.</param>
+        /// <summary>
         public void Set([AllowNull] object instance, [AllowNull] object value)
         {
             AssertCanSet();
