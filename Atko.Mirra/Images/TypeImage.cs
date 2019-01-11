@@ -159,16 +159,6 @@ namespace Atko.Mirra.Images
         /// </summary>
         public IEnumerable<TypeImage> Ancestors => Base?.Inheritance ?? Enumerable.Empty<TypeImage>();
 
-        /// <summary>
-        /// Yield all interfaces implemented by this type.
-        /// </summary>
-        public IEnumerable<TypeImage> Interfaces => LazyInterfaces.Value;
-
-        /// <summary>
-        /// Yield all constructors available for this type.
-        /// </summary>
-        public IEnumerable<ConstructorImage> Constructors => LazyConstructors.Value;
-
         /// <inheritdoc/>
         public override bool IsPublic => Type.IsPublic;
 
@@ -247,9 +237,8 @@ namespace Atko.Mirra.Images
 
         Cache<Type, TypeImage> AssignableTypeCache { get; } = new Cache<Type, TypeImage>();
 
-        Lazy<TypeImage[]> LazyInterfaces { get; }
-        Lazy<ConstructorImage[]> LazyConstructors { get; }
-
+        Lazy<TypeImage[]> LazyLocalInterfaces { get; }
+        Lazy<ConstructorImage[]> LazyLocalConstructors { get; }
         Lazy<MethodImage[]> LazyLocalMethods { get; }
         Lazy<PropertyImage[]> LazyLocalProperties { get; }
         Lazy<FieldImage[]> LazyLocalFields { get; }
@@ -286,13 +275,11 @@ namespace Atko.Mirra.Images
                         ? subclasses.Select(Get).ToArray()
                         : ArrayUtility<TypeImage>.Empty;
                 });
-
-                LazyInterfaces = new Lazy<TypeImage[]>(GetInterfaces);
             }
 
             {
-                LazyConstructors = new Lazy<ConstructorImage[]>(GetConstructors);
-
+                LazyLocalInterfaces = new Lazy<TypeImage[]>(GetLocalInterfaces);
+                LazyLocalConstructors = new Lazy<ConstructorImage[]>(GetLocalConstructors);
                 LazyLocalMethods = new Lazy<MethodImage[]>(GetLocalMethods);
                 LazyLocalProperties = new Lazy<PropertyImage[]>(GetLocalProperties);
                 LazyLocalFields = new Lazy<FieldImage[]>(GetLocalFields);
@@ -306,7 +293,7 @@ namespace Atko.Mirra.Images
 
             {
                 LazyConstructorMap = new Lazy<Dictionary<ArrayHash<Type>, ConstructorImage>>(() =>
-                    Constructors
+                    Constructors(MemberQuery.All)
                         .ToDictionaryByFirst((current) => HashTypes(current.Constructor.GetParameters())));
 
                 LazyMethodMap = new Lazy<Dictionary<Pair<string, ArrayHash<Type>>, MethodImage>>(() =>
@@ -367,7 +354,7 @@ namespace Atko.Mirra.Images
                 ? target.GetGenericTypeDefinition()
                 : target;
 
-            foreach (var image in Inheritance.Concat(Interfaces))
+            foreach (var image in Inheritance.Concat(Interfaces(MemberQuery.Local)))
             {
                 if (image.GenericDefinition == target)
                 {
@@ -498,6 +485,35 @@ namespace Atko.Mirra.Images
         }
 
         /// <summary>
+        /// Return all interfaces on the type matching a provided <see cref="MemberQuery"/>.
+        /// </summary>
+        /// <param name="query">The query type.</param>
+        /// <returns>All interfaces matching the query.</returns>
+        public IEnumerable<TypeImage> Interfaces(MemberQuery query = default(MemberQuery))
+        {
+            switch (query)
+            {
+                case MemberQuery.Surface:
+                case MemberQuery.Local:
+                    return LazyLocalInterfaces.Value.Iterate();
+                case MemberQuery.All:
+                    return Inheritance.SelectMany((current) => current.LazyLocalInterfaces.Value);
+            }
+
+            return Enumerable.Empty<TypeImage>();
+        }
+
+        /// <summary>
+        /// Return all constructors on the type matching a provided <see cref="MemberQuery"/>.
+        /// </summary>
+        /// <param name="query">The query type.</param>
+        /// <returns>All constructors matching the query.</returns>
+        public IEnumerable<ConstructorImage> Constructors(MemberQuery query = default(MemberQuery))
+        {
+            return LazyLocalConstructors.Value.Iterate();
+        }
+
+        /// <summary>
         /// Return all methods on the type matching a provided <see cref="MemberQuery"/>.
         /// </summary>
         /// <param name="query">The query type.</param>
@@ -595,15 +611,15 @@ namespace Atko.Mirra.Images
             return Enumerable.Empty<IndexerImage>();
         }
 
-        TypeImage[] GetInterfaces()
+        TypeImage[] GetLocalInterfaces()
         {
-            return TypeUtility.Inheritance(Type)
-                .SelectMany((current) => current.GetInterfaces())
+            return Type
+                .GetInterfaces()
                 .Select(Get)
                 .ToArray();
         }
 
-        ConstructorImage[] GetConstructors()
+        ConstructorImage[] GetLocalConstructors()
         {
             return Type
                 .GetConstructors(TypeUtility.InstanceBinding)
@@ -701,7 +717,7 @@ namespace Atko.Mirra.Images
             return images.ToArray();
         }
 
-        T[] GetSurfaceMembers<T>(IEnumerable<T> images) where T : TypeMemberImage
+        T[] GetSurfaceMembers<T>(IEnumerable<T> images) where T : MemberImage
         {
             var seen = new HashSet<string>();
             var unique = new List<T>();
