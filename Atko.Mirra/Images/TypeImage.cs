@@ -242,11 +242,13 @@ namespace Atko.Mirra.Images
         Lazy<MethodImage[]> LazyLocalMethods { get; }
         Lazy<PropertyImage[]> LazyLocalProperties { get; }
         Lazy<FieldImage[]> LazyLocalFields { get; }
+        Lazy<AccessorImage[]> LazyLocalAccessors { get; }
         Lazy<IndexerImage[]> LazyLocalIndexers { get; }
 
         Lazy<MethodImage[]> LazySurfaceMethods { get; }
         Lazy<PropertyImage[]> LazySurfaceProperties { get; }
         Lazy<FieldImage[]> LazySurfaceFields { get; }
+        Lazy<AccessorImage[]> LazySurfaceAccessors { get; }
         Lazy<IndexerImage[]> LazySurfaceIndexers { get; }
 
         Lazy<Dictionary<ArrayHash<Type>, ConstructorImage>> LazyConstructorMap { get; }
@@ -283,12 +285,14 @@ namespace Atko.Mirra.Images
                 LazyLocalMethods = new Lazy<MethodImage[]>(GetLocalMethods);
                 LazyLocalProperties = new Lazy<PropertyImage[]>(GetLocalProperties);
                 LazyLocalFields = new Lazy<FieldImage[]>(GetLocalFields);
+                LazyLocalAccessors = new Lazy<AccessorImage[]>(GetLocalAccessors);
                 LazyLocalIndexers = new Lazy<IndexerImage[]>(GetLocalIndexers);
 
-                LazySurfaceMethods = new Lazy<MethodImage[]>(() => GetSurfaceMembers(Methods(MemberQuery.All)));
-                LazySurfaceProperties = new Lazy<PropertyImage[]>(() => GetSurfaceMembers(Properties(MemberQuery.All)));
-                LazySurfaceFields = new Lazy<FieldImage[]>(() => GetSurfaceMembers(Fields(MemberQuery.All)));
-                LazySurfaceIndexers = new Lazy<IndexerImage[]>(() => GetSurfaceMembers(Indexers(MemberQuery.All)));
+                LazySurfaceMethods = new Lazy<MethodImage[]>(() => GetSurfaceMembers(GetAllMethods()));
+                LazySurfaceProperties = new Lazy<PropertyImage[]>(() => GetSurfaceMembers(GetAllProperties()));
+                LazySurfaceFields = new Lazy<FieldImage[]>(() => GetSurfaceMembers(GetAllFields()));
+                LazySurfaceAccessors = new Lazy<AccessorImage[]>(() => GetSurfaceMembers(GetAllAccessors()));
+                LazySurfaceIndexers = new Lazy<IndexerImage[]>(() => GetSurfaceIndexers(GetAllIndexers()));
             }
 
             {
@@ -527,30 +531,10 @@ namespace Atko.Mirra.Images
                 case MemberQuery.Local:
                     return LazyLocalMethods.Value.Iterate();
                 case MemberQuery.All:
-                    return Inheritance.SelectMany((current) => current.LazyLocalMethods.Value);
+                    return GetAllMethods();
             }
 
             return Enumerable.Empty<MethodImage>();
-        }
-
-        /// <summary>
-        /// Return all fields on the type matching a provided <see cref="MemberQuery"/>.
-        /// </summary>
-        /// <param name="query">The query type.</param>
-        /// <returns>All fields matching the query.</returns>
-        public IEnumerable<FieldImage> Fields(MemberQuery query = default(MemberQuery))
-        {
-            switch (query)
-            {
-                case MemberQuery.Surface:
-                    return LazySurfaceFields.Value.Iterate();
-                case MemberQuery.Local:
-                    return LazyLocalFields.Value.Iterate();
-                case MemberQuery.All:
-                    return Inheritance.SelectMany((current) => current.LazyLocalFields.Value);
-            }
-
-            return Enumerable.Empty<FieldImage>();
         }
 
         /// <summary>
@@ -567,10 +551,30 @@ namespace Atko.Mirra.Images
                 case MemberQuery.Local:
                     return LazyLocalProperties.Value.Iterate();
                 case MemberQuery.All:
-                    return Inheritance.SelectMany((current) => current.LazyLocalProperties.Value);
+                    return GetAllProperties();
             }
 
             return Enumerable.Empty<PropertyImage>();
+        }
+
+        /// <summary>
+        /// Return all fields on the type matching a provided <see cref="MemberQuery"/>.
+        /// </summary>
+        /// <param name="query">The query type.</param>
+        /// <returns>All fields matching the query.</returns>
+        public IEnumerable<FieldImage> Fields(MemberQuery query = default(MemberQuery))
+        {
+            switch (query)
+            {
+                case MemberQuery.Surface:
+                    return LazySurfaceFields.Value.Iterate();
+                case MemberQuery.Local:
+                    return LazyLocalFields.Value.Iterate();
+                case MemberQuery.All:
+                    return GetAllFields();
+            }
+
+            return Enumerable.Empty<FieldImage>();
         }
 
         /// <summary>
@@ -580,15 +584,17 @@ namespace Atko.Mirra.Images
         /// <returns>All properties and fields matching the query.</returns>
         public IEnumerable<AccessorImage> Accessors(MemberQuery query = default(MemberQuery))
         {
-            foreach (var image in Properties(query))
+            switch (query)
             {
-                yield return image;
+                case MemberQuery.Surface:
+                    return LazySurfaceAccessors.Value.Iterate();
+                case MemberQuery.Local:
+                    return LazyLocalAccessors.Value.Iterate();
+                case MemberQuery.All:
+                    return GetAllAccessors();
             }
 
-            foreach (var image in Fields(query))
-            {
-                yield return image;
-            }
+            return Enumerable.Empty<AccessorImage>();
         }
 
         /// <summary>
@@ -605,10 +611,45 @@ namespace Atko.Mirra.Images
                 case MemberQuery.Local:
                     return LazyLocalIndexers.Value.Iterate();
                 case MemberQuery.All:
-                    return Inheritance.SelectMany((current) => current.LazyLocalIndexers.Value);
+                    return GetAllIndexers();
             }
 
             return Enumerable.Empty<IndexerImage>();
+        }
+
+        IEnumerable<ConstructorImage> GetAllConstructors()
+        {
+            return GetLocalConstructors();
+        }
+
+        IEnumerable<TypeImage> GetAllInterfaces()
+        {
+            return Inheritance.SelectMany((current) => current.LazyLocalInterfaces.Value);
+        }
+
+        IEnumerable<MethodImage> GetAllMethods()
+        {
+            return Inheritance.SelectMany((current) => current.LazyLocalMethods.Value);
+        }
+
+        IEnumerable<PropertyImage> GetAllProperties()
+        {
+            return Inheritance.SelectMany((current) => current.LazyLocalProperties.Value);
+        }
+
+        IEnumerable<FieldImage> GetAllFields()
+        {
+            return Inheritance.SelectMany((current) => current.LazyLocalFields.Value);
+        }
+
+        IEnumerable<AccessorImage> GetAllAccessors()
+        {
+            return Inheritance.SelectMany((current) => current.LazyLocalAccessors.Value);
+        }
+
+        IEnumerable<IndexerImage> GetAllIndexers()
+        {
+            return Inheritance.SelectMany((current) => current.LazyLocalIndexers.Value);
         }
 
         TypeImage[] GetLocalInterfaces()
@@ -697,6 +738,15 @@ namespace Atko.Mirra.Images
             return images.ToArray();
         }
 
+        AccessorImage[] GetLocalAccessors()
+        {
+            return LazyLocalProperties
+                .Value
+                .Cast<AccessorImage>()
+                .Concat(LazyLocalFields.Value)
+                .ToArray();
+        }
+
         IndexerImage[] GetLocalIndexers()
         {
             var images = new List<IndexerImage>();
@@ -715,6 +765,21 @@ namespace Atko.Mirra.Images
             images.AddRange(interfaceMembers);
 
             return images.ToArray();
+        }
+
+        IndexerImage[] GetSurfaceIndexers(IEnumerable<IndexerImage> images)
+        {
+            var seen = new HashSet<ArrayHash<Type>>();
+            var unique = new List<IndexerImage>();
+            foreach (var image in images)
+            {
+                if (seen.Add(HashTypes(image.Property.GetIndexParameters())))
+                {
+                    unique.Add(image);
+                }
+            }
+
+            return unique.ToArray();
         }
 
         T[] GetSurfaceMembers<T>(IEnumerable<T> images) where T : MemberImage
