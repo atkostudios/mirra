@@ -6,7 +6,7 @@ using NullGuard;
 namespace Atko.Mirra.Images
 {
     /// <summary>
-    /// Wrapper class for both <see cref="PropertyImage"/> and <see cref="FieldImage"/> that provides extended
+    /// Wrapper class for both <see cref="PropertyInfo"/> and <see cref="FieldInfo"/> that provides extended
     /// functionality and reflection performance.
     /// </summary>
     public abstract class AccessorImage : GetSetImage

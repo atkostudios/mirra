@@ -7,9 +7,9 @@ using NullGuard;
 
 namespace Atko.Mirra.Images
 {
-    public abstract class CallableImage : MemberImage
+    public abstract class CallableImage : TypeMemberImage
     {
-        public static bool CanCreateFrom(MethodBase method)
+        internal static bool CanCreateFrom(MethodBase method)
         {
             var parameters = method.GetParameters();
             if (TypeUtility.HasSpecialParameters(parameters))
@@ -20,7 +20,10 @@ namespace Atko.Mirra.Images
             return true;
         }
 
+        /// <inheritdoc/>
         public override bool IsPublic => Base.IsPublic;
+
+        /// <inheritdoc/>
         public override bool IsStatic => Base.IsStatic;
 
         MethodBase Base => (MethodBase)Member;

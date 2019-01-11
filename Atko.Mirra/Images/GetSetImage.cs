@@ -3,12 +3,21 @@ using System.Reflection;
 
 namespace Atko.Mirra.Images
 {
-    public abstract class GetSetImage : MemberImage
+    /// <summary>
+    /// Wrapper class for <see cref="PropertyInfo"/>, <see cref="FieldInfo"/> and <see cref="PropertyInfo"/> indexers
+    /// that provides extended functionality and reflection performance.
+    /// </summary>
+    public abstract class GetSetImage : TypeMemberImage
     {
-        public bool CanGet => true;
-
+        /// <summary>
+        /// True if the property, field or indexer can be set.
+        /// </summary>
         public abstract bool CanSet { get; }
-        public abstract Type Type { get; }
+
+        /// <summary>
+        /// The type the property, field or indexer contains or maps to.
+        /// </summary>
+        public abstract TypeImage DeclaredType { get; }
 
         protected GetSetImage(MemberInfo member) : base(member) { }
 

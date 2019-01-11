@@ -6,23 +6,37 @@ using NullGuard;
 
 namespace Atko.Mirra.Images
 {
+    /// <summary>
+    /// Wrapper class for <see cref="PropertyInfo"/> that provides extended functionality and reflection performance.
+    /// </summary>
     public class PropertyImage : AccessorImage
     {
-        public static bool CanCreateFrom(PropertyInfo property)
+        internal static bool CanCreateFrom(PropertyInfo property)
         {
             return property.GetIndexParameters().Length == 0;
         }
 
+        /// <inheritdoc/>
         public override bool IsPublic => Property.GetMethod.IsPublic || (Property.SetMethod?.IsPublic ?? false);
+
+        /// <inheritdoc/>
         public override bool IsStatic => Property.GetMethod.IsStatic;
 
+        /// <inheritdoc/>
         public override bool CanSet { get; }
 
-        public override Type Type => Property.PropertyType;
+        /// <inheritdoc/>
+        public override TypeImage DeclaredType => TypeImage.Get(Property.PropertyType);
 
+        /// <summary>
+        /// The backing field of the property. Null if the property is not an auto-property.
+        /// </summary>
         [AllowNull]
         public FieldImage BackingField { get; }
 
+        /// <summary>
+        /// The inner system property.
+        /// </summary>
         public PropertyInfo Property => (PropertyInfo)Member;
 
         internal PropertyImage(PropertyInfo member) : base(member)
