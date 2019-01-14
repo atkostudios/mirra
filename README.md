@@ -1,6 +1,6 @@
 # **Mirra**
 
-## A reflection library for .NET focused on simplicity and performance.
+## Mirra is a reflection library for .NET focused on simplicity and performance.
 
 ## **Installation**
 
@@ -8,29 +8,41 @@
 |-------------------------------------------|----------------------------------------|
 | ```dotnet package add Atko.Mirra```       | ```nuget install Atko.Mirra```         |
 
-## **Getting Started**
+
+# **Features**
+
+* Simplified interface based on the original .NET reflection API
+* Usable on all platforms
+* Performance via by lazy byte-code generation if available.
+* Fast, cached access to properties, fields, methods, indexers and constructors
+* Unified usage of fields and properties
+* 100% thread safe
+* Designed to work well with generic types
+* Easy iteration of inheritance trees
+
+# **Usage**
 
 To use `Mirra`, your entry point is ```TypeImage```. This is a wrapper for the built in system ```Type```. To access the ```TypeImage``` of a type you can use any of the following...
 
 ---
 *Dynamic Lookup*
 ```csharp
-var image = TypeImage.Get(typeof(Class));
+var type = TypeImage.Get(typeof(Class));
 ```
 
 *Static Lookup*
 ```csharp
-var image = TypeImage.Get<Class>();
+var type = TypeImage.Get<Class>();
 ```
 
 *Extension Method*
 ```csharp
-var image = typeof(Class).Image()
+var type = typeof(Class).Image()
 ```
 
 *Implicit Conversion*
 ```csharp
-var image = (TypeImage) typeof(Class)
+var type = (TypeImage) typeof(Class)
 ```
 ---
 
@@ -38,26 +50,31 @@ For the following examples, we will using these definitions...
 
 ```csharp
 class Class {
-    int Count { get; }
+    public int Count { get; }
+
+    public Class() { }
 
     public Class(int count) {
         Count = count;
+    }
+
+    public Class Add(int number) {
+        return new Class(Count + number);
     }
 }
 ```
 
 ```csharp
-var instance = (object) new Class(0);
+var instance = new Class(0);
 ```
 
 ```csharp
-var image = instance.GetType().Image();
+var type = instance.GetType().Image();
 ```
 
 ---
 
-
-## **Using Properties and Fields**
+## **Properties and Fields**
 
 * *To a property, use `TypeImage.Property(string name)`;*
 * *To access a field, use `TypeImage.Field(string name)`;*
@@ -76,14 +93,14 @@ Because of this, we don't have to worry if we are using a property or field if w
 
 #### *Accessor*
 ```csharp
-var accessor = image.Accessor(nameof(Class.Count));
+var accessor = type.Accessor(nameof(Class.Count));
 ```
 
 #### *Getting*
 
 *The value of **any** property or field can be retrieved.*
 ```csharp
-Debug.Assert(((int) accessor.Get(instance)) == 0);
+Debug.Assert(((int) type.Get(instance)) == 0);
 ```
 
 #### *Setting*
@@ -92,5 +109,37 @@ Debug.Assert(((int) accessor.Get(instance)) == 0);
 ```csharp
 accessor.Set(instance, 2); // Setting a get-only auto property.
 
-Debug.Assert(((int) accessor.Get(instance)) == 2);
+Debug.Assert(instance.Count == 2);
+```
+
+## **Methods**
+
+```csharp
+var method = type.Method(nameof(Class.Increment), typeof(int));
+```
+
+#### *Calling*
+
+```csharp
+Debug.Assert((int) accessor.Get(instance)) == 0);
+
+var result = method.Call(1);
+
+Debug.Assert((int) accessor.Get(result)) == 1);
+```
+
+## **Constructors**
+
+```csharp
+var constructor = type.Constructor(typeof(int));
+```
+
+#### *Calling*
+
+*This is much faster than using `Activator`.*
+
+```csharp
+var constructed = (Class) constructor.Call(1);
+
+Debug.Assert(constructed.Count == 1);
 ```
