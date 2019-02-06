@@ -8,7 +8,7 @@ using NullGuard;
 namespace Atko.Mirra.Images
 {
     /// <summary>
-    /// Wrapper class for <see cref="Type"/> that provides extended functionality and reflection performance.
+    /// Wrapper class for <see cref="P:Atko.Mirra.Images.TypeImage.Type" /> that provides extended functionality and reflection performance.
     /// </summary>
     public class TypeImage : MemberImage
     {
@@ -75,6 +75,7 @@ namespace Atko.Mirra.Images
                 .GetAssemblies()
                 .Where((current) => !current.IsDynamic)
                 .SelectMany((current) => current.GetTypes())
+                .Where((current) => !current.IsGenericType || current.IsGenericTypeDefinition)
                 .ToArray();
         }
 

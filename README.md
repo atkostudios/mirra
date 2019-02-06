@@ -18,7 +18,7 @@
 * Unified usage of fields and properties
 * 100% thread safe
 * Designed to work well with generic types
-* Easy iteration of inheritance trees
+* Easy iteration and query of inheritance trees
 
 # **Usage**
 
