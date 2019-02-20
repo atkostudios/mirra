@@ -20,8 +20,8 @@ namespace Atko.Mirra.Images
         public TypeImage ReturnType => Method.ReturnType;
 
         internal MethodImage(MethodInfo method) : base(method,
-            (argumentCount) => CodeGenerator.Instance.InstanceMethod(method, argumentCount),
-            (argumentCount) => CodeGenerator.Instance.StaticMethod(method, argumentCount))
+            (argumentCount) => CodeGenerator.InstanceMethod(method, argumentCount),
+            (argumentCount) => CodeGenerator.StaticMethod(method, argumentCount))
         { }
 
         /// <summary>

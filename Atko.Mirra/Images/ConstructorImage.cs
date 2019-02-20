@@ -8,7 +8,7 @@ namespace Atko.Mirra.Images
         public ConstructorInfo Constructor => (ConstructorInfo)Member;
 
         internal ConstructorImage(ConstructorInfo constructor) :
-            base(constructor, null, (argumentCount) => CodeGenerator.Instance.Constructor(constructor, argumentCount))
+            base(constructor, null, (argumentCount) => CodeGenerator.Constructor(constructor, argumentCount))
         { }
 
         /// <summary>
