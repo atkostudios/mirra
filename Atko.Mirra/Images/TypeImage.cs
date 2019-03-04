@@ -35,6 +35,7 @@ namespace Atko.Mirra.Images
         /// </summary>
         /// <param name="image">The type image to convert.</param>
         /// <returns>The associated type.</returns>
+        [return: AllowNull]
         public static implicit operator Type([AllowNull] TypeImage image) => image == null ? null : image.Type;
 
         /// <summary>
@@ -42,6 +43,7 @@ namespace Atko.Mirra.Images
         /// </summary>
         /// <param name="type">The type to convert.</param>
         /// <returns>The associated type image.</returns>
+        [return: AllowNull]
         public static implicit operator TypeImage([AllowNull] Type type) => type == null ? null : Get(type);
 
         /// <summary>
