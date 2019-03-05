@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Atko.Mirra.Utility;
@@ -131,9 +132,9 @@ namespace Atko.Mirra.Images
         /// <typeparam name="T">The type of attribute to query.</param>
         /// <param name="inherit">Set to true to query inherited attributes.</param>
         /// <returns>All attributes of the provided type.</returns>
-        public IEnumerable<Attribute> Attributes<T>(bool inherit = true) where T : class
+        public IEnumerable<T> Attributes<T>(bool inherit = true) where T : class
         {
-            return Attributes(typeof(T), inherit);
+            return Attributes(typeof(T), inherit).Cast<T>();
         }
 
         protected static void CheckException(Exception exception)
