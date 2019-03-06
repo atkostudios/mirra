@@ -113,7 +113,7 @@ namespace Atko.Mirra.Images
         /// <returns>All attributes of the provided type.</returns>
         public IEnumerable<Attribute> Attributes(Type type, bool inherit = true)
         {
-            return CustomAttributeExtensions.GetCustomAttributes(type, inherit);
+            return Member.GetCustomAttributes(type, inherit).Cast<Attribute>();
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace Atko.Mirra.Images
         /// <returns>All attributes.</returns>
         public IEnumerable<Attribute> Attributes(bool inherit = true)
         {
-            return Attributes(typeof(Attribute), inherit);
+            return Member.GetCustomAttributes(inherit).Cast<Attribute>();
         }
 
         /// <summary>
