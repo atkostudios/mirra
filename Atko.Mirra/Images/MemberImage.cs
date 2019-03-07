@@ -74,7 +74,7 @@ namespace Atko.Mirra.Images
         /// <typeparam name="T">The type of attribute to query.</typeparam>
         /// <param name="inherit">Set to true to query inherited attributes.</param>
         /// <returns>A boolean value representing if the member has an attribute of the given type.</returns>
-        public bool HasAttribute<T>(bool inherit = true) where T : class
+        public bool HasAttribute<T>(bool inherit = true)
         {
             return HasAttribute(typeof(T), inherit);
         }
