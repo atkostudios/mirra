@@ -4,8 +4,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using Atko.Mirra.Utility;
 using NullGuard;
+
+using Atko.Mirra.Utilities;
 
 namespace Atko.Mirra.Generation
 {
