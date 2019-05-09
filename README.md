@@ -100,7 +100,7 @@ var accessor = type.Accessor(nameof(Class.Count));
 
 *The value of **any** property or field can be retrieved.*
 ```csharp
-Debug.Assert(((int) type.Get(instance)) == 0);
+Debug.Assert(((int) accessor.Get(instance)) == 0);
 ```
 
 #### *Setting*
